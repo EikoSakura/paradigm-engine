@@ -693,14 +693,14 @@
     font-weight: 800;
     letter-spacing: .08em;
     text-transform: uppercase;
-    color: var(--ink);
+    color: var(--paper);
     text-align: left;
-    padding: 2px 4px;
-    border-bottom: 1.5px solid var(--line);
-    background: none;
+    padding: 3px 6px;
+    border-bottom: none;
+    background: var(--ink);
   }
   .ladder td {
-    padding: 3px 4px;
+    padding: 3px 6px;
     border-bottom: 1px dashed var(--line);
     font-weight: 500;
   }

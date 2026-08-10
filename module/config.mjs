@@ -8,7 +8,7 @@ export const LADDER = [
   { rank: "C", die: "d8", dieValue: 8, mod: 3, difficulty: 10, cssVar: "--rk-c" },
   { rank: "B", die: "d10", dieValue: 10, mod: 4, difficulty: 13, cssVar: "--rk-b" },
   { rank: "A", die: "d12", dieValue: 12, mod: 5, difficulty: 16, cssVar: "--rk-a" },
-  { rank: "S", die: "d12+1", dieValue: 14, mod: 6, difficulty: 19, cssVar: "--rk-s" }
+  { rank: "S", die: "d12+2", dieValue: 14, mod: 6, difficulty: 19, cssVar: "--rk-s" }
 ];
 
 /* Difficulties: the Ladder plus the Difficulty-only SS. */
