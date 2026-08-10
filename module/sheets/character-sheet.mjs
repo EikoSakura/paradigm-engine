@@ -32,9 +32,6 @@ export default class CharacterSheet extends BaseActorSheet {
 
   static FORM_ARRAYS = ["bonds", "luck"];
 
-  /* Hearts, Energy, and Move hold the creation range on characters. */
-  static BOUNDS = { points: { min: 3, max: 8 }, move: { min: 3, max: 8 } };
-
   /* The Character Creator button in the title bar, beside the mode toggle. */
   async _renderFrame(options) {
     const frame = await super._renderFrame(options);

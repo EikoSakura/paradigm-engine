@@ -28,9 +28,9 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
 
   static FORM_ARRAYS = ["luck"];
 
-  /* Stepper bounds for the pool maxes and Move; the character sheet
-     narrows both to the creation range. */
-  static BOUNDS = { points: { min: 1, max: Infinity }, move: { min: 0, max: Infinity } };
+  /* Stepper bounds for the pool maxes and Move: free range, floor 0.
+     The 3..8 creation trade lives in the Character Creator alone. */
+  static BOUNDS = { points: { min: 0, max: Infinity }, move: { min: 0, max: Infinity } };
 
   /* Which rank badges currently show their die or bonus face. Display state only, never stored. */
   #flipped = new Set();

@@ -9,8 +9,8 @@ export function textField() {
   return new StringField({ required: true, initial: "" });
 }
 
-/* Tiles moved as part of an action. Characters clamp 3..8 at the sheet
-   and creator; adversaries are Storyteller-set and stay free. */
+/* Tiles moved as part of an action. The 3..8 creation trade lives in the
+   Character Creator alone; sheets are free range from 0. */
 export function moveField() {
   return new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 5 });
 }
@@ -22,7 +22,7 @@ export function rulingsField() {
 export function pointsField() {
   return new SchemaField({
     value: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 6 }),
-    max: new NumberField({ required: true, nullable: false, integer: true, min: 1, initial: 6 })
+    max: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 6 })
   });
 }
 

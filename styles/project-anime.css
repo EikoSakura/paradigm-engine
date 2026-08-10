@@ -1173,8 +1173,13 @@
   .addrule {
     margin-top: 8px;
   }
+  /* Core sizes .editor-container with flex: 1 and positions .editor-content
+     absolutely inside it — the element must be a flex column with real
+     height or the editable surface collapses to nothing. */
   prose-mirror {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
     border: 2px solid var(--ink);
     border-radius: 2px;
     background: #fffdf8;
@@ -1194,7 +1199,6 @@
   }
   prose-mirror .editor-content {
     padding: 8px 10px;
-    min-height: 72px;
     font-size: 13.5px;
     color: var(--ink);
   }

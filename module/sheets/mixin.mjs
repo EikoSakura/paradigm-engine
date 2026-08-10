@@ -51,18 +51,17 @@ export default function ProjectAnimeSheet(Base) {
       if (options.submit !== false && this.isEditMode && this.form) await this.submit();
     }
 
-    /* A re-render mid-edit tears the prose editor down; carry the element,
-       and with it the unsaved text, over into the new part. The carried text
-       already sits in the element's committed value, so a later editor save
-       would see no change — submit it now instead of leaving it pending. */
-    _syncPartState(partId, newElement, priorElement, state) {
-      super._syncPartState(partId, newElement, priorElement, state);
-      for (const prior of priorElement.querySelectorAll("prose-mirror.active")) {
+    /* A re-render mid-edit would tear the open prose editor down and
+       rebuild it from stored data; carry the live element into the
+       incoming part BEFORE insertion instead. The swapped-out fresh
+       element never joins the document, so it never activates detached —
+       an editor activating outside the document throws from its menu
+       plugin and comes up dead. */
+    _preSyncPartState(partId, newElement, priorElement, state) {
+      super._preSyncPartState(partId, newElement, priorElement, state);
+      for (const prior of priorElement.querySelectorAll("prose-mirror")) {
         const next = newElement.querySelector(`prose-mirror[name="${prior.name}"]`);
-        if (!next) continue;
-        const dirty = next.value !== prior.value;
-        next.replaceWith(prior);
-        if (dirty) queueMicrotask(() => prior.dispatchEvent(new Event("change", { bubbles: true })));
+        if (next) next.replaceWith(prior);
       }
     }
 
