@@ -8,7 +8,7 @@ Target
 
 Data read per actor
 - name, img
-- system.grade: rank letter E to S
+- system.rank: rank letter E to S
 - system.hearts: value, max
 - system.energy: value, max
 - system.luck: three slots, each die (d6 to d12) + recorded value + spent
@@ -16,7 +16,7 @@ Data read per actor
 Interactions
 - Heart and Energy segments: click a segment to set the value to it; click the current top segment to drop it by one
 - Luck chips: click toggles spent
-- Grade plate: click flips letter to die (Ladder lookup)
+- Rank plate: click flips letter to die (Ladder lookup)
 - Portrait: click opens the actor sheet (stub in this mockup)
 
 Display rules
@@ -30,9 +30,9 @@ Design notes
 - Rank colors: E #8a8fa0, D #3ba55d, C #3c78d8, B #7d5cd6, A #e2632e, S gold
 - Fonts: Shippori Mincho B1 display, Zen Kaku Gothic New UI
 - Hearts and Energy render as glowing segmented bars, one clickable segment per point, beni for Hearts and gold for Energy
-- Grade renders as a rank-colored diamond plate; Luck as glass chips
+- Rank renders as a rank-colored diamond plate; Luck as glass chips
 - Beni tab on each window's title row; 1px light edge, soft blur, faint inner glow
-- Example data: three starting characters at Grade D with d6 Luck, one at Grade C with d8 Luck, one member Overwhelmed at 0 Hearts
+- Example data: three starting characters at Rank D with d6 Luck, one at Rank C with d8 Luck, one member Overwhelmed at 0 Hearts
 - Dark backdrop below stands in for the Foundry canvas
 -->
 <!DOCTYPE html>
@@ -296,16 +296,16 @@ Design notes
   };
 
   const MEMBERS = [
-    { name:'Akira', grade:'D', showDie:false,
+    { name:'Akira', rank:'D', showDie:false,
       hearts:{value:4, max:6}, energy:{value:2, max:6},
       luck:[ {die:'d6', value:5, spent:false}, {die:'d6', value:3, spent:true}, {die:'d6', value:1, spent:false} ] },
-    { name:'Mio', grade:'D', showDie:false,
+    { name:'Mio', rank:'D', showDie:false,
       hearts:{value:6, max:6}, energy:{value:6, max:6},
       luck:[ {die:'d6', value:6, spent:false}, {die:'d6', value:2, spent:false}, {die:'d6', value:2, spent:false} ] },
-    { name:'Kenji', grade:'D', showDie:false,
+    { name:'Kenji', rank:'D', showDie:false,
       hearts:{value:0, max:6}, energy:{value:1, max:6},
       luck:[ {die:'d6', value:4, spent:true}, {die:'d6', value:4, spent:true}, {die:'d6', value:2, spent:false} ] },
-    { name:'Sora', grade:'C', showDie:false,
+    { name:'Sora', rank:'C', showDie:false,
       hearts:{value:5, max:6}, energy:{value:5, max:6},
       luck:[ {die:'d8', value:7, spent:false}, {die:'d8', value:5, spent:false}, {die:'d8', value:2, spent:false} ] }
   ];
@@ -349,13 +349,13 @@ Design notes
 
       const plate = document.createElement('button');
       plate.className = 'plate' + (m.showDie ? ' die' : '');
-      plate.title = 'Grade';
-      plate.style.border = '1.5px solid ' + RANK_COLOR[m.grade];
-      plate.style.boxShadow = '0 0 6px ' + RANK_COLOR[m.grade];
+      plate.title = 'Rank';
+      plate.style.border = '1.5px solid ' + RANK_COLOR[m.rank];
+      plate.style.boxShadow = '0 0 6px ' + RANK_COLOR[m.rank];
       const txt = document.createElement('span');
       txt.className = 'txt';
-      txt.style.color = RANK_COLOR[m.grade];
-      txt.textContent = m.showDie ? LADDER[m.grade] : m.grade;
+      txt.style.color = RANK_COLOR[m.rank];
+      txt.textContent = m.showDie ? LADDER[m.rank] : m.rank;
       plate.appendChild(txt);
       plate.addEventListener('click', () => { m.showDie = !m.showDie; render(); });
       top.appendChild(plate);

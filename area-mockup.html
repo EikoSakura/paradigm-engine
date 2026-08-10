@@ -1,0 +1,410 @@
+<!--
+AREAS, mockup
+Project: Anime, Foundry V14 system
+
+TARGET
+- system.area, a checkbox on Techniques AND Traits. Edit mode: an Area
+  checkbox in the item header's chip row. View mode: an Area chip beside
+  the kind and cost chips; Traits carry just the Area chip.
+- Clicking the Area chip — item sheet, sheet card, or chat card — opens the
+  Size dialog: a stepper from 1 to the item's Die Value, defaulting to the
+  Die Value, counted in Tiles. Place starts a canvas preview; a click drops
+  the template, Escape cancels.
+- The template is a real MeasuredTemplate circle of Size/2 tiles,
+  grid-shaped, so the cardinal rule draws the diamond of tiles no wider
+  than Size from the point of origin. The core template tools move and
+  delete it as normal.
+- Rules stay at the table, no automation: everything covered is a target,
+  one roll for the whole area compared to each Difficulty within, Tension
+  and the Spotlight read the highest Difficulty among the targets. The
+  origin sits within the Technique's reach (its Die Value in tiles),
+  unenforced.
+
+INTERACTIONS
+- View/Edit toggle flips the item headers; the Area checkbox adds and
+  removes the chip live.
+- The dialog stepper runs 1 to the Die Value (Rank D here, 6) and the
+  board redraws the covered tiles as it steps.
+
+DESIGN NOTES
+- Tokens: ink #221a36, paper #f7f2e7, paper-2 #ece4d1, beni #d92b48,
+  gold #d9a13b. Fonts: Shippori Mincho B1 display, Zen Kaku Gothic New UI.
+- The Area chip wears paper with an ink border, matching the kind chip.
+- Even widths anchor the origin on a tile corner, odd widths on a tile
+  center; covered tiles count cardinal, the Fire Emblem diamond.
+- Shared chrome as the other mockups: title bar, obi with beni spine,
+  panels with hard offset shadows, screentone corners.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project: Anime, Areas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#221a36; --paper:#f7f2e7; --paper2:#ece4d1; --beni:#d92b48; --gold:#d9a13b;
+  --rk-d:#3ba55d;
+  --disp:'Shippori Mincho B1',serif; --ui:'Zen Kaku Gothic New',sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--paper2); font-family:var(--ui); color:var(--ink);
+  padding:28px 16px 48px;
+}
+.app{
+  max-width:880px; margin:0 auto; background:var(--paper);
+  border:2px solid var(--ink); box-shadow:6px 6px 0 var(--ink);
+}
+button{font-family:var(--ui); cursor:pointer;}
+button:focus-visible{outline:2px solid var(--beni); outline-offset:2px;}
+input:focus-visible{outline:2px solid var(--beni); outline-offset:1px;}
+
+/* ---------- title bar / obi ---------- */
+.titlebar{
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:12px; padding:0 14px; height:42px;
+}
+.dots{display:flex; gap:6px;}
+.dots span{width:10px; height:10px; border-radius:50%;}
+.dots span:nth-child(1){background:var(--beni);}
+.dots span:nth-child(2){background:var(--gold);}
+.dots span:nth-child(3){background:var(--paper);}
+.titlebar .brand{font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase;}
+.titlebar .sheetname{
+  margin-left:auto; font-weight:700; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; opacity:.85;
+}
+.obi{
+  position:relative; background:var(--ink); color:var(--paper);
+  padding:20px 24px 22px 34px; overflow:hidden;
+}
+.obi::before{content:""; position:absolute; left:0; top:0; bottom:0; width:10px; background:var(--beni);}
+.obi::after{content:""; position:absolute; left:10px; top:0; bottom:0; width:1px; background:var(--paper);}
+.obi .tone{
+  position:absolute; right:-20px; top:-20px; width:240px; height:140px;
+  background-image:radial-gradient(rgba(247,242,231,.28) 1.6px, transparent 1.6px);
+  background-size:11px 11px; transform:rotate(-8deg); pointer-events:none;
+}
+.obi .eyebrow{
+  font-size:10px; font-weight:900; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:6px;
+}
+.obi h1{font-family:var(--disp); font-weight:800; font-size:34px; line-height:1.05; letter-spacing:.02em;}
+
+/* ---------- stage & panels ---------- */
+.stage{padding:24px; display:flex; flex-direction:column; gap:26px;}
+.panel{border:2px solid var(--ink); background:var(--paper); box-shadow:5px 5px 0 var(--ink);}
+.panel-head{
+  position:relative; background:var(--ink); color:var(--paper);
+  padding:8px 14px; font-weight:900; font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; overflow:hidden;
+}
+.panel-head::after{
+  content:""; position:absolute; right:-8px; top:-8px; width:90px; height:44px;
+  background-image:radial-gradient(rgba(247,242,231,.3) 1.3px, transparent 1.3px);
+  background-size:8px 8px; transform:rotate(-8deg);
+}
+.panel-head .side{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  font-size:10px; letter-spacing:.14em; color:var(--gold); z-index:1;
+}
+.panel-body{padding:18px;}
+label{
+  font-size:10px; font-weight:900; letter-spacing:.2em;
+  text-transform:uppercase;
+}
+
+/* ---------- mode toggle ---------- */
+.seg{display:flex; border:2px solid var(--ink); width:max-content; margin-bottom:16px;}
+.seg button{
+  background:var(--paper); border:none; padding:6px 12px; font-size:10px;
+  font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:var(--ink);
+}
+.seg button.on{background:var(--ink); color:var(--paper);}
+
+/* ---------- item headers ---------- */
+.iheads{display:flex; flex-direction:column; gap:14px; max-width:560px;}
+.ihead{
+  position:relative; background:var(--ink); color:var(--paper);
+  padding:14px 16px 14px 24px; overflow:hidden;
+  display:flex; align-items:center; gap:14px;
+  border:2px solid var(--ink); box-shadow:3px 3px 0 rgba(34,26,54,.3);
+}
+.ihead::before{content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background:var(--beni);}
+.ihead .idblock{flex:1; min-width:0;}
+.ihead .eyebrow{
+  font-size:9px; font-weight:900; letter-spacing:.26em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:4px;
+}
+.ihead .iname-input{
+  width:100%; background:transparent; border:none; border-bottom:2px solid rgba(247,242,231,.4);
+  color:var(--paper); font-family:var(--disp); font-weight:800; font-size:18px; padding:2px 0;
+}
+.ihead .iname{font-family:var(--disp); font-weight:800; font-size:18px; min-height:26px;}
+.chips{display:flex; gap:8px; margin-top:8px; align-items:center; flex-wrap:wrap;}
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  border:1.5px solid var(--paper); color:var(--paper); background:transparent;
+  font-size:10px; font-weight:900; letter-spacing:.16em; text-transform:uppercase;
+  padding:3px 8px;
+}
+.chip.gold{background:var(--gold); border-color:var(--gold); color:var(--ink);}
+.chip.area{background:var(--paper); color:var(--ink); border-color:var(--paper);}
+button.chip.area{cursor:pointer;}
+.chip.check input{accent-color:var(--beni); width:13px; height:13px; margin:0; cursor:pointer;}
+.kindsel{
+  background:var(--paper); border:1.5px solid var(--paper); color:var(--ink);
+  font-size:10px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; padding:3px 6px;
+}
+.sealwrap{flex:none;}
+.iseal{
+  width:56px; height:56px; border-radius:50%; background:var(--paper);
+  border:2.5px solid var(--beni); box-shadow:0 0 0 2px var(--paper);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-4deg);
+}
+.iseal .g{font-family:var(--disp); font-weight:800; font-size:24px; color:var(--beni); line-height:1;}
+.iseal .l{font-size:7px; font-weight:900; letter-spacing:.2em; text-transform:uppercase; color:var(--ink);}
+
+/* ---------- size dialog ---------- */
+.dialogwrap{display:flex; gap:26px; align-items:flex-start; flex-wrap:wrap;}
+.szdialog{
+  width:240px; flex:none; border:2px solid var(--ink); background:var(--paper);
+  box-shadow:4px 4px 0 var(--ink);
+}
+.szdialog .dtitle{
+  background:var(--ink); color:var(--paper); padding:6px 12px;
+  font-weight:900; font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+}
+.szdialog .dbody{padding:16px; display:flex; flex-direction:column; gap:14px;}
+.szrow{display:flex; align-items:center; gap:10px;}
+.szrow label{flex:1;}
+.szrow .stepper{display:flex; gap:6px; align-items:center;}
+.szrow .stepper button{
+  width:26px; height:26px; border:2px solid var(--ink); background:var(--paper);
+  font-weight:900; font-size:14px; line-height:1; color:var(--ink);
+}
+.szrow .stepper button:disabled{opacity:.3; cursor:default;}
+.szval{
+  width:34px; height:34px; border:2px solid var(--ink); border-radius:6px; background:var(--paper);
+  font-family:var(--disp); font-weight:800; font-size:18px;
+  display:grid; place-items:center;
+}
+.sztiles{font-size:10px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:rgba(34,26,54,.62);}
+.placebtn{
+  border:2px solid var(--ink); background:var(--beni); color:var(--paper);
+  font-weight:900; font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  padding:9px 12px; box-shadow:3px 3px 0 var(--ink);
+}
+.placebtn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+
+/* ---------- board ---------- */
+.board{
+  position:relative; width:max-content; border:2px solid var(--ink);
+  background:var(--paper2); box-shadow:4px 4px 0 var(--ink); padding:10px;
+}
+.grid{
+  position:relative;
+  display:grid; grid-template-columns:repeat(8, 30px); grid-auto-rows:30px; gap:0;
+}
+.cell{border:1px solid rgba(34,26,54,.25); background:var(--paper);}
+.cell.cover{background:rgba(217,43,72,.32); border-color:rgba(217,43,72,.6);}
+.origin{
+  position:absolute; width:10px; height:10px; border-radius:50%;
+  background:var(--gold); border:2px solid var(--ink);
+  transform:translate(-50%,-50%); pointer-events:none;
+}
+
+@media (max-width:640px){
+  .obi h1{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="titlebar">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="brand">Project: Anime</div>
+    <div class="sheetname">Areas</div>
+  </div>
+
+  <div class="obi">
+    <div class="tone"></div>
+    <div class="eyebrow">Mockup</div>
+    <h1>Areas</h1>
+  </div>
+
+  <div class="stage">
+
+    <!-- ITEM HEADERS -->
+    <div class="panel">
+      <div class="panel-head">Item Sheet · Area Chip</div>
+      <div class="panel-body">
+        <div class="seg" id="modeSeg">
+          <button class="on" data-mode="view">View</button>
+          <button data-mode="edit">Edit</button>
+        </div>
+        <div class="iheads">
+
+          <div class="ihead" id="techHead">
+            <div class="idblock">
+              <div class="eyebrow">Technique</div>
+              <input class="iname-input editonly" type="text" placeholder="Name" aria-label="Name">
+              <div class="iname viewonly"></div>
+              <div class="chips" id="techChips"></div>
+            </div>
+            <div class="sealwrap"><div class="iseal"><span class="g">D</span><span class="l">Rank</span></div></div>
+          </div>
+
+          <div class="ihead" id="traitHead">
+            <div class="idblock">
+              <div class="eyebrow">Trait</div>
+              <input class="iname-input editonly" type="text" placeholder="Name" aria-label="Name">
+              <div class="iname viewonly"></div>
+              <div class="chips" id="traitChips"></div>
+            </div>
+            <div class="sealwrap"><div class="iseal"><span class="g">D</span><span class="l">Rank</span></div></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- SIZE DIALOG + BOARD -->
+    <div class="panel">
+      <div class="panel-head">Size Dialog · The Burst<span class="side">1 To Die Value · Default Die Value</span></div>
+      <div class="panel-body">
+        <div class="dialogwrap">
+
+          <div class="szdialog">
+            <div class="dtitle">Area</div>
+            <div class="dbody">
+              <div class="szrow">
+                <label for="szDown">Size</label>
+                <span class="stepper">
+                  <button type="button" id="szDown" aria-label="Smaller">−</button>
+                  <span class="szval" id="szVal">6</span>
+                  <button type="button" id="szUp" aria-label="Larger">＋</button>
+                </span>
+                <span class="sztiles">Tiles</span>
+              </div>
+              <button type="button" class="placebtn">Place</button>
+            </div>
+          </div>
+
+          <div class="board">
+            <div class="grid" id="grid"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ---------- item headers ---------- */
+const state = { editing:false, tech:{ area:true }, trait:{ area:true } };
+
+function chipRow(el, item, isTech){
+  el.innerHTML = "";
+  if(state.editing){
+    if(isTech){
+      const sel = document.createElement("select");
+      sel.className = "kindsel";
+      sel.setAttribute("aria-label", "Kind");
+      ["Activated","Triggered"].forEach(k=>{
+        const o = document.createElement("option"); o.textContent = k; sel.append(o);
+      });
+      el.append(sel);
+      const cost = document.createElement("span");
+      cost.className = "chip gold"; cost.textContent = "Energy 2";
+      el.append(cost);
+    }
+    const check = document.createElement("label");
+    check.className = "chip check area";
+    const box = document.createElement("input");
+    box.type = "checkbox"; box.checked = item.area;
+    box.addEventListener("change", ()=>{ item.area = box.checked; });
+    check.append(box, document.createTextNode("Area"));
+    el.append(check);
+  } else {
+    if(isTech){
+      const kind = document.createElement("span");
+      kind.className = "chip"; kind.textContent = "Activated";
+      el.append(kind);
+      const cost = document.createElement("span");
+      cost.className = "chip gold"; cost.textContent = "Energy 2";
+      el.append(cost);
+    }
+    if(item.area){
+      const chip = document.createElement("button");
+      chip.type = "button"; chip.className = "chip area"; chip.textContent = "Area";
+      chip.setAttribute("aria-label", "Area");
+      el.append(chip);
+    }
+  }
+}
+
+function renderHeads(){
+  document.querySelectorAll(".editonly").forEach(e=>e.style.display = state.editing ? "" : "none");
+  document.querySelectorAll(".viewonly").forEach(e=>e.style.display = state.editing ? "none" : "");
+  chipRow(document.getElementById("techChips"), state.tech, true);
+  chipRow(document.getElementById("traitChips"), state.trait, false);
+}
+document.getElementById("modeSeg").querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    state.editing = b.dataset.mode === "edit";
+    document.getElementById("modeSeg").querySelectorAll("button")
+      .forEach(x=>x.classList.toggle("on", x===b));
+    renderHeads();
+  });
+});
+
+/* ---------- size dialog + board ---------- */
+const DIE_VALUE = 6;
+let size = DIE_VALUE;
+const COLS = 8, ROWS = 8;
+const grid = document.getElementById("grid");
+
+function renderBoard(){
+  document.getElementById("szVal").textContent = size;
+  document.getElementById("szDown").disabled = size <= 1;
+  document.getElementById("szUp").disabled = size >= DIE_VALUE;
+  grid.innerHTML = "";
+  const even = size % 2 === 0;
+  /* Origin: a tile corner for even widths, a tile center for odd. */
+  const oc = even ? COLS / 2 : (COLS - 1) / 2 + 0.5;
+  const or = even ? ROWS / 2 : (ROWS - 1) / 2 + 0.5;
+  const reach = size / 2;
+  for(let r = 0; r < ROWS; r++){
+    for(let c = 0; c < COLS; c++){
+      const cell = document.createElement("div");
+      const dx = Math.abs(c + 0.5 - oc), dy = Math.abs(r + 0.5 - or);
+      cell.className = "cell" + (dx + dy <= reach ? " cover" : "");
+      grid.append(cell);
+    }
+  }
+  let dot = document.getElementById("originDot");
+  if(!dot){
+    dot = document.createElement("div");
+    dot.id = "originDot"; dot.className = "origin";
+    grid.append(dot);
+  } else grid.append(dot);
+  dot.style.left = (oc * 30) + "px";
+  dot.style.top = (or * 30) + "px";
+}
+document.getElementById("szDown").addEventListener("click", ()=>{ if(size > 1){ size--; renderBoard(); } });
+document.getElementById("szUp").addEventListener("click", ()=>{ if(size < DIE_VALUE){ size++; renderBoard(); } });
+
+renderHeads(); renderBoard();
+</script>
+</body>
+</html>

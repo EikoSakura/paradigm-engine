@@ -7,7 +7,6 @@ import AdversarySheet from "./sheets/adversary-sheet.mjs";
 import ProjectAnimeItemSheet from "./sheets/item-sheet.mjs";
 import { registerSplash } from "./apps/splash.mjs";
 import { registerLuck } from "./apps/luck-picker.mjs";
-import { registerOpenings } from "./apps/opening.mjs";
 import { registerTension } from "./apps/tension.mjs";
 import { registerTracks } from "./apps/tracks.mjs";
 import { registerPartyHud } from "./apps/party-hud.mjs";
@@ -18,12 +17,12 @@ import { registerCombat } from "./combat.mjs";
 import { registerTokenDefaults } from "./tokens.mjs";
 import { registerEncounterTracker } from "./apps/encounter-tracker.mjs";
 import { registerDistance } from "./apps/distance.mjs";
+import { registerAreas } from "./apps/area.mjs";
 import { registerMigrations } from "./migrations.mjs";
 
 Hooks.once("init", () => {
   registerSplash();
   registerLuck();
-  registerOpenings();
   registerTension();
   registerTracks();
   registerPartyHud();
@@ -34,6 +33,7 @@ Hooks.once("init", () => {
   registerTokenDefaults();
   registerEncounterTracker();
   registerDistance();
+  registerAreas();
   registerMigrations();
 
   CONFIG.Actor.dataModels.character = CharacterData;

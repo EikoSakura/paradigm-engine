@@ -35,7 +35,7 @@
     },
     "Header": {
       "Character": "Character",
-      "Grade": "Grade",
+      "Rank": "Rank",
       "Age": "Age",
       "Player": "Player",
       "Name": "Name",
@@ -44,6 +44,8 @@
     "Vitals": {
       "Hearts": "Hearts",
       "Energy": "Energy",
+      "Move": "Move",
+      "Tiles": "Tiles",
       "LuckDice": "Luck Dice",
       "Ready": "Ready",
       "Spent": "Spent"
@@ -61,7 +63,7 @@
       "DesireFear": "Desire & Fear"
     },
     "Ladder": {
-      "RankGrade": "Rank/Grade",
+      "Rank": "Rank",
       "Die": "Die",
       "Trait": "Trait",
       "Difficulty": "Difficulty"
@@ -81,8 +83,15 @@
     "Item": {
       "Rank": "Rank",
       "Kind": "Kind",
+      "Area": "Area",
       "Description": "Description",
       "Rulings": "Rulings"
+    },
+    "Area": {
+      "Size": "Size",
+      "Place": "Place",
+      "Smaller": "Smaller",
+      "Larger": "Larger"
     },
     "Technique": {
       "Activated": "Activated",
@@ -101,13 +110,6 @@
     "Luck": {
       "Title": "Spend Luck"
     },
-    "Opening": {
-      "Label": "Opening",
-      "Energy": "+1 Energy",
-      "Luck": "Shift Luck",
-      "EnergyLine": "Opening · Energy +1",
-      "LuckLine": "Opening · Luck {from} ▸ {to}"
-    },
     "Roll": {
       "Title": "Action Roll",
       "SecondDie": "Second Die",
@@ -124,22 +126,24 @@
       "LimitBreakTag": "Limit Break {n}"
     },
     "Band": {
-      "Clean": "Clean",
+      "Critical": "Critical Success",
       "Success": "Success",
       "Failure": "Failure",
       "Fumble": "Fumble"
     },
     "Rider": {
       "Tension": "The Storyteller gains 1 Tension.",
+      "Tension2": "The Storyteller gains 2 Tension.",
       "Spotlight": "The Spotlight passes.",
-      "Luck": "Luck Dice cannot change this roll."
+      "Luck": "Luck Dice cannot alter this roll."
     },
     "Tension": {
       "Menu": "Tension",
       "Configure": "Configure",
       "Label": "Tension",
       "Raise": "Gain 1 Tension",
-      "GainLine": "The Storyteller gains 1 Tension.",
+      "Raise2": "Gain 2 Tension",
+      "GainLine": "The Storyteller gains {n} Tension.",
       "Gained": "Gained",
       "Full": "Tension Full",
       "Announce": "Announce to Chat",
@@ -192,7 +196,7 @@
       "Begin": "Begin the Encounter",
       "End": "End the Encounter",
       "None": "No encounter.",
-      "GradeTitle": "Grade {rank} · Difficulty {number}"
+      "RankTitle": "Rank {rank} · Difficulty {number}"
     },
     "TechBar": {
       "Label": "Techniques",
@@ -221,8 +225,9 @@
       "RankTech": "Rank Up Technique",
       "NewHeart": "New Heart",
       "NewEnergy": "New Energy",
+      "Move": "+1 Move",
       "Luck": "Rank Up Luck Dice",
-      "Grade": "Rank Up Grade",
+      "Rank": "Rank Up Rank",
       "Attribute": "Rank Up Attribute"
     },
     "Profile": {
@@ -239,16 +244,17 @@
       "Remove": "Remove",
       "RaiseMax": "Raise Max",
       "LowerMax": "Lower Max",
+      "RaiseMove": "Raise Move",
+      "LowerMove": "Lower Move",
       "LuckValue": "Recorded Value",
       "AddTrait": "+ New Trait",
       "AddTechnique": "+ New Technique",
       "AddBond": "+ New Bond",
-      "BondNumber": "Bond Number"
+      "BondRank": "Bond Rank"
     },
     "Placeholder": {
       "Ruling": "Ruling",
-      "BondName": "Bond Name",
-      "Description": "Description"
+      "BondName": "Bond Name"
     },
     "Creator": {
       "Title": "Character Creator",
@@ -260,9 +266,8 @@
       "AttributesSide": "All Start at E, Cap C",
       "TraitsSide": "Two, Rank D",
       "TechniquesSide": "Two, Rank E",
-      "BondSide": "One",
-      "Number": "Number",
-      "Sentence": "Sentence",
+      "BondSide": "One, Rank E",
+      "Free": "Free",
       "Roll": "Roll 3d6",
       "Back": "Back",
       "Next": "Next",
@@ -270,13 +275,8 @@
     },
     "Distance": {
       "Engaged": "Engaged",
-      "Near": "Near",
-      "Far": "Far",
-      "Distant": "Distant",
-      "Sight": "Sight",
-      "Beyond": "Beyond",
-      "RingsSetting": "Threshold Rings While Dragging",
-      "UnitsSetting": "Exact Units on the Range Line"
+      "Tile": "{n} Tile",
+      "Tiles": "{n} Tiles"
     },
     "Builder": {
       "Title": "Adversary Builder",

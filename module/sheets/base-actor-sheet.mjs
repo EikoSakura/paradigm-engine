@@ -2,6 +2,7 @@ import ProjectAnimeSheet from "./mixin.mjs";
 import { LADDER, ATTRIBUTES } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
+import { openItemArea } from "../apps/area.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 
@@ -15,15 +16,21 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
       toggleLuck: this.#onToggleLuck,
       stepRank: this.#onStepRank,
       stepMax: this.#onStepMax,
+      stepMove: this.#onStepMove,
       createItem: this.#onCreateItem,
       openItem: this.#onOpenItem,
       deleteItem: this.#onDeleteItem,
       postItem: this.#onPostItem,
-      openRoll: this.#onOpenRoll
+      openRoll: this.#onOpenRoll,
+      openArea: this.#onOpenArea
     }
   };
 
   static FORM_ARRAYS = ["luck"];
+
+  /* Stepper bounds for the pool maxes and Move; the character sheet
+     narrows both to the creation range. */
+  static BOUNDS = { points: { min: 1, max: Infinity }, move: { min: 0, max: Infinity } };
 
   /* Which rank badges currently show their die or bonus face. Display state only, never stored. */
   #flipped = new Set();
@@ -31,7 +38,7 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const system = this.document.system;
-    const grade = LADDER[system.grade];
+    const rank = LADDER[system.rank];
 
     context.system = system;
     context.editMode = this.isEditMode;
@@ -39,9 +46,10 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
     context.img = this.document.img;
     context.portrait = this.document.img === foundry.documents.BaseActor.DEFAULT_ICON ? "" : this.document.img;
     context.initial = (this.document.name || "?").trim().charAt(0).toUpperCase() || "?";
-    context.grade = { letter: grade.rank, number: grade.grade, cssVar: grade.cssVar };
+    context.rank = { letter: rank.rank, number: rank.difficulty, cssVar: rank.cssVar };
     context.hearts = { ...system.hearts, pips: BaseActorSheet.#pips(system.hearts) };
     context.energy = { ...system.energy, pips: BaseActorSheet.#pips(system.energy) };
+    context.move = system.move;
     context.luck = system.luck.map(slot => ({
       ...slot,
       stateLabel: game.i18n.localize(slot.spent ? "PROJECTANIME.Vitals.Spent" : "PROJECTANIME.Vitals.Ready")
@@ -52,7 +60,7 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
       key: a.key,
       name: game.i18n.localize(a.label),
       desc: game.i18n.localize(a.desc),
-      badge: this.#badge(`attributes.${a.key}`, system.attributes[a.key], "die")
+      badge: this._badge(`attributes.${a.key}`, system.attributes[a.key], "die")
     }));
     context.ladder = LADDER;
     context.traits = await this.#prepareItems("trait");
@@ -90,8 +98,9 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
       const card = {
         id: item.id,
         name: item.name,
+        area: item.system.area,
         rulings: item.system.rulings,
-        badge: this.#badge(`${type}.${item.id}`, item.system.rank, isTechnique ? "die" : "mod"),
+        badge: this._badge(`${type}.${item.id}`, item.system.rank, isTechnique ? "die" : "mod"),
         enrichedText: await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.text, {
           relativeTo: item,
           secrets: this.document.isOwner
@@ -110,7 +119,7 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
     return Array.from({ length: max }, (_, i) => i < value);
   }
 
-  #badge(key, rankIndex, face) {
+  _badge(key, rankIndex, face) {
     const step = LADDER[rankIndex];
     const flipped = this.#flipped.has(key);
     const text = flipped ? (face === "mod" ? `+${step.mod}` : step.die) : step.rank;
@@ -147,8 +156,8 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
     const dir = Number(target.dataset.dir);
     const step = v => Math.min(5, Math.max(0, v + dir));
     const { kind, key } = target.dataset;
-    if (kind === "grade") {
-      await this.document.update({ "system.grade": step(this.document.system.grade) });
+    if (kind === "rank") {
+      await this.document.update({ "system.rank": step(this.document.system.rank) });
     } else if (kind === "attribute" && key in this.document.system.attributes) {
       await this.document.update({ [`system.attributes.${key}`]: step(this.document.system.attributes[key]) });
     }
@@ -158,12 +167,20 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
     if (!this.isEditable) return;
     const kind = target.dataset.kind;
     if (kind !== "hearts" && kind !== "energy") return;
+    const bounds = this.constructor.BOUNDS.points;
     const { value, max } = this.document.system[kind];
-    const newMax = Math.max(1, max + Number(target.dataset.dir));
+    const newMax = Math.min(bounds.max, Math.max(bounds.min, max + Number(target.dataset.dir)));
     await this.document.update({
       [`system.${kind}.max`]: newMax,
       [`system.${kind}.value`]: Math.min(value, newMax)
     });
+  }
+
+  static async #onStepMove(event, target) {
+    if (!this.isEditable) return;
+    const bounds = this.constructor.BOUNDS.move;
+    const move = Math.min(bounds.max, Math.max(bounds.min, this.document.system.move + Number(target.dataset.dir)));
+    await this.document.update({ "system.move": move });
   }
 
   static async #onCreateItem(event, target) {
@@ -195,5 +212,10 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
       ? { kind: "technique", id: target.dataset.itemId }
       : { kind: "attribute", key: target.dataset.key };
     RollDialog.open(this.document, first);
+  }
+
+  static #onOpenArea(event, target) {
+    const item = this.document.items.get(target.dataset.itemId);
+    if (item) openItemArea(item);
   }
 }

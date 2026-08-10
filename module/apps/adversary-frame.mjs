@@ -3,7 +3,7 @@
    every client and open through play. Cards appear and leave with their
    tokens and follow scene changes; tokens hidden from players keep
    their cards off player clients. Only the Storyteller's clicks write;
-   the Grade plate flip is per-client display state. */
+   the Rank plate flip is per-client display state. */
 
 import { LADDER } from "../config.mjs";
 
@@ -82,13 +82,13 @@ class AdversaryFrame extends HandlebarsApplicationMixin(ApplicationV2) {
 
   #member(token) {
     const actor = token.actor;
-    const ladder = LADDER[actor.system.grade];
+    const ladder = LADDER[actor.system.rank];
     const flipped = this.#flipped.has(token.id);
     return {
       id: token.id,
       name: actor.name,
       img: actor.img,
-      plate: { text: flipped ? ladder.grade : ladder.rank, cssVar: ladder.cssVar },
+      plate: { text: flipped ? ladder.difficulty : ladder.rank, cssVar: ladder.cssVar },
       overwhelmed: actor.system.hearts.value === 0,
       hearts: AdversaryFrame.#segments(actor.system.hearts),
       energy: AdversaryFrame.#segments(actor.system.energy),

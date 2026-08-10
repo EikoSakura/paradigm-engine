@@ -23,7 +23,7 @@ UP NEXT
 
 ROWS
 - Portrait (initial monogram in the mockup; token image in Foundry), name.
-- Storyteller-side rows carry the Grade plate. Click flips the rank letter and its Difficulty number: E 4, D 7, C 10, B 13, A 16, S 19. Party rows carry no Grade plate.
+- Storyteller-side rows carry the Rank plate. Click flips the rank letter and its Difficulty number: E 4, D 7, C 10, B 13, A 16, S 19. Party rows carry no Rank plate.
 - The holder's row gets the beni spine and glow.
 
 PERMISSIONS
@@ -40,7 +40,7 @@ DESIGN NOTES
 
 DEMO ONLY
 - The view toggle above the panel and the example data are demo scaffolding, not part of the build.
-- Example data: party Aoi, Renji, Mio, Hikaru; Storyteller side The Crab Army (Grade E), The Crab King (Grade C, hidden at load). Renji holds the Spotlight; Mio and Hikaru have raised hands.
+- Example data: party Aoi, Renji, Mio, Hikaru; Storyteller side The Crab Army (Rank E), The Crab King (Rank C, hidden at load). Renji holds the Spotlight; Mio and Hikaru have raised hands.
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -257,8 +257,8 @@ DEMO ONLY
       { id:'renji',    name:'Renji',         side:'party', raised:false, order:0, down:false, hidden:false },
       { id:'mio',      name:'Mio',           side:'party', raised:true,  order:1, down:false, hidden:false },
       { id:'hikaru',   name:'Hikaru',        side:'party', raised:true,  order:2, down:false, hidden:false },
-      { id:'crabarmy', name:'The Crab Army', side:'st', grade:'E', showNum:false, raised:false, order:0, down:false, hidden:false },
-      { id:'crabking', name:'The Crab King', side:'st', grade:'C', showNum:false, raised:false, order:0, down:false, hidden:true  }
+      { id:'crabarmy', name:'The Crab Army', side:'st', rank:'E', showNum:false, raised:false, order:0, down:false, hidden:false },
+      { id:'crabking', name:'The Crab King', side:'st', rank:'C', showNum:false, raised:false, order:0, down:false, hidden:true  }
     ]
   };
 
@@ -337,13 +337,13 @@ DEMO ONLY
     return n;
   }
 
-  function gradePlate(c){
+  function rankPlate(c){
     const g = el('button', 'gplate' + (c.showNum ? ' num' : ''));
-    g.style.borderColor = RANKC[c.grade];
-    g.style.color = RANKC[c.grade];
-    g.title = 'Grade ' + c.grade + ' \u00b7 Difficulty ' + LADDER[c.grade];
-    const s = el('span', null, c.showNum ? String(LADDER[c.grade]) : c.grade);
-    s.style.color = RANKC[c.grade];
+    g.style.borderColor = RANKC[c.rank];
+    g.style.color = RANKC[c.rank];
+    g.title = 'Rank ' + c.rank + ' \u00b7 Difficulty ' + LADDER[c.rank];
+    const s = el('span', null, c.showNum ? String(LADDER[c.rank]) : c.rank);
+    s.style.color = RANKC[c.rank];
     g.appendChild(s);
     g.addEventListener('click', () => flip(c.id));
     return g;
@@ -414,7 +414,7 @@ DEMO ONLY
     if (c.down) row.classList.add('down');
     if (c.hidden) row.classList.add('ghost');
 
-    if (c.side === 'st') row.appendChild(gradePlate(c));
+    if (c.side === 'st') row.appendChild(rankPlate(c));
     row.appendChild(el('div', 'pfp', initials(c.name)));
     row.appendChild(el('div', 'nm', c.name));
 

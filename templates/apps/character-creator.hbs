@@ -131,24 +131,7 @@
               <label for="cc-bond-name">{{localize "PROJECTANIME.Header.Name"}}</label>
               <input type="text" id="cc-bond-name" name="bond.name" value="{{bond.name}}">
             </div>
-            <div>
-              <span class="plabel">{{localize "PROJECTANIME.Creator.Number"}}</span>
-              <div class="bond-num">
-                <span class="stepper">
-                  <button type="button" data-action="stepBond" data-dir="-1"
-                    aria-label="{{localize "PROJECTANIME.Roll.StepDown"}}"{{#if bond.downDisabled}} disabled{{/if}}>−</button>
-                </span>
-                <div class="val">{{bond.number}}</div>
-                <span class="stepper">
-                  <button type="button" data-action="stepBond" data-dir="1"
-                    aria-label="{{localize "PROJECTANIME.Roll.StepUp"}}"{{#if bond.upDisabled}} disabled{{/if}}>＋</button>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label for="cc-bond-text">{{localize "PROJECTANIME.Creator.Sentence"}}</label>
-            <input type="text" id="cc-bond-text" name="bond.text" value="{{bond.text}}">
+            {{> "systems/project-anime/templates/actor/badge.hbs" bond.badge}}
           </div>
         </div>
       </div>
@@ -159,28 +142,51 @@
         <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Creator.Finishing"}}</span></div>
         <div class="panel-b">
           <div class="finish">
-            <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Header.Grade"}}">
+            <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Header.Rank"}}">
               <span class="g">{{seal.text}}</span>
               <span class="lbl">{{seal.label}}</span>
             </button>
             <div class="pools">
-              <div class="pool-row">
+              <div class="free"><span class="n">{{free}}</span><span class="t">{{localize "PROJECTANIME.Creator.Free"}}</span></div>
+              <div class="pool-row trade">
                 <span class="plabel">{{localize "PROJECTANIME.Vitals.Hearts"}}</span>
                 <div class="pips">
-                  {{#each pips}}
+                  {{#each pools.hearts.pips}}
                   <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape heart" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
                   {{/each}}
                 </div>
+                <span class="stepper">
+                  <button type="button" data-action="stepPool" data-pool="hearts" data-dir="-1"
+                    aria-label="{{localize "PROJECTANIME.Edit.LowerMax"}}"{{#if pools.hearts.downDisabled}} disabled{{/if}}>−</button>
+                  <button type="button" data-action="stepPool" data-pool="hearts" data-dir="1"
+                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMax"}}"{{#if pools.hearts.upDisabled}} disabled{{/if}}>＋</button>
+                </span>
               </div>
-              <div class="pool-row">
+              <div class="pool-row trade">
                 <span class="plabel">{{localize "PROJECTANIME.Vitals.Energy"}}</span>
                 <div class="pips">
-                  {{#each pips}}
+                  {{#each pools.energy.pips}}
                   <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape bolt" d="M13 2 4.5 13.5H11l-1.2 8.5 8.7-11.5H12L13 2z"/></svg></span>
                   {{/each}}
                 </div>
+                <span class="stepper">
+                  <button type="button" data-action="stepPool" data-pool="energy" data-dir="-1"
+                    aria-label="{{localize "PROJECTANIME.Edit.LowerMax"}}"{{#if pools.energy.downDisabled}} disabled{{/if}}>−</button>
+                  <button type="button" data-action="stepPool" data-pool="energy" data-dir="1"
+                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMax"}}"{{#if pools.energy.upDisabled}} disabled{{/if}}>＋</button>
+                </span>
               </div>
-              <div class="pool-row">
+              <div class="pool-row trade">
+                <span class="plabel">{{localize "PROJECTANIME.Vitals.Move"}}</span>
+                <div class="pips"><span class="moveplate">{{pools.move.value}}</span></div>
+                <span class="stepper">
+                  <button type="button" data-action="stepPool" data-pool="move" data-dir="-1"
+                    aria-label="{{localize "PROJECTANIME.Edit.LowerMove"}}"{{#if pools.move.downDisabled}} disabled{{/if}}>−</button>
+                  <button type="button" data-action="stepPool" data-pool="move" data-dir="1"
+                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMove"}}"{{#if pools.move.upDisabled}} disabled{{/if}}>＋</button>
+                </span>
+              </div>
+              <div class="pool-row trade">
                 <span class="plabel">{{localize "PROJECTANIME.Vitals.LuckDice"}}</span>
                 <div class="luck-slots">
                   {{#each luck}}

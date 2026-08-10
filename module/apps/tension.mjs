@@ -117,18 +117,20 @@ class TensionSettings extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 }
 
-async function announce(key) {
+async function announce(key, data) {
   if (!game.settings.get("project-anime", "tensionAnnounce")) return;
   await ChatMessage.implementation.create({
-    content: `<div class="pa-tline">${game.i18n.localize(`PROJECTANIME.Tension.${key}`)}</div>`
+    content: `<div class="pa-tline">${game.i18n.format(`PROJECTANIME.Tension.${key}`, data)}</div>`
   });
 }
 
-async function gainTension() {
+/* Gain n Tension, clamped at the cap; a Fumble pays 2. */
+async function gainTension(n = 1) {
   const value = game.settings.get("project-anime", "tension");
   if (value >= CAP) return;
-  await game.settings.set("project-anime", "tension", value + 1);
-  await announce("GainLine");
+  const gained = Math.min(n, CAP - value);
+  await game.settings.set("project-anime", "tension", value + gained);
+  await announce("GainLine", { n: gained });
 }
 
 /* The GM's gain chip, swapped in over a roll card's Tension rider line.
@@ -136,11 +138,12 @@ async function gainTension() {
    on every later render. */
 function renderChip(message, html) {
   if (!game.user.isGM) return;
-  const rider = html.querySelector('.pa-card [data-rider="Tension"]');
+  const rider = html.querySelector('.pa-card [data-rider="Tension"], .pa-card [data-rider="Tension2"]');
   if (!rider) return;
   const chip = document.createElement("button");
   chip.type = "button";
   chip.className = "tchip";
+  chip.dataset.n = rider.dataset.rider === "Tension2" ? 2 : 1;
   if (message.getFlag("project-anime", "tensionApplied")) {
     chip.classList.add("done");
     chip.disabled = true;
@@ -155,7 +158,8 @@ function renderChip(message, html) {
 function setChipState(chip, full) {
   chip.classList.toggle("full", full);
   chip.disabled = full;
-  chip.textContent = game.i18n.localize(full ? "PROJECTANIME.Tension.Full" : "PROJECTANIME.Tension.Raise");
+  chip.textContent = game.i18n.localize(full ? "PROJECTANIME.Tension.Full"
+    : chip.dataset.n === "2" ? "PROJECTANIME.Tension.Raise2" : "PROJECTANIME.Tension.Raise");
 }
 
 /* Unspent chips already on screen follow the value: 6 locks, room unlocks. */
@@ -171,7 +175,7 @@ async function applyChip(message, chip) {
   chip.disabled = true;
   chip.textContent = game.i18n.localize("PROJECTANIME.Tension.Gained");
   await message.setFlag("project-anime", "tensionApplied", true);
-  await gainTension();
+  await gainTension(Number(chip.dataset.n) || 1);
 }
 
 /* With Auto Gain on, the active GM's client applies a roll card's Tension
@@ -180,10 +184,11 @@ async function applyChip(message, chip) {
 async function autoGain(message) {
   if (game.users.activeGM?.isSelf !== true) return;
   if (!game.settings.get("project-anime", "tensionAuto")) return;
-  const band = message.getFlag("project-anime", "card")?.difficulty?.band;
-  if (!band || band === "Clean") return;
+  const difficulty = message.getFlag("project-anime", "card")?.difficulty;
+  const band = difficulty?.band;
+  if (!band || band === "Critical" || difficulty.adversary) return;
   if (message.getFlag("project-anime", "tensionApplied")) return;
   if (game.settings.get("project-anime", "tension") >= CAP) return;
   await message.setFlag("project-anime", "tensionApplied", true);
-  await gainTension();
+  await gainTension(band === "Fumble" ? 2 : 1);
 }

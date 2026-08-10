@@ -1,6 +1,7 @@
 import ProjectAnimeSheet from "./mixin.mjs";
 import { LADDER } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
+import { openItemArea } from "../apps/area.mjs";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 
@@ -13,7 +14,8 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
       stepRank: this.#onStepRank,
       addRuling: this.#onAddRuling,
       deleteRuling: this.#onDeleteRuling,
-      postItem: this.#onPostItem
+      postItem: this.#onPostItem,
+      openArea: this.#onOpenArea
     }
   };
 
@@ -64,6 +66,7 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
         Triggered: game.i18n.localize("PROJECTANIME.Technique.Triggered")
       };
     }
+    context.showChips = isTechnique || context.editMode || system.area;
     context.showRulings = context.editMode || system.rulings.length > 0;
     context.enrichedText = await foundry.applications.ux.TextEditor.implementation.enrichHTML(system.text, {
       relativeTo: this.document,
@@ -105,5 +108,9 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
 
   static async #onPostItem() {
     await postItemCard(this.document);
+  }
+
+  static #onOpenArea() {
+    openItemArea(this.document);
   }
 }

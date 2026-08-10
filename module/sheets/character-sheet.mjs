@@ -1,5 +1,5 @@
 import BaseActorSheet from "./base-actor-sheet.mjs";
-import { STANDARD_ADVANCEMENTS, SPECIAL_ADVANCEMENTS } from "../config.mjs";
+import { LADDER, STANDARD_ADVANCEMENTS, SPECIAL_ADVANCEMENTS } from "../config.mjs";
 import CharacterCreator from "../apps/character-creator.mjs";
 
 export default class CharacterSheet extends BaseActorSheet {
@@ -32,6 +32,9 @@ export default class CharacterSheet extends BaseActorSheet {
 
   static FORM_ARRAYS = ["bonds", "luck"];
 
+  /* Hearts, Energy, and Move hold the creation range on characters. */
+  static BOUNDS = { points: { min: 3, max: 8 }, move: { min: 3, max: 8 } };
+
   /* The Character Creator button in the title bar, beside the mode toggle. */
   async _renderFrame(options) {
     const frame = await super._renderFrame(options);
@@ -54,9 +57,9 @@ export default class CharacterSheet extends BaseActorSheet {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const system = this.document.system;
-    context.bonds = system.bonds;
+    context.bonds = system.bonds.map((bond, i) => ({ ...bond, badge: this._badge(`bond.${i}`, bond.rank, "die") }));
     context.canAddBond = system.bonds.length < 6;
-    context.bondNumbers = { 1: "1", 2: "2", 3: "3", 4: "4", 5: "5", 6: "6" };
+    context.bondRanks = Object.fromEntries(LADDER.map((step, i) => [i, step.rank]));
     context.advancements = {
       unspent: system.advancements.unspent,
       standard: STANDARD_ADVANCEMENTS.map(d => ({
@@ -93,7 +96,7 @@ export default class CharacterSheet extends BaseActorSheet {
     if (!this.isEditable) return;
     const bonds = this.document.system.toObject().bonds;
     if (bonds.length >= 6) return;
-    bonds.push({ name: "", number: 1, text: "" });
+    bonds.push({ name: "", rank: 0 });
     await this.document.update({ "system.bonds": bonds });
   }
 

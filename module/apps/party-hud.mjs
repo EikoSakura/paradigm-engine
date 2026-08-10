@@ -1,7 +1,7 @@
 /* The Party HUD: one status card per character in the Party folder,
    docked over the left edge of the board on every client and open
    through play. Heart, Energy, and Luck controls write only on actors
-   the client owns; the Grade plate flip is per-client display state;
+   the client owns; the Rank plate flip is per-client display state;
    every card renders the same everywhere. */
 
 import { LADDER } from "../config.mjs";
@@ -105,13 +105,13 @@ class PartyHud extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   #member(actor) {
-    const grade = LADDER[actor.system.grade];
+    const rank = LADDER[actor.system.rank];
     const flipped = this.#flipped.has(actor.id);
     return {
       id: actor.id,
       name: actor.name,
       img: actor.img,
-      plate: { text: flipped ? grade.die : grade.rank, flipped, cssVar: grade.cssVar },
+      plate: { text: flipped ? rank.die : rank.rank, flipped, cssVar: rank.cssVar },
       overwhelmed: actor.system.hearts.value === 0,
       hearts: PartyHud.#segments(actor.system.hearts),
       energy: PartyHud.#segments(actor.system.energy),

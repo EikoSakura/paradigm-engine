@@ -10,7 +10,7 @@ TARGET
 
 ADVERSARY ENTRY ENCODED
 - Desire and Fear: text. Fear is discovered through play; both are Storyteller-facing.
-- Grade: one Rank, E to S, public. Its Ladder number is the Difficulty to act
+- Rank: one Rank, E to S, public. Its Ladder number is the Difficulty to act
   against the adversary.
 - Attributes: Might, Agility, Mind, Spirit, Charm, each E to S. Storyteller-set,
   no budget, no cap below S.
@@ -21,7 +21,7 @@ ADVERSARY ENTRY ENCODED
 - Rival: optional. A Rival carries Luck Dice, 3d6 rolled and recorded.
 
 DATA WRITTEN ON CREATE
-- Actor: name, desire, fear, grade, attribute Ranks, hearts n/n, energy n/n.
+- Actor: name, desire, fear, rank, attribute Ranks, hearts n/n, energy n/n.
 - Items: one Trait per card (rank, description), one Technique per card
   (rank, type, description).
 - Desire Track on: one Track on the Tracks board, named after the adversary, at the
@@ -33,7 +33,7 @@ MODES
 - Step rail is clickable. A beni check marks a completed step. Edit-only, no View mode.
 
 INTERACTIONS
-- Stats: Grade seal with steppers under it, E to S; seal click flips letter and
+- Stats: Rank seal with steppers under it, E to S; seal click flips letter and
   Difficulty (E 4 to S 19). Attribute steppers E to S; rank badge click flips letter
   and die. Hearts and Energy steppers render their icon rows live.
 - Traits: Add Trait and per-card remove. Name, rank steppers E to S, badge flips
@@ -61,7 +61,7 @@ DESIGN NOTES
   header (ink band, halftone dots, 10px beni spine with paper hairline), panels
   (2px ink border, hard offset shadow, ink header with screentone corner), seal
   (paper circle, beni ring, rotated -5deg).
-- Opens blank: Grade E, all Attributes E, Hearts 6, Energy 6, no cards, Desire Track
+- Opens blank: Rank E, all Attributes E, Hearts 6, Energy 6, no cards, Desire Track
   off, Rival off.
 - Description fields are plain textareas here; the system uses ProseMirror.
 - Example data: The Crab Army, from the V3 doc.
@@ -410,13 +410,13 @@ textarea{resize:vertical; min-height:56px; line-height:1.45;}
         <div class="panel-body">
           <div class="statgrid">
             <div class="sealblock">
-              <button class="seal" id="seal" aria-label="Grade seal">
+              <button class="seal" id="seal" aria-label="Rank seal">
                 <span class="g" id="sealG">E</span>
-                <span class="l" id="sealL">Grade</span>
+                <span class="l" id="sealL">Rank</span>
               </button>
               <div class="stepper">
-                <button id="gradeDown" aria-label="Grade down">&minus;</button>
-                <button id="gradeUp" aria-label="Grade up">+</button>
+                <button id="rankDown" aria-label="Rank down">&minus;</button>
+                <button id="rankUp" aria-label="Rank up">+</button>
               </div>
             </div>
             <div class="attrcol" id="attrList"></div>
@@ -521,7 +521,7 @@ const state = {
   name:"The Crab Army",
   desire:"Carry off the feast",
   fear:"Seagulls",
-  grade:0, sealFlip:false,
+  rank:0, sealFlip:false,
   attrs:{Might:1, Agility:1, Mind:0, Spirit:0, Charm:0},
   attrFlip:{},
   hearts:4, energy:2,
@@ -550,14 +550,14 @@ STEPS.forEach((s,i)=>{
 /* ---------- stats ---------- */
 function renderSeal(){
   document.getElementById("sealG").textContent =
-    state.sealFlip ? LADDER.diff[state.grade] : LADDER.rank[state.grade];
-  document.getElementById("sealL").textContent = state.sealFlip ? "Difficulty" : "Grade";
-  document.getElementById("gradeDown").disabled = state.grade===0;
-  document.getElementById("gradeUp").disabled = state.grade===5;
+    state.sealFlip ? LADDER.diff[state.rank] : LADDER.rank[state.rank];
+  document.getElementById("sealL").textContent = state.sealFlip ? "Difficulty" : "Rank";
+  document.getElementById("rankDown").disabled = state.rank===0;
+  document.getElementById("rankUp").disabled = state.rank===5;
 }
 document.getElementById("seal").addEventListener("click", ()=>{state.sealFlip=!state.sealFlip; renderSeal();});
-document.getElementById("gradeDown").addEventListener("click", ()=>{if(state.grade>0){state.grade--; renderSeal();}});
-document.getElementById("gradeUp").addEventListener("click", ()=>{if(state.grade<5){state.grade++; renderSeal();}});
+document.getElementById("rankDown").addEventListener("click", ()=>{if(state.rank>0){state.rank--; renderSeal();}});
+document.getElementById("rankUp").addEventListener("click", ()=>{if(state.rank<5){state.rank++; renderSeal();}});
 
 const attrList = document.getElementById("attrList");
 function renderAttrs(){

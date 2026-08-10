@@ -1,5 +1,6 @@
 import { DIFFICULTY, LADDER, ATTRIBUTES } from "../config.mjs";
 import { postActionRoll, postEnergyCard } from "../chat.mjs";
+import { placeBurst } from "./area.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -12,8 +13,8 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     this.#first = first;
     if (trait) this.#trait = trait;
     if (game.user.targets.size === 1) {
-      const grade = game.user.targets.first().actor?.system.grade;
-      if (typeof grade === "number") this.#grade = grade;
+      const rank = game.user.targets.first().actor?.system.rank;
+      if (typeof rank === "number") this.#difficulty = rank;
     }
   }
 
@@ -22,8 +23,10 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     position: { width: 380, height: "auto" },
     actions: {
       step: this.#onStep,
-      grade: this.#onGrade,
+      difficulty: this.#onDifficulty,
       limit: this.#onLimit,
+      areaStep: this.#onAreaStep,
+      place: this.#onPlace,
       roll: this.#onRoll
     }
   };
@@ -49,9 +52,15 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   #bonus = 0;
 
   /* Difficulty: a DIFFICULTY index or null, plus the Limit Break raise. */
-  #grade = null;
+  #difficulty = null;
 
   #limitBreak = 0;
+
+  /* The Area size when the rolled Technique covers one, capped at its
+     Rank's Die Value; null while no area Technique is in the roll. */
+  #areaSize = null;
+
+  #areaCap = null;
 
   static open(actor, first, trait) {
     this.#instances.get(actor.uuid)?.close();
@@ -103,12 +112,28 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     context.seconds = seconds.map(s => ({ ...s, selected: s.value === this.#second }));
     context.traits = traits.map(t => ({ ...t, selected: t.value === this.#trait }));
     context.bonus = this.#bonus;
-    context.grades = DIFFICULTY.map((g, index) => ({ ...g, index, selected: this.#grade === index }));
-    context.hasGrade = this.#grade !== null;
+    const technique = this.#techniqueItem();
+    if (technique?.system.area) {
+      const cap = LADDER[technique.system.rank].dieValue;
+      if (this.#areaCap !== cap) {
+        this.#areaCap = cap;
+        this.#areaSize = cap;
+      }
+      context.area = {
+        size: this.#areaSize,
+        downDisabled: this.#areaSize <= 1,
+        upDisabled: this.#areaSize >= cap
+      };
+    } else {
+      this.#areaCap = null;
+      this.#areaSize = null;
+    }
+    context.difficulties = DIFFICULTY.map((d, index) => ({ ...d, index, selected: this.#difficulty === index }));
+    context.hasDifficulty = this.#difficulty !== null;
     context.limitBreak = this.#limitBreak;
     context.lbDownDisabled = this.#limitBreak <= 0;
-    context.lbUpDisabled = this.#grade === null || this.#limitBreak >= 6 - this.#grade;
-    context.effective = this.#limitBreak > 0 ? DIFFICULTY[Math.min(this.#grade + this.#limitBreak, 6)] : null;
+    context.lbUpDisabled = this.#difficulty === null || this.#limitBreak >= 6 - this.#difficulty;
+    context.effective = this.#limitBreak > 0 ? DIFFICULTY[Math.min(this.#difficulty + this.#limitBreak, 6)] : null;
     context.formula = this.#formula();
     return context;
   }
@@ -216,17 +241,28 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     this.render();
   }
 
-  static #onGrade(event, target) {
+  static #onDifficulty(event, target) {
     const index = Number(target.dataset.index);
-    this.#grade = this.#grade === index ? null : index;
-    this.#limitBreak = this.#grade === null ? 0 : Math.min(this.#limitBreak, 6 - this.#grade);
+    this.#difficulty = this.#difficulty === index ? null : index;
+    this.#limitBreak = this.#difficulty === null ? 0 : Math.min(this.#limitBreak, 6 - this.#difficulty);
     this.render();
   }
 
   static #onLimit(event, target) {
-    if (this.#grade === null) return;
-    this.#limitBreak = Math.clamp(this.#limitBreak + Number(target.dataset.delta), 0, 6 - this.#grade);
+    if (this.#difficulty === null) return;
+    this.#limitBreak = Math.clamp(this.#limitBreak + Number(target.dataset.delta), 0, 6 - this.#difficulty);
     this.render();
+  }
+
+  static #onAreaStep(event, target) {
+    if (this.#areaCap === null) return;
+    this.#areaSize = Math.clamp(this.#areaSize + Number(target.dataset.delta), 1, this.#areaCap);
+    this.render();
+  }
+
+  static async #onPlace() {
+    if (this.#areaSize === null) return;
+    await placeBurst(this.#areaSize);
   }
 
   static async #onRoll() {
@@ -247,7 +283,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       { name: second.name, rank: ranks[1] },
       this.#resolveTrait(),
       this.#bonus,
-      this.#grade,
+      this.#difficulty,
       this.#limitBreak
     );
     this.close();

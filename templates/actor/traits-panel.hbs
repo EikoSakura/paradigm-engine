@@ -10,6 +10,9 @@
         {{else}}
         <span class="ttl"><b>{{this.name}}</b></span>
         {{/if}}
+        {{#if this.area}}
+        <button type="button" class="chip areachip" data-action="openArea" data-item-id="{{this.id}}">{{localize "PROJECTANIME.Item.Area"}}</button>
+        {{/if}}
         <button type="button" class="postbtn" data-action="postItem" data-item-id="{{this.id}}"
           data-tooltip="PROJECTANIME.Chat.Post" aria-label="{{localize "PROJECTANIME.Chat.Post"}}"><i class="fa-solid fa-message"></i></button>
         {{#if @root.editMode}}

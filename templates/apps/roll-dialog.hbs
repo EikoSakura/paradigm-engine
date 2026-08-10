@@ -45,15 +45,29 @@
       <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PROJECTANIME.Roll.Bonus"}}">
     </div>
   </div>
+  {{#if area}}
+  <div class="slab">{{localize "PROJECTANIME.Item.Area"}}</div>
+  <div class="arearow">
+    <span class="stepgrp">
+      <button type="button" class="stepbtn" data-action="areaStep" data-delta="-1"
+              aria-label="{{localize "PROJECTANIME.Area.Smaller"}}"{{#if area.downDisabled}} disabled{{/if}}>&minus;</button>
+      <span class="diebadge">{{area.size}}</span>
+      <button type="button" class="stepbtn" data-action="areaStep" data-delta="1"
+              aria-label="{{localize "PROJECTANIME.Area.Larger"}}"{{#if area.upDisabled}} disabled{{/if}}>+</button>
+    </span>
+    <span class="tiles">{{localize "PROJECTANIME.Vitals.Tiles"}}</span>
+    <button type="button" class="areaplace" data-action="place">{{localize "PROJECTANIME.Area.Place"}}</button>
+  </div>
+  {{/if}}
   <div class="slab">{{localize "PROJECTANIME.Roll.Difficulty"}}</div>
-  <div class="grades">
-    {{#each grades}}
-    <button type="button" class="gbtn{{#if this.selected}} sel{{/if}}" data-action="grade" data-index="{{this.index}}"
+  <div class="diffs">
+    {{#each difficulties}}
+    <button type="button" class="gbtn{{#if this.selected}} sel{{/if}}" data-action="difficulty" data-index="{{this.index}}"
             style="--gc: var({{this.cssVar}})"><b>{{this.rank}}</b><small>{{this.number}}</small></button>
     {{/each}}
   </div>
   <div class="slab">{{localize "PROJECTANIME.Roll.LimitBreak"}}</div>
-  <div class="lbrow{{#unless hasGrade}} off{{/unless}}">
+  <div class="lbrow{{#unless hasDifficulty}} off{{/unless}}">
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="limit" data-delta="-1"
               aria-label="{{localize "PROJECTANIME.Roll.StepDown"}}"{{#if lbDownDisabled}} disabled{{/if}}>&minus;</button>

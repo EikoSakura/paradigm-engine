@@ -1,15 +1,15 @@
 <!--
-PROJECT: ANIME | LADDER HEADER & GRADE SEAL MOCKUP (Foundry V14)
+PROJECT: ANIME | LADDER HEADER & RANK SEAL MOCKUP (Foundry V14)
 
 Target
 - Character sheet Ladder panel: readable header row
-- Grade seal on the actor sheet headers: colored by the Grade's rank on the Ladder
+- Rank seal on the actor sheet headers: colored by the Rank's rank on the Ladder
 
 Changes
 - .ladder th: 9px muted -> 10.5px ink, weight 800, tracking .08em; divider line unchanged
 - .seal: border and text take the rank color via an inline custom property; the paper ring,
   tilt, and layout stay; falls back to beni when no rank color is set
-- grade.cssVar joins the actor sheet context alongside letter and number
+- rank.cssVar joins the actor sheet context alongside letter and number
 
 Design notes
 - Tokens and fonts as the sheet: ink #221a36, paper #f7f2e7, beni #d92b48
@@ -21,7 +21,7 @@ Design notes
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project: Anime | Ladder Header & Grade Seal Mockup</title>
+<title>Project: Anime | Ladder Header & Rank Seal Mockup</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
@@ -145,7 +145,7 @@ Design notes
     font-weight:800;
   }
 
-  /* grade seal, as the sheet */
+  /* rank seal, as the sheet */
   .sealrow{
     display:flex;
     gap:22px;
@@ -200,7 +200,7 @@ Design notes
         <div class="panel-b">
           <table class="ladder">
             <thead>
-              <tr><th>Rank/Grade</th><th>Die</th><th>Trait</th><th>Difficulty</th></tr>
+              <tr><th>Rank</th><th>Die</th><th>Trait</th><th>Difficulty</th></tr>
             </thead>
             <tbody>
               <tr><td class="rk" style="color:var(--rk-e)">E</td><td>d4</td><td>+1</td><td>4</td></tr>
@@ -221,7 +221,7 @@ Design notes
         <div class="panel-b">
           <table class="ladder">
             <thead>
-              <tr><th>Rank/Grade</th><th>Die</th><th>Trait</th><th>Difficulty</th></tr>
+              <tr><th>Rank</th><th>Die</th><th>Trait</th><th>Difficulty</th></tr>
             </thead>
             <tbody>
               <tr><td class="rk" style="color:var(--rk-e)">E</td><td>d4</td><td>+1</td><td>4</td></tr>
@@ -240,34 +240,34 @@ Design notes
 </section>
 
 <section>
-  <div class="caption">Grade Seal — Current</div>
+  <div class="caption">Rank Seal — Current</div>
   <div class="sealrow">
     <div class="seal">
-      <span class="lbl">Grade</span><span class="g">D</span><span class="num">7</span>
+      <span class="lbl">Rank</span><span class="g">D</span><span class="num">7</span>
     </div>
   </div>
 </section>
 
 <section>
-  <div class="caption">Grade Seal — Proposed</div>
+  <div class="caption">Rank Seal — Proposed</div>
   <div class="sealrow">
     <div class="seal" style="--sealc:var(--rk-e)">
-      <span class="lbl">Grade</span><span class="g">E</span><span class="num">4</span>
+      <span class="lbl">Rank</span><span class="g">E</span><span class="num">4</span>
     </div>
     <div class="seal" style="--sealc:var(--rk-d)">
-      <span class="lbl">Grade</span><span class="g">D</span><span class="num">7</span>
+      <span class="lbl">Rank</span><span class="g">D</span><span class="num">7</span>
     </div>
     <div class="seal" style="--sealc:var(--rk-c)">
-      <span class="lbl">Grade</span><span class="g">C</span><span class="num">10</span>
+      <span class="lbl">Rank</span><span class="g">C</span><span class="num">10</span>
     </div>
     <div class="seal" style="--sealc:var(--rk-b)">
-      <span class="lbl">Grade</span><span class="g">B</span><span class="num">13</span>
+      <span class="lbl">Rank</span><span class="g">B</span><span class="num">13</span>
     </div>
     <div class="seal" style="--sealc:var(--rk-a)">
-      <span class="lbl">Grade</span><span class="g">A</span><span class="num">16</span>
+      <span class="lbl">Rank</span><span class="g">A</span><span class="num">16</span>
     </div>
     <div class="seal" style="--sealc:var(--rk-s)">
-      <span class="lbl">Grade</span><span class="g">S</span><span class="num">19</span>
+      <span class="lbl">Rank</span><span class="g">S</span><span class="num">19</span>
     </div>
   </div>
 </section>

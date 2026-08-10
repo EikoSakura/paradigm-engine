@@ -4,7 +4,7 @@
    queue, the party and Storyteller rows, and Begin or End in the
    footer. The Storyteller places the Spotlight with the row hands and
    RETURN; players raise hands with NEXT and claim an open Spotlight
-   with TAKE through the Storyteller's client. The Grade plate flip is
+   with TAKE through the Storyteller's client. The Rank plate flip is
    per-client display state. */
 
 import { LADDER } from "../config.mjs";
@@ -13,7 +13,7 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
   static DEFAULT_OPTIONS = {
     classes: ["project-anime-encounter"],
     actions: {
-      flipGrade: this.#onFlipGrade,
+      flipRank: this.#onFlipRank,
       toggleHand: this.#onToggleHand,
       takeSpotlight: this.#onTakeSpotlight,
       giveSpotlight: this.#onGiveSpotlight,
@@ -29,7 +29,7 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
     }
   };
 
-  /* Which Grade plates currently show their Difficulty number. Display
+  /* Which Rank plates currently show their Difficulty number. Display
      state only, never stored. */
   #flipped = new Set();
 
@@ -97,13 +97,13 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
     };
     const actor = combatant.actor;
     if (!combatant.isParty && actor?.type === "adversary") {
-      const ladder = LADDER[actor.system.grade];
+      const ladder = LADDER[actor.system.rank];
       const flipped = this.#flipped.has(combatant.id);
-      row.grade = {
-        text: flipped ? ladder.grade : ladder.rank,
+      row.rank = {
+        text: flipped ? ladder.difficulty : ladder.rank,
         flipped,
         cssVar: ladder.cssVar,
-        title: game.i18n.format("PROJECTANIME.Encounter.GradeTitle", { rank: ladder.rank, number: ladder.grade })
+        title: game.i18n.format("PROJECTANIME.Encounter.RankTitle", { rank: ladder.rank, number: ladder.difficulty })
       };
     }
     if (gm) {
@@ -161,7 +161,7 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
     return this.viewed?.combatants.get(id) ?? null;
   }
 
-  static #onFlipGrade(event, target) {
+  static #onFlipRank(event, target) {
     const id = target.closest("[data-combatant-id]")?.dataset.combatantId;
     if (!id) return;
     if (this.#flipped.has(id)) this.#flipped.delete(id);

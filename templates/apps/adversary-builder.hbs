@@ -49,15 +49,15 @@
         <div class="panel-b">
           <div class="statgrid">
             <div class="sealblock">
-              <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Header.Grade"}}">
+              <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Header.Rank"}}">
                 <span class="g">{{seal.text}}</span>
                 <span class="lbl">{{seal.label}}</span>
               </button>
               <span class="stepper">
-                <button type="button" data-action="stepGrade" data-dir="-1"
-                  aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}"{{#if gradeDownDisabled}} disabled{{/if}}>−</button>
-                <button type="button" data-action="stepGrade" data-dir="1"
-                  aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}"{{#if gradeUpDisabled}} disabled{{/if}}>＋</button>
+                <button type="button" data-action="stepSeal" data-dir="-1"
+                  aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}"{{#if sealDownDisabled}} disabled{{/if}}>−</button>
+                <button type="button" data-action="stepSeal" data-dir="1"
+                  aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}"{{#if sealUpDisabled}} disabled{{/if}}>＋</button>
               </span>
             </div>
             <div class="attrcol">

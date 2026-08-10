@@ -9,6 +9,12 @@ export function textField() {
   return new StringField({ required: true, initial: "" });
 }
 
+/* Tiles moved as part of an action. Characters clamp 3..8 at the sheet
+   and creator; adversaries are Storyteller-set and stay free. */
+export function moveField() {
+  return new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 5 });
+}
+
 export function rulingsField() {
   return new ArrayField(textField());
 }

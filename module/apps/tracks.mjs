@@ -11,7 +11,7 @@ let board = null;
 
 /* Segments a band applies through a card's Track chips. A plain Failure
    carries none. */
-const BAND_FILL = { Clean: 2, Success: 1, Fumble: -1 };
+const BAND_FILL = { Critical: 2, Success: 1, Fumble: -1 };
 
 export function registerTracks() {
   game.settings.register("project-anime", "tracks", {

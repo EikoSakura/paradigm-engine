@@ -8,7 +8,7 @@ Target
 
 Data read per actor
 - name, img
-- system.grade: rank letter E to S
+- system.rank: rank letter E to S
 - system.hearts: value, max (Storyteller-set, variable)
 - system.energy: value, max (Storyteller-set, variable)
 - rival flag; when set, system.luck: three slots, each die + recorded value + spent
@@ -16,7 +16,7 @@ Data read per actor
 Interactions (Storyteller only; player clients render and ignore clicks)
 - Heart and Energy segments: click a segment to set the value to it; click the current top segment to drop it by one
 - Luck chips on Rival cards: click toggles spent
-- Grade plate: click flips letter to Difficulty number (Ladder lookup)
+- Rank plate: click flips letter to Difficulty number (Ladder lookup)
 - Portrait: click opens the actor sheet (stub in this mockup)
 
 Display rules
@@ -30,7 +30,7 @@ Design notes
 - Bars keep resource colors on both sides: beni Hearts, gold Energy; segments size to the actor's max
 - Rival cards carry the Luck chip row; plain adversaries do not
 - Tokens, fonts, plate, chips, band as the party HUD
-- Example data from the V3 doc: Demon General at Grade B with 8 Hearts and 8 Energy; Rival Chef at Grade C as a Rival with d6 Luck; Army of Crabs at Grade D as a group with 4 Hearts and 2 Energy
+- Example data from the V3 doc: Demon General at Rank B with 8 Hearts and 8 Energy; Rival Chef at Rank C as a Rival with d6 Luck; Army of Crabs at Rank D as a group with 4 Hearts and 2 Energy
 - Dark backdrop stands in for the Foundry canvas
 -->
 <!DOCTYPE html>
@@ -286,19 +286,19 @@ Design notes
 <div class="hud" id="hud"></div>
 
 <script>
-  const GRADE_NUM = { E:4, D:7, C:10, B:13, A:16, S:19 };
+  const RANK_NUM = { E:4, D:7, C:10, B:13, A:16, S:19 };
   const RANK_COLOR = {
     E:'var(--rank-E)', D:'var(--rank-D)', C:'var(--rank-C)',
     B:'var(--rank-B)', A:'var(--rank-A)', S:'var(--rank-S)'
   };
 
   const ADVERSARIES = [
-    { name:'Demon General', grade:'B', rival:false, showNum:false,
+    { name:'Demon General', rank:'B', rival:false, showNum:false,
       hearts:{value:8, max:8}, energy:{value:6, max:8}, luck:[] },
-    { name:'Rival Chef', grade:'C', rival:true, showNum:false,
+    { name:'Rival Chef', rank:'C', rival:true, showNum:false,
       hearts:{value:5, max:6}, energy:{value:4, max:6},
       luck:[ {die:'d6', value:6, spent:false}, {die:'d6', value:3, spent:false}, {die:'d6', value:1, spent:true} ] },
-    { name:'Army of Crabs', grade:'D', rival:false, showNum:false,
+    { name:'Army of Crabs', rank:'D', rival:false, showNum:false,
       hearts:{value:1, max:4}, energy:{value:2, max:2}, luck:[] }
   ];
 
@@ -341,13 +341,13 @@ Design notes
 
       const plate = document.createElement('button');
       plate.className = 'plate';
-      plate.title = 'Grade';
-      plate.style.border = '1.5px solid ' + RANK_COLOR[a.grade];
-      plate.style.boxShadow = '0 0 6px ' + RANK_COLOR[a.grade];
+      plate.title = 'Rank';
+      plate.style.border = '1.5px solid ' + RANK_COLOR[a.rank];
+      plate.style.boxShadow = '0 0 6px ' + RANK_COLOR[a.rank];
       const txt = document.createElement('span');
       txt.className = 'txt';
-      txt.style.color = RANK_COLOR[a.grade];
-      txt.textContent = a.showNum ? GRADE_NUM[a.grade] : a.grade;
+      txt.style.color = RANK_COLOR[a.rank];
+      txt.textContent = a.showNum ? RANK_NUM[a.rank] : a.rank;
       plate.appendChild(txt);
       plate.addEventListener('click', () => { a.showNum = !a.showNum; render(); });
       top.appendChild(plate);

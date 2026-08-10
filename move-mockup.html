@@ -1,0 +1,464 @@
+<!--
+MOVE & CREATION TRADE, mockup
+Project: Anime, Foundry V14 system
+
+TARGET
+- system.move on characters, integer, base 5: tiles moved as part of an action.
+  Moving further is its own action with a roll. Adversaries gain Move too,
+  Storyteller-set with the character line 6, 6, 5 as reference; their steppers
+  keep the free range.
+- Character sheet vitals: a Move group after Energy. View shows the number plate
+  with the word Tiles; edit mode adds a stepper. Hearts, Energy, and Move steppers
+  on the character sheet clamp 3 to 8 (the creation range); adversary pool
+  steppers keep their free range.
+- Creator, Finishing Touches: Hearts 6, Energy 6, Move 5 trade one for one.
+  Each stat runs 3 to 8 and the three always total 17: lowering one frees a
+  point, raising one spends it. The Free counter shows unspent points and
+  Create Character stays disabled until it reads 0 again.
+- Character sheet, Advancements: a +1 Move row joins the Standard list under
+  New Energy, one box. Boxes stay hand-ticked, costs unchanged.
+
+INTERACTIONS
+- Sheet panel: View/Edit toggle flips the steppers in, matching the real sheet's
+  title bar mode toggle. Steppers stop at 3 and 8.
+- Creator panel: steppers enforce the trade live; the glyph rows (hearts, bolts)
+  grow and shrink with the values, Move wears the number plate. Roll 3d6
+  records Luck as today.
+- Create Character enables only with the trade balanced and Luck rolled.
+- Advancement boxes tick and untick on click, display only.
+
+DESIGN NOTES
+- Tokens: ink #221a36, paper #f7f2e7, paper-2 #ece4d1, beni #d92b48, gold #d9a13b.
+- Fonts: Shippori Mincho B1 display, Zen Kaku Gothic New UI. No Japanese text.
+- Move wears the luck-face number plate on the sheet and in the creator.
+- Shared chrome as the other mockups: title bar, obi with beni spine, panels
+  with hard offset shadows, screentone corners.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project: Anime, Move &amp; Creation Trade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#221a36; --paper:#f7f2e7; --paper2:#ece4d1; --beni:#d92b48; --gold:#d9a13b;
+  --disp:'Shippori Mincho B1',serif; --ui:'Zen Kaku Gothic New',sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  background:var(--paper2); font-family:var(--ui); color:var(--ink);
+  padding:28px 16px 48px;
+}
+.app{
+  max-width:880px; margin:0 auto; background:var(--paper);
+  border:2px solid var(--ink); box-shadow:6px 6px 0 var(--ink);
+}
+button{font-family:var(--ui); cursor:pointer;}
+button:focus-visible{outline:2px solid var(--beni); outline-offset:2px;}
+
+/* ---------- title bar / obi ---------- */
+.titlebar{
+  background:var(--ink); color:var(--paper);
+  display:flex; align-items:center; gap:12px; padding:0 14px; height:42px;
+}
+.dots{display:flex; gap:6px;}
+.dots span{width:10px; height:10px; border-radius:50%;}
+.dots span:nth-child(1){background:var(--beni);}
+.dots span:nth-child(2){background:var(--gold);}
+.dots span:nth-child(3){background:var(--paper);}
+.titlebar .brand{font-weight:900; font-size:12px; letter-spacing:.22em; text-transform:uppercase;}
+.titlebar .sheetname{
+  margin-left:auto; font-weight:700; font-size:11px; letter-spacing:.18em;
+  text-transform:uppercase; opacity:.85;
+}
+.obi{
+  position:relative; background:var(--ink); color:var(--paper);
+  padding:20px 24px 22px 34px; overflow:hidden;
+}
+.obi::before{content:""; position:absolute; left:0; top:0; bottom:0; width:10px; background:var(--beni);}
+.obi::after{content:""; position:absolute; left:10px; top:0; bottom:0; width:1px; background:var(--paper);}
+.obi .tone{
+  position:absolute; right:-20px; top:-20px; width:240px; height:140px;
+  background-image:radial-gradient(rgba(247,242,231,.28) 1.6px, transparent 1.6px);
+  background-size:11px 11px; transform:rotate(-8deg); pointer-events:none;
+}
+.obi .eyebrow{
+  font-size:10px; font-weight:900; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:6px;
+}
+.obi h1{font-family:var(--disp); font-weight:800; font-size:34px; line-height:1.05; letter-spacing:.02em;}
+
+/* ---------- stage & panels ---------- */
+.stage{padding:24px; display:flex; flex-direction:column; gap:26px;}
+.panel{border:2px solid var(--ink); background:var(--paper); box-shadow:5px 5px 0 var(--ink);}
+.panel-head{
+  position:relative; background:var(--ink); color:var(--paper);
+  padding:8px 14px; font-weight:900; font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; overflow:hidden;
+}
+.panel-head::after{
+  content:""; position:absolute; right:-8px; top:-8px; width:90px; height:44px;
+  background-image:radial-gradient(rgba(247,242,231,.3) 1.3px, transparent 1.3px);
+  background-size:8px 8px; transform:rotate(-8deg);
+}
+.panel-head .side{
+  position:absolute; right:14px; top:50%; transform:translateY(-50%);
+  font-size:10px; letter-spacing:.14em; color:var(--gold); z-index:1;
+}
+.panel-body{padding:18px;}
+label{
+  display:block; font-size:10px; font-weight:900; letter-spacing:.2em;
+  text-transform:uppercase; margin-bottom:5px;
+}
+
+/* ---------- mode toggle ---------- */
+.seg{display:flex; border:2px solid var(--ink); width:max-content; margin-bottom:16px;}
+.seg button{
+  background:var(--paper); border:none; padding:6px 12px; font-size:10px;
+  font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:var(--ink);
+}
+.seg button.on{background:var(--ink); color:var(--paper);}
+
+/* ---------- vitals strip ---------- */
+.vitals{
+  display:flex; align-items:flex-start; gap:26px; flex-wrap:wrap;
+  border:2px solid var(--ink); background:var(--paper2); box-shadow:3px 3px 0 var(--ink);
+  padding:12px 16px;
+}
+.vgroup{display:flex; flex-direction:column; gap:5px;}
+.vrow{display:flex; align-items:center; gap:8px;}
+.vcount{font-weight:900; font-size:12px; letter-spacing:.08em;}
+.pips{display:flex; gap:4px;}
+.heart{color:var(--beni); font-size:20px; line-height:20px;}
+.bolt{
+  width:14px; height:20px; background:var(--gold);
+  clip-path:polygon(62% 0, 12% 56%, 44% 56%, 34% 100%, 88% 40%, 54% 40%);
+}
+.plate{
+  width:44px; height:44px; border:2px solid var(--ink); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--disp); font-weight:800; font-size:22px; color:var(--ink);
+}
+.luckrow{display:flex; gap:8px;}
+.luckface{
+  width:44px; height:44px; border:2px solid var(--ink); background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--disp); font-weight:800; font-size:20px;
+}
+.stepper{display:flex; gap:6px;}
+.stepper button{
+  width:30px; height:30px; border:2px solid var(--ink); background:var(--paper);
+  font-weight:900; font-size:15px; line-height:1; color:var(--ink);
+}
+.stepper button:disabled{opacity:.3; cursor:default;}
+.editonly{display:none;}
+.editing .editonly{display:flex;}
+
+/* ---------- advancements ---------- */
+.advrows{display:flex; flex-direction:column; gap:8px; max-width:420px;}
+.advrow{display:flex; align-items:center; gap:10px;}
+.advrow .nm{font-weight:700; font-size:13px;}
+.advrow .boxes{margin-left:auto; display:flex; gap:6px;}
+.abox{
+  width:22px; height:22px; border:2px solid var(--ink); background:var(--paper);
+  padding:0; display:grid; place-items:center; color:var(--beni);
+  font-weight:900; font-size:13px; line-height:1;
+}
+.abox.on::before{content:"✓";}
+
+/* ---------- creator trade ---------- */
+.finish{display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;}
+.seal{
+  width:104px; height:104px; border-radius:50%; background:var(--paper);
+  border:3px solid var(--beni); box-shadow:0 0 0 2px var(--paper), 0 0 0 4px var(--ink);
+  transform:rotate(-5deg); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; flex:0 0 auto; cursor:pointer;
+  margin:6px 6px 0 2px; padding:0; border-color:var(--beni);
+}
+.seal .g{font-family:var(--disp); font-weight:800; font-size:40px; color:var(--beni); line-height:1;}
+.seal .l{font-size:8px; font-weight:900; letter-spacing:.24em; text-transform:uppercase; color:var(--ink); margin-top:2px;}
+.pools{flex:1; min-width:300px;}
+.free{
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  border:2px solid var(--ink); background:var(--paper2); box-shadow:3px 3px 0 var(--ink);
+  padding:8px 12px; width:max-content;
+}
+.free .n{font-family:var(--disp); font-weight:800; font-size:26px; color:var(--beni); min-width:22px; text-align:center;}
+.free .t{font-size:10px; font-weight:900; letter-spacing:.2em; text-transform:uppercase;}
+.pool-row{display:flex; align-items:center; gap:12px; margin-bottom:14px;}
+.pool-row .head{width:70px; flex:0 0 auto;}
+.pool-row .head label{margin-bottom:0;}
+.pool-row .icons{display:flex; gap:5px; flex:1; align-items:center; min-height:24px; flex-wrap:wrap;}
+.luck-slots{display:flex; gap:10px; align-items:center; margin-top:5px;}
+.luck{
+  width:52px; height:52px; border:2px dashed var(--ink); background:var(--paper2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--disp); font-weight:800; font-size:24px; color:var(--ink);
+}
+.luck.filled{border-style:solid; background:var(--paper);}
+.luck .dot{width:6px; height:6px; border-radius:50%; background:rgba(34,26,54,.35);}
+.rollbtn{
+  border:2px solid var(--ink); background:var(--beni); color:var(--paper);
+  font-weight:900; font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  padding:10px 14px; box-shadow:3px 3px 0 var(--ink); margin-left:6px;
+}
+.rollbtn:active{transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+
+/* ---------- footer ---------- */
+.footer{
+  display:flex; align-items:center; gap:12px; padding:14px 24px;
+  background:var(--paper2); border-top:2px solid var(--ink);
+}
+.btn{
+  border:2px solid var(--ink); padding:10px 18px; font-weight:900; font-size:11px;
+  letter-spacing:.18em; text-transform:uppercase; box-shadow:3px 3px 0 var(--ink);
+}
+.btn.create{background:var(--beni); color:var(--paper); margin-left:auto;}
+.btn:disabled{opacity:.35; cursor:default;}
+.btn:active:not(:disabled){transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink);}
+
+@media (max-width:640px){
+  .vitals{gap:16px;}
+  .obi h1{font-size:26px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="titlebar">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div class="brand">Project: Anime</div>
+    <div class="sheetname">Move &amp; Creation Trade</div>
+  </div>
+
+  <div class="obi">
+    <div class="tone"></div>
+    <div class="eyebrow">Mockup</div>
+    <h1>Move &amp; the Creation Trade</h1>
+  </div>
+
+  <div class="stage">
+
+    <!-- SHEET VITALS -->
+    <div class="panel">
+      <div class="panel-head">Character Sheet · Vitals<span class="side">Characters 3 to 8 · Adversaries Free</span></div>
+      <div class="panel-body">
+        <div class="seg" id="modeSeg">
+          <button class="on" data-mode="view">View</button>
+          <button data-mode="edit">Edit</button>
+        </div>
+        <div class="vitals" id="vitalsStrip">
+          <div class="vgroup">
+            <label>Hearts</label>
+            <div class="vrow">
+              <div class="pips" id="vHearts"></div>
+              <span class="vcount" id="vHeartsCount"></span>
+              <span class="stepper editonly">
+                <button data-stat="hearts" data-d="-1" aria-label="Lower max">&minus;</button>
+                <button data-stat="hearts" data-d="1" aria-label="Raise max">+</button>
+              </span>
+            </div>
+          </div>
+          <div class="vgroup">
+            <label>Energy</label>
+            <div class="vrow">
+              <div class="pips" id="vEnergy"></div>
+              <span class="vcount" id="vEnergyCount"></span>
+              <span class="stepper editonly">
+                <button data-stat="energy" data-d="-1" aria-label="Lower max">&minus;</button>
+                <button data-stat="energy" data-d="1" aria-label="Raise max">+</button>
+              </span>
+            </div>
+          </div>
+          <div class="vgroup">
+            <label>Move</label>
+            <div class="vrow">
+              <div class="plate" id="vMove">5</div>
+              <span class="vcount">Tiles</span>
+              <span class="stepper editonly">
+                <button data-stat="move" data-d="-1" aria-label="Lower Move">&minus;</button>
+                <button data-stat="move" data-d="1" aria-label="Raise Move">+</button>
+              </span>
+            </div>
+          </div>
+          <div class="vgroup">
+            <label>Luck Dice</label>
+            <div class="luckrow">
+              <span class="luckface">4</span>
+              <span class="luckface">2</span>
+              <span class="luckface">6</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHEET ADVANCEMENTS -->
+    <div class="panel">
+      <div class="panel-head">Character Sheet · Advancements<span class="side">Standard · Cost 1</span></div>
+      <div class="panel-body">
+        <div class="advrows">
+          <div class="advrow"><span class="nm">New Trait</span><span class="boxes"><button class="abox" aria-label="New Trait"></button><button class="abox" aria-label="New Trait"></button><button class="abox" aria-label="New Trait"></button></span></div>
+          <div class="advrow"><span class="nm">Rank Up Trait</span><span class="boxes"><button class="abox" aria-label="Rank Up Trait"></button><button class="abox" aria-label="Rank Up Trait"></button></span></div>
+          <div class="advrow"><span class="nm">New Technique</span><span class="boxes"><button class="abox" aria-label="New Technique"></button><button class="abox" aria-label="New Technique"></button><button class="abox" aria-label="New Technique"></button></span></div>
+          <div class="advrow"><span class="nm">Rank Up Technique</span><span class="boxes"><button class="abox" aria-label="Rank Up Technique"></button><button class="abox" aria-label="Rank Up Technique"></button></span></div>
+          <div class="advrow"><span class="nm">New Heart</span><span class="boxes"><button class="abox" aria-label="New Heart"></button></span></div>
+          <div class="advrow"><span class="nm">New Energy</span><span class="boxes"><button class="abox" aria-label="New Energy"></button></span></div>
+          <div class="advrow"><span class="nm">+1 Move</span><span class="boxes"><button class="abox" aria-label="+1 Move"></button></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CREATOR FINISHING TOUCHES -->
+    <div class="panel">
+      <div class="panel-head">Creator · Finishing Touches<span class="side">Trade One for One · 3 to 8</span></div>
+      <div class="panel-body">
+        <div class="finish">
+          <button class="seal" id="seal" aria-label="Rank seal">
+            <span class="g" id="sealG">D</span>
+            <span class="l" id="sealL">Rank</span>
+          </button>
+          <div class="pools">
+            <div class="free"><span class="n" id="freeN">0</span><span class="t">Free</span></div>
+            <div class="pool-row">
+              <div class="head"><label>Hearts</label></div>
+              <div class="icons" id="cHearts"></div>
+              <span class="stepper">
+                <button data-pool="h" data-d="-1" aria-label="Hearts down">&minus;</button>
+                <button data-pool="h" data-d="1" aria-label="Hearts up">+</button>
+              </span>
+            </div>
+            <div class="pool-row">
+              <div class="head"><label>Energy</label></div>
+              <div class="icons" id="cEnergy"></div>
+              <span class="stepper">
+                <button data-pool="e" data-d="-1" aria-label="Energy down">&minus;</button>
+                <button data-pool="e" data-d="1" aria-label="Energy up">+</button>
+              </span>
+            </div>
+            <div class="pool-row">
+              <div class="head"><label>Move</label></div>
+              <div class="icons"><span class="plate" id="cMove">5</span></div>
+              <span class="stepper">
+                <button data-pool="m" data-d="-1" aria-label="Move down">&minus;</button>
+                <button data-pool="m" data-d="1" aria-label="Move up">+</button>
+              </span>
+            </div>
+            <div class="pool-row" style="margin-bottom:0;">
+              <div class="head"><label>Luck Dice</label></div>
+              <div class="luck-slots" id="luckSlots"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <button class="btn create" id="btnCreate" disabled>Create Character</button>
+  </div>
+
+</div>
+
+<script>
+const FLOOR = 3, CAP = 8, TOTAL = 17;
+
+/* ---------- sheet vitals ---------- */
+const sheet = { hearts:6, energy:6, move:5, editing:false };
+const strip = document.getElementById("vitalsStrip");
+
+function glyphs(el, n, make){
+  el.innerHTML = "";
+  for(let i=0;i<n;i++) el.appendChild(make());
+}
+const heartGlyph = ()=>{const s=document.createElement("span"); s.className="heart"; s.innerHTML="&#9829;"; return s;};
+const boltGlyph = ()=>{const s=document.createElement("span"); s.className="bolt"; return s;};
+
+function renderSheet(){
+  strip.classList.toggle("editing", sheet.editing);
+  glyphs(document.getElementById("vHearts"), sheet.hearts, heartGlyph);
+  glyphs(document.getElementById("vEnergy"), sheet.energy, boltGlyph);
+  document.getElementById("vHeartsCount").textContent = `${sheet.hearts} / ${sheet.hearts}`;
+  document.getElementById("vEnergyCount").textContent = `${sheet.energy} / ${sheet.energy}`;
+  document.getElementById("vMove").textContent = sheet.move;
+  strip.querySelectorAll(".stepper button").forEach(b=>{
+    const v = sheet[b.dataset.stat];
+    b.disabled = Number(b.dataset.d) < 0 ? v <= FLOOR : v >= CAP;
+  });
+}
+strip.querySelectorAll(".stepper button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    const k = b.dataset.stat;
+    sheet[k] = Math.min(CAP, Math.max(FLOOR, sheet[k] + Number(b.dataset.d)));
+    renderSheet();
+  });
+});
+document.getElementById("modeSeg").querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    sheet.editing = b.dataset.mode === "edit";
+    document.getElementById("modeSeg").querySelectorAll("button")
+      .forEach(x=>x.classList.toggle("on", x===b));
+    renderSheet();
+  });
+});
+
+/* ---------- creator trade ---------- */
+const trade = { h:6, e:6, m:5, luck:[null,null,null] };
+const free = ()=> TOTAL - (trade.h + trade.e + trade.m);
+
+function renderTrade(){
+  glyphs(document.getElementById("cHearts"), trade.h, heartGlyph);
+  glyphs(document.getElementById("cEnergy"), trade.e, boltGlyph);
+  document.getElementById("cMove").textContent = trade.m;
+  document.getElementById("freeN").textContent = free();
+  document.querySelectorAll(".pool-row .stepper button").forEach(b=>{
+    const v = trade[b.dataset.pool];
+    b.disabled = Number(b.dataset.d) < 0 ? v <= FLOOR : (v >= CAP || free() <= 0);
+  });
+  document.getElementById("btnCreate").disabled = free() !== 0 || trade.luck.some(v=>v===null);
+}
+document.querySelectorAll(".pool-row .stepper button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    trade[b.dataset.pool] += Number(b.dataset.d);
+    renderTrade();
+  });
+});
+
+const luckSlots = document.getElementById("luckSlots");
+function renderLuck(){
+  luckSlots.innerHTML = "";
+  trade.luck.forEach(v=>{
+    const s = document.createElement("div");
+    s.className = "luck"+(v?" filled":"");
+    s.innerHTML = v ? v : `<span class="dot"></span>`;
+    luckSlots.appendChild(s);
+  });
+  const btn = document.createElement("button");
+  btn.className = "rollbtn";
+  btn.textContent = "Roll 3d6";
+  btn.addEventListener("click", ()=>{
+    trade.luck = trade.luck.map(()=>1+Math.floor(Math.random()*6));
+    renderLuck(); renderTrade();
+  });
+  luckSlots.appendChild(btn);
+}
+document.getElementById("seal").addEventListener("click", ()=>{
+  const flipped = document.getElementById("sealL").textContent === "Rank";
+  document.getElementById("sealG").textContent = flipped ? "7" : "D";
+  document.getElementById("sealL").textContent = flipped ? "Difficulty" : "Rank";
+});
+
+/* ---------- advancement boxes ---------- */
+document.querySelectorAll(".abox").forEach(b=>
+  b.addEventListener("click", ()=>b.classList.toggle("on")));
+
+renderSheet(); renderTrade(); renderLuck();
+</script>
+</body>
+</html>

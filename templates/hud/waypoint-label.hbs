@@ -6,11 +6,8 @@
     {{else if action.label}}
     <label class="action-label">{{localize action.label}}</label>
     {{/if}}
-    {{#if band}}
-    <span class="pa-distance" style="color: {{band.color}};">{{band.label}}</span>
-    {{#if band.crossed}}
-    <span class="pa-distance-crossed">· {{band.crossed}}</span>
-    {{/if}}
+    {{#if tiles}}
+    <span class="pa-distance" style="color: {{tiles.color}};">{{tiles.label}}</span>
     {{else}}
     {{#if cost}}
     <span class="total-measurement">{{cost.total}} {{cost.units}}</span>

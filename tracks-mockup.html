@@ -47,7 +47,7 @@ selected chip clears it. Picking one writes aimedTrackId and aimedSide into the 
 
 ROLL CARD WIRING (GM-only chips; players see plain text; applied state stored in flags)
 On a card aimed at a Track, by band, with Limit Break count n:
-  Clean    — FILL 2+n on the aimed side.
+  Critical Success    — FILL 2+n on the aimed side.
   Success  — FILL 1+n on the aimed side.
   Failure  — nothing. With n above 0 in a Contest: FILL OPPOSING n. Solo Tracks get nothing.
   Fumble   — ERASE 1 on the aimed side. With n above 0 in a Contest, also FILL OPPOSING n.
@@ -72,7 +72,7 @@ ROLL DIALOG panel demonstrating the TRACK row.
 EXAMPLE DATA (V3 doc)
 Breach the Vault: solo, 6 Segments, 3 filled.
 Rooftop Chase: Contest, 6 each, Kaito 2, Rook Knight 4.
-Cards: Clean vs C fill 2; Success vs C Limit Break 1 fill 2; Failure vs C Limit Break 1 in the
+Cards: Critical Success vs C fill 2; Success vs C Limit Break 1 fill 2; Failure vs C Limit Break 1 in the
 Contest, opposing fills 1; Fumble vs D erases 1.
 -->
 <html lang="en">
@@ -496,7 +496,7 @@ function card(p){
   c.innerHTML=html;
   $('chat').appendChild(c);
 }
-card({name:'AGILITY + MIND',f1:6,f2:5,total:13,g:'C',band:'Clean',lb:0,
+card({name:'AGILITY + MIND',f1:6,f2:5,total:13,g:'C',band:'Critical Success',lb:0,
   aimLabel:'Breach the Vault',
   chips:[{tid:'t1',side:'a',action:'fill',n:2,label:'FILL 2',text:'Breach the Vault fills 2 Segments.'}],
   riders:[]});

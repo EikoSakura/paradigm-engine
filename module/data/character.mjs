@@ -1,4 +1,4 @@
-import { attributesField, hotbarField, luckField, pointsField, rankField, textField } from "./fields.mjs";
+import { attributesField, hotbarField, luckField, moveField, pointsField, rankField, textField } from "./fields.mjs";
 
 const { ArrayField, BooleanField, NumberField, SchemaField } = foundry.data.fields;
 
@@ -13,17 +13,17 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
       age: textField(),
       gender: textField(),
       pronouns: textField(),
-      grade: rankField(1),
+      rank: rankField(1),
       attributes: attributesField(),
       hearts: pointsField(),
       energy: pointsField(),
+      move: moveField(),
       luck: luckField(),
       hotbar: hotbarField(),
       bonds: new ArrayField(
         new SchemaField({
           name: textField(),
-          number: new NumberField({ required: true, nullable: false, integer: true, min: 1, max: 6, initial: 1 }),
-          text: textField()
+          rank: rankField(0)
         })
       ),
       advancements: new SchemaField({
@@ -34,11 +34,12 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
           newTech: boxesField(3),
           rankTech: boxesField(2),
           newHeart: boxesField(1),
-          newEnergy: boxesField(1)
+          newEnergy: boxesField(1),
+          move: boxesField(1)
         }),
         special: new SchemaField({
           luck: boxesField(3),
-          grade: boxesField(4),
+          rank: boxesField(4),
           attribute: boxesField(6)
         })
       }),

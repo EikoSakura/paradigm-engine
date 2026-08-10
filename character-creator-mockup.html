@@ -12,10 +12,10 @@ CREATION RULES ENCODED
 - Traits: two, Rank D. Name plus one sentence.
 - Techniques: two, Rank E. Name, Activated or Triggered, description. Energy cost 1.
 - Bond: one. Name, number 1 to 6, sentence.
-- Finishing Touches: Grade D, 6 Hearts, 6 Energy, Luck Dice 3d6 rolled and recorded.
+- Finishing Touches: Rank D, 6 Hearts, 6 Energy, Luck Dice 3d6 rolled and recorded.
 
 DATA WRITTEN ON CREATE
-- Actor: name, concept, attribute Ranks, Grade D, Hearts 6/6, Energy 6/6,
+- Actor: name, concept, attribute Ranks, Rank D, Hearts 6/6, Energy 6/6,
   Luck [3 x {size d6, value, spent false}], Bonds [{name, value, sentence}].
 - Items: Trait x2 (Rank D, description), Technique x2 (Rank E, type, description).
 
@@ -30,7 +30,7 @@ INTERACTIONS
 - Techniques: Activated/Triggered toggle. Rank locked at E. Badge flips letter and d4.
   Energy cost read from the Ladder.
 - Bond: number stepper 1 to 6.
-- Finishing Touches: Grade seal locked at D, click flips letter and Difficulty 7.
+- Finishing Touches: Rank seal locked at D, click flips letter and Difficulty 7.
   ROLL 3D6 records the Luck Dice. Clicking again rerolls, mockup only; at the table
   they are rolled once.
 - BACK and NEXT walk the steps. CREATE CHARACTER enables when every step shows its check.
@@ -411,9 +411,9 @@ textarea{resize:vertical; min-height:56px; line-height:1.45;}
         <div class="panel-head">Finishing Touches</div>
         <div class="panel-body">
           <div class="finish">
-            <button class="seal" id="seal" aria-label="Grade seal">
+            <button class="seal" id="seal" aria-label="Rank seal">
               <span class="g" id="sealG">D</span>
-              <span class="l" id="sealL">Grade</span>
+              <span class="l" id="sealL">Rank</span>
             </button>
             <div class="pools">
               <div class="pool-row">
@@ -625,7 +625,7 @@ function renderLuck(){
 document.getElementById("seal").addEventListener("click", ()=>{
   state.sealFlip=!state.sealFlip;
   document.getElementById("sealG").textContent = state.sealFlip ? LADDER.diff[1] : "D";
-  document.getElementById("sealL").textContent = state.sealFlip ? "Difficulty" : "Grade";
+  document.getElementById("sealL").textContent = state.sealFlip ? "Difficulty" : "Rank";
 });
 
 /* ---------- name / concept ---------- */

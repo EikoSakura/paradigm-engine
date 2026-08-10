@@ -14,25 +14,19 @@
           <div class="card">
             <div class="card-h">
               {{#if @root.editMode}}
-              <select class="kindsel" name="system.bonds.{{@index}}.number" data-dtype="Number"
-                aria-label="{{localize "PROJECTANIME.Edit.BondNumber"}}">
-                {{selectOptions @root.bondNumbers selected=this.number}}
+              <select class="kindsel" name="system.bonds.{{@index}}.rank" data-dtype="Number"
+                aria-label="{{localize "PROJECTANIME.Edit.BondRank"}}">
+                {{selectOptions @root.bondRanks selected=this.rank}}
               </select>
               <span class="ttl"><input class="ed-input ed-name" type="text" name="system.bonds.{{@index}}.name"
                 value="{{this.name}}" placeholder="{{localize "PROJECTANIME.Placeholder.BondName"}}"></span>
               <button type="button" class="delbtn" data-action="deleteBond" data-i="{{@index}}"
                 aria-label="{{localize "PROJECTANIME.Edit.Remove"}}">✕</button>
               {{else}}
-              <span class="bondnum">{{this.number}}</span>
+              {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
               <span class="ttl"><b>{{this.name}}</b></span>
               {{/if}}
             </div>
-            {{#if @root.editMode}}
-            <textarea class="ed-area" name="system.bonds.{{@index}}.text"
-              placeholder="{{localize "PROJECTANIME.Placeholder.Description"}}">{{this.text}}</textarea>
-            {{else}}
-            <p>{{this.text}}</p>
-            {{/if}}
           </div>
           {{/each}}
           {{#if editMode}}{{#if canAddBond}}

@@ -11,6 +11,8 @@ const STEP_LABELS = [
   "PROJECTANIME.Creator.Finishing"
 ];
 
+const TRADE = { floor: 3, cap: 8, total: 17 };
+
 /* Creator textareas are plain text; the items' Description fields hold HTML. */
 export function paragraphs(text) {
   return text.split("\n").map(line => line.trim()).filter(line => line).map(line => {
@@ -40,7 +42,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       stepAttr: this.#onStepAttr,
       flipBadge: this.#onFlipBadge,
       setKind: this.#onSetKind,
-      stepBond: this.#onStepBond,
+      stepPool: this.#onStepPool,
       flipSeal: this.#onFlipSeal,
       rollLuck: this.#onRollLuck,
       create: this.#onCreate
@@ -66,7 +68,11 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
 
   #techs = [{ name: "", kind: "Activated", text: "" }, { name: "", kind: "Activated", text: "" }];
 
-  #bond = { name: "", number: 6, text: "" };
+  #bond = { name: "" };
+
+  /* The creation trade: Hearts, Energy, Move one for one, floor 3, cap 8,
+     always totalling 17. */
+  #pools = { hearts: 6, energy: 6, move: 5 };
 
   #luck = [null, null, null];
 
@@ -137,15 +143,18 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       badge: this.#badge(`tech.${i}`, 0, "die"),
       costLabel: game.i18n.format("PROJECTANIME.Technique.Energy", { n: LADDER[0].mod })
     }));
-    context.bond = {
-      ...this.#bond,
-      downDisabled: this.#bond.number <= 1,
-      upDisabled: this.#bond.number >= 6
-    };
+    context.bond = { name: this.#bond.name, badge: this.#badge("bond", 0, "die") };
     context.seal = this.#sealFlip
-      ? { text: String(LADDER[1].grade), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
-      : { text: LADDER[1].rank, label: game.i18n.localize("PROJECTANIME.Header.Grade") };
-    context.pips = Array(6).fill(true);
+      ? { text: String(LADDER[1].difficulty), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
+      : { text: LADDER[1].rank, label: game.i18n.localize("PROJECTANIME.Header.Rank") };
+    const free = this.#free();
+    context.free = free;
+    context.pools = Object.fromEntries(Object.entries(this.#pools).map(([key, value]) => [key, {
+      value,
+      pips: Array(value).fill(true),
+      downDisabled: value <= TRADE.floor,
+      upDisabled: value >= TRADE.cap || free <= 0
+    }]));
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
@@ -170,6 +179,10 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     return Object.values(this.#attrs).reduce((a, b) => a + b, 0);
   }
 
+  #free() {
+    return TRADE.total - this.#pools.hearts - this.#pools.energy - this.#pools.move;
+  }
+
   #checks() {
     return [
       this.#name.trim().length > 0,
@@ -177,7 +190,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       this.#traits.every(t => t.name.trim().length > 0),
       this.#techs.every(t => t.name.trim().length > 0),
       this.#bond.name.trim().length > 0,
-      this.#luck.every(v => v !== null)
+      this.#luck.every(v => v !== null) && this.#free() === 0
     ];
   }
 
@@ -196,7 +209,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     if (!el.name) return;
     const [group, i, key] = el.name.split(".");
     if (group === "name") this.#name = el.value;
-    else if (group === "bond" && (i === "name" || i === "text")) this.#bond[i] = el.value;
+    else if (group === "bond" && i === "name") this.#bond.name = el.value;
     else if (group === "trait" || group === "tech") {
       const row = (group === "trait" ? this.#traits : this.#techs)[Number(i)];
       if (row && (key === "name" || key === "text")) row[key] = el.value;
@@ -254,8 +267,13 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     this.render();
   }
 
-  static #onStepBond(event, target) {
-    this.#bond.number = Math.clamp(this.#bond.number + Number(target.dataset.dir), 1, 6);
+  static #onStepPool(event, target) {
+    const key = target.dataset.pool;
+    const dir = Number(target.dataset.dir);
+    const value = this.#pools[key];
+    if (value === undefined) return;
+    if (dir > 0 ? value >= TRADE.cap || this.#free() <= 0 : value <= TRADE.floor) return;
+    this.#pools[key] = value + dir;
     this.render();
   }
 
@@ -280,12 +298,13 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       await actor.update({
         name: this.#name.trim(),
         system: {
-          grade: 1,
+          rank: 1,
           attributes: { ...this.#attrs },
-          hearts: { value: 6, max: 6 },
-          energy: { value: 6, max: 6 },
+          hearts: { value: this.#pools.hearts, max: this.#pools.hearts },
+          energy: { value: this.#pools.energy, max: this.#pools.energy },
+          move: this.#pools.move,
           luck: this.#luck.map(value => ({ die: 6, value, spent: false })),
-          bonds: [{ name: this.#bond.name.trim(), number: this.#bond.number, text: this.#bond.text.trim() }]
+          bonds: [{ name: this.#bond.name.trim(), rank: 0 }]
         }
       });
       await actor.createEmbeddedDocuments("Item", [

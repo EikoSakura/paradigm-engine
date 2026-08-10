@@ -1,9 +1,9 @@
 <div class="combatant row{{#if active}} active{{/if}}{{#if down}} down{{/if}}{{#if hidden}} ghost{{/if}}"
      data-combatant-id="{{id}}" data-action="activateCombatant">
-  {{#if grade}}
-  <button type="button" class="gplate{{#if grade.flipped}} num{{/if}}" data-action="flipGrade"
-          style="--rkc: var({{grade.cssVar}})" data-tooltip aria-label="{{grade.title}}">
-    <span>{{grade.text}}</span>
+  {{#if rank}}
+  <button type="button" class="gplate{{#if rank.flipped}} num{{/if}}" data-action="flipRank"
+          style="--rkc: var({{rank.cssVar}})" data-tooltip aria-label="{{rank.title}}">
+    <span>{{rank.text}}</span>
   </button>
   {{/if}}
   <img class="pfp" src="{{img}}" alt="">

@@ -24,16 +24,16 @@
       </div>
     </div>
     <div class="sealwrap">
-      <div class="seal" style="--sealc: var({{grade.cssVar}})" aria-label="{{localize "PROJECTANIME.Header.Grade"}}">
-        <span class="lbl">{{localize "PROJECTANIME.Header.Grade"}}</span>
-        <span class="g">{{grade.letter}}</span>
-        <span class="num">{{grade.number}}</span>
+      <div class="seal" style="--sealc: var({{rank.cssVar}})" aria-label="{{localize "PROJECTANIME.Header.Rank"}}">
+        <span class="lbl">{{localize "PROJECTANIME.Header.Rank"}}</span>
+        <span class="g">{{rank.letter}}</span>
+        <span class="num">{{rank.number}}</span>
       </div>
       {{#if editMode}}
       <div class="sealsteps">
-        <button type="button" class="smallbtn" data-action="stepRank" data-kind="grade" data-dir="-1"
+        <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="-1"
           aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}">−</button>
-        <button type="button" class="smallbtn" data-action="stepRank" data-kind="grade" data-dir="1"
+        <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="1"
           aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}">＋</button>
       </div>
       {{/if}}

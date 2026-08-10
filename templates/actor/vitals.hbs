@@ -35,6 +35,17 @@
     </span>
     {{/if}}
   </div>
+  <div class="vgroup">
+    <span class="vlabel">{{localize "PROJECTANIME.Vitals.Move"}}</span>
+    <span class="moveplate">{{move}}</span>
+    <span class="vcount">{{localize "PROJECTANIME.Vitals.Tiles"}}</span>
+    {{#if editMode}}
+    <span class="stepper">
+      <button type="button" data-action="stepMove" data-dir="-1" aria-label="{{localize "PROJECTANIME.Edit.LowerMove"}}">−</button>
+      <button type="button" data-action="stepMove" data-dir="1" aria-label="{{localize "PROJECTANIME.Edit.RaiseMove"}}">＋</button>
+    </span>
+    {{/if}}
+  </div>
   {{#if showLuck}}
   <div class="vgroup">
     <span class="vlabel">{{localize "PROJECTANIME.Vitals.LuckDice"}}</span>

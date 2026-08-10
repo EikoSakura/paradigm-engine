@@ -407,6 +407,18 @@
     background: var(--paper);
     border-radius: 2px;
   }
+  .moveplate {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: 18px;
+    display: grid;
+    place-items: center;
+  }
   .luckrow {
     display: flex;
     gap: 8px;
@@ -789,6 +801,15 @@
     border-color: #a8771f;
     color: var(--ink);
   }
+  button.chip.areachip {
+    background: var(--paper);
+    cursor: pointer;
+    flex: none;
+  }
+  button.chip.areachip:hover {
+    border-color: var(--beni);
+    color: var(--beni-deep);
+  }
   .card p {
     font-size: 13px;
     margin: 0;
@@ -813,22 +834,6 @@
   .card .card-text p + p {
     margin-top: 6px;
   }
-  .bondnum {
-    width: 32px;
-    height: 32px;
-    flex: none;
-    border-radius: 50%;
-    background: var(--ink);
-    color: var(--paper);
-    font-family: var(--f-display);
-    font-weight: 800;
-    font-size: 16px;
-    display: grid;
-    place-items: center;
-    border: 2px solid var(--ink);
-    box-shadow: 2px 2px 0 rgba(34, 26, 54, .2);
-  }
-
   /* growth */
   .growgrid {
     display: grid;
@@ -1074,6 +1079,32 @@
     color: var(--paper);
     border-color: var(--paper);
   }
+  button.chip.areachip {
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+    cursor: pointer;
+  }
+  button.chip.areachip:hover {
+    border-color: var(--beni);
+  }
+  .chip.check {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    background: var(--paper);
+    color: var(--ink);
+    border-color: var(--paper);
+    cursor: pointer;
+  }
+  .chip.check input {
+    width: 12px;
+    height: 12px;
+    margin: 0;
+    accent-color: var(--beni);
+    cursor: pointer;
+  }
   select.kindsel {
     border-color: var(--paper);
     background: transparent;
@@ -1173,6 +1204,33 @@
 .project-anime.roll-dialog {
   .dbody {
     padding: 14px 14px 2px;
+  }
+  .arearow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .arearow .tiles {
+    flex: 1;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .arearow .areaplace {
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    background: var(--paper);
+    font-weight: 900;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+  }
+  .arearow .areaplace:hover {
+    border-color: var(--beni);
+    color: var(--beni-deep);
   }
   .dhead {
     display: flex;
@@ -1311,7 +1369,7 @@
     padding: 6px 8px;
     margin-bottom: 14px;
   }
-  .grades {
+  .diffs {
     display: flex;
     gap: 5px;
     flex-wrap: wrap;
@@ -1585,6 +1643,14 @@
   border-color: #a8771f;
   color: var(--ink);
 }
+.pa-card button.chip.areachip {
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.pa-card button.chip.areachip:hover {
+  border-color: var(--beni);
+}
 .pa-card .cbody {
   padding: 10px 12px 11px 16px;
 }
@@ -1639,55 +1705,6 @@
 }
 .pa-card .rtrait.luck .rmark {
   color: var(--gold);
-}
-.pa-card .opening {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px 8px;
-  margin: 10px -12px -11px -16px;
-  padding: 6px 10px 6px 15px;
-  background: var(--ink);
-}
-.pa-card .oplab {
-  flex: 1;
-  white-space: nowrap;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: rgba(247, 242, 231, .65);
-}
-.pa-card .opbtn {
-  flex: none;
-  width: auto;
-  height: auto;
-  line-height: 1.5;
-  margin: 0;
-  font-family: var(--f-ui);
-  font-size: 8.5px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--paper);
-  background: transparent;
-  border: 1.5px solid var(--paper);
-  border-radius: 2px;
-  padding: 1px 8px;
-  box-shadow: none;
-  cursor: pointer;
-}
-.pa-card .opbtn:hover {
-  background: var(--paper);
-  color: var(--ink);
-}
-.pa-card .opbtn.inert {
-  opacity: .4;
-  cursor: default;
-}
-.pa-card .opbtn.inert:hover {
-  background: transparent;
-  color: var(--paper);
 }
 .pa-card .rtotal {
   margin-left: auto;
@@ -3331,7 +3348,7 @@
   text-transform: uppercase;
 }
 
-/* grade plate */
+/* rank plate */
 .project-anime-encounter .gplate {
   width: 20px;
   height: 20px;
@@ -3644,7 +3661,8 @@
   }
 
   /* attributes */
-  .stepups {
+  .stepups,
+  .free {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -3655,7 +3673,8 @@
     background: var(--paper-2);
     box-shadow: 3px 3px 0 rgba(34, 26, 54, .16);
   }
-  .stepups .n {
+  .stepups .n,
+  .free .n {
     font-family: var(--f-display);
     font-weight: 800;
     font-size: 26px;
@@ -3663,7 +3682,8 @@
     min-width: 22px;
     text-align: center;
   }
-  .stepups .t {
+  .stepups .t,
+  .free .t {
     font-size: 10px;
     font-weight: 900;
     letter-spacing: .2em;
@@ -3687,7 +3707,7 @@
     text-transform: uppercase;
   }
   .attr-row .stepper button,
-  .bond-num .stepper button {
+  .pool-row .stepper button {
     width: 30px;
     height: 30px;
     border: 2px solid var(--ink);
@@ -3745,24 +3765,6 @@
     color: var(--paper);
   }
 
-  /* bond */
-  .bond-num {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .bond-num .val {
-    width: 38px;
-    height: 38px;
-    border: 2px solid var(--ink);
-    background: var(--paper-2);
-    font-family: var(--f-display);
-    font-weight: 800;
-    font-size: 20px;
-    display: grid;
-    place-items: center;
-  }
-
   /* finishing touches */
   .finish {
     display: flex;
@@ -3786,14 +3788,26 @@
   .pool-row:last-child {
     margin-bottom: 0;
   }
-  .pool-row .pips {
-    margin-top: 5px;
+  .pool-row.trade {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pool-row.trade .plabel {
+    width: 70px;
+    flex: none;
+    margin-bottom: 0;
+  }
+  .pool-row.trade .pips {
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 24px;
   }
   .luck-slots {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-top: 5px;
   }
   .luck {
     width: 52px;
@@ -4091,15 +4105,85 @@
   }
 }
 
-/* ===== distance band on the drag ruler label ===== */
+/* ===== tile count on the drag ruler label ===== */
 #measurement .waypoint-label .pa-distance {
   font-weight: 700;
   font-size: 0.9em;
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-#measurement .waypoint-label .pa-distance-crossed {
-  font-weight: 700;
-  font-size: 0.9em;
-  opacity: 0.8;
+
+/* ===== the Area size dialog ===== */
+.project-anime.area-dialog {
+  .areabody {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .szrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .szlabel {
+    flex: 1;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+  }
+  .stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stepper button {
+    width: 26px;
+    height: 26px;
+    border: 2px solid var(--ink);
+    background: var(--paper);
+    border-radius: 0;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stepper button:disabled {
+    opacity: .3;
+    cursor: default;
+  }
+  .szval {
+    width: 34px;
+    height: 34px;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    background: var(--paper);
+    font-family: var(--f-display);
+    font-weight: 800;
+    font-size: 18px;
+    display: grid;
+    place-items: center;
+  }
+  .sztiles {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .placebtn {
+    border: 2px solid var(--ink);
+    background: var(--beni);
+    color: #fff;
+    font-weight: 900;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 9px 12px;
+    box-shadow: 3px 3px 0 rgba(34, 26, 54, .25);
+  }
+  .placebtn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(34, 26, 54, .25);
+  }
 }

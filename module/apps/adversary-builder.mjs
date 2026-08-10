@@ -31,7 +31,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       back: this.#onBack,
       next: this.#onNext,
       flipSeal: this.#onFlipSeal,
-      stepGrade: this.#onStepGrade,
+      stepSeal: this.#onStepSeal,
       stepAttr: this.#onStepAttr,
       flipBadge: this.#onFlipBadge,
       stepPool: this.#onStepPool,
@@ -63,7 +63,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
 
   #fear = "";
 
-  #grade = 0;
+  #rank = 0;
 
   #sealFlip = false;
 
@@ -120,7 +120,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const checks = this.#checks();
-    const gradeStep = LADDER[this.#grade];
+    const rankStep = LADDER[this.#rank];
 
     context.obiName = this.#name.trim() || game.i18n.localize("PROJECTANIME.Builder.New");
     context.steps = STEP_LABELS.map((label, index) => ({
@@ -137,10 +137,10 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     context.fear = this.#fear;
 
     context.seal = this.#sealFlip
-      ? { text: String(gradeStep.grade), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
-      : { text: gradeStep.rank, label: game.i18n.localize("PROJECTANIME.Header.Grade") };
-    context.gradeDownDisabled = this.#grade <= 0;
-    context.gradeUpDisabled = this.#grade >= 5;
+      ? { text: String(rankStep.difficulty), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
+      : { text: rankStep.rank, label: game.i18n.localize("PROJECTANIME.Header.Rank") };
+    context.sealDownDisabled = this.#rank <= 0;
+    context.sealUpDisabled = this.#rank >= 5;
     context.attributes = ATTRIBUTES.map(a => {
       const rank = this.#attrs[a.key];
       const key = `attributes.${a.key}`;
@@ -274,8 +274,8 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     this.render();
   }
 
-  static #onStepGrade(event, target) {
-    this.#grade = Math.clamp(this.#grade + Number(target.dataset.dir), 0, 5);
+  static #onStepSeal(event, target) {
+    this.#rank = Math.clamp(this.#rank + Number(target.dataset.dir), 0, 5);
     this.render();
   }
 
@@ -368,7 +368,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       const system = {
         desire: this.#desire.trim(),
         fear: this.#fear.trim(),
-        grade: this.#grade,
+        rank: this.#rank,
         attributes: { ...this.#attrs },
         hearts: { value: this.#hearts, max: this.#hearts },
         energy: { value: this.#energy, max: this.#energy },
