@@ -43,7 +43,6 @@
     "Vitals": {
       "Hearts": "Hearts",
       "Energy": "Energy",
-      "Move": "Move",
       "Tiles": "Tiles",
       "LuckDice": "Luck Dice",
       "Ready": "Ready",
@@ -178,7 +177,6 @@
       "RankSkill": "Rank Up Skill",
       "NewHeart": "New Heart",
       "NewEnergy": "New Energy",
-      "Move": "+1 Move",
       "Luck": "Rank Up Luck Dice",
       "Rank": "Rank Up Rank",
       "Attribute": "Rank Up Attribute"
@@ -197,8 +195,6 @@
       "Remove": "Remove",
       "RaiseMax": "Raise Max",
       "LowerMax": "Lower Max",
-      "RaiseMove": "Raise Move",
-      "LowerMove": "Lower Move",
       "LuckValue": "Recorded Value",
       "AddSkill": "+ New Skill",
       "AddBond": "+ New Bond",

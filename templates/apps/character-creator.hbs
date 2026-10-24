@@ -149,16 +149,6 @@
                 </span>
               </div>
               <div class="pool-row trade">
-                <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Move"}}</span>
-                <div class="pips"><span class="moveplate">{{pools.move.value}}</span></div>
-                <span class="stepper">
-                  <button type="button" data-action="stepPool" data-pool="move" data-dir="-1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.LowerMove"}}"{{#if pools.move.downDisabled}} disabled{{/if}}>−</button>
-                  <button type="button" data-action="stepPool" data-pool="move" data-dir="1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMove"}}"{{#if pools.move.upDisabled}} disabled{{/if}}>＋</button>
-                </span>
-              </div>
-              <div class="pool-row trade">
                 <span class="plabel">{{localize "PARADIGMENGINE.Vitals.LuckDice"}}</span>
                 <div class="luck-slots">
                   {{#each luck}}

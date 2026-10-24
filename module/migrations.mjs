@@ -31,6 +31,7 @@ export function registerMigrations() {
       await removeTracks();
       await skillsReplaceTraits();
       await removeHuds();
+      await removeMove();
     }
     await game.settings.set("paradigm-engine", SETTING, game.system.version);
   });
@@ -158,6 +159,34 @@ async function removeHuds() {
     .filter(f => f._source.flags?.[game.system.id]?.party !== undefined)
     .map(f => ({ _id: f.id, [`flags.${game.system.id}.party`]: del() }));
   if (updates.length) await Folder.implementation.updateDocuments(updates);
+}
+
+/* 0.4.0 removed Move. The models no longer hold the field, so a loaded
+   actor's source has already dropped it: the system is written back whole
+   to clear the stored value, and the +1 Move advancement box with it.
+   Unlinked token deltas and saved creator drafts keep raw source, so
+   their Move keys delete directly. */
+async function removeMove() {
+  const { ForcedReplacement } = foundry.data.operators;
+  for (const actor of game.actors) {
+    const update = { system: ForcedReplacement.create(actor.system.toObject()) };
+    const pools = actor._source.flags?.[game.system.id]?.creator?.pools;
+    if (pools?.move !== undefined) update[`flags.${game.system.id}.creator.pools.move`] = del();
+    await actor.update(update);
+  }
+  for (const scene of game.scenes) {
+    const updates = scene.tokens
+      .filter(token => token.delta?._source?.system?.move !== undefined
+        || token.delta?._source?.system?.advancements?.standard?.move !== undefined)
+      .map(token => {
+        const system = token.delta._source.system;
+        const update = { _id: token.id };
+        if (system.move !== undefined) update["delta.system.move"] = del();
+        if (system.advancements?.standard?.move !== undefined) update["delta.system.advancements.standard.move"] = del();
+        return update;
+      });
+    if (updates.length) await scene.updateEmbeddedDocuments("Token", updates);
+  }
 }
 
 /* 0.3.0 put the board on tiles: every existing scene measures 1 tile

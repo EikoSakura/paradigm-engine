@@ -34,8 +34,7 @@ export const STANDARD_ADVANCEMENTS = [
   { key: "newSkill", label: "PARADIGMENGINE.Advancement.NewSkill" },
   { key: "rankSkill", label: "PARADIGMENGINE.Advancement.RankSkill" },
   { key: "newHeart", label: "PARADIGMENGINE.Advancement.NewHeart" },
-  { key: "newEnergy", label: "PARADIGMENGINE.Advancement.NewEnergy" },
-  { key: "move", label: "PARADIGMENGINE.Advancement.Move" }
+  { key: "newEnergy", label: "PARADIGMENGINE.Advancement.NewEnergy" }
 ];
 
 export const SPECIAL_ADVANCEMENTS = [

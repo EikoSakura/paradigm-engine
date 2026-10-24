@@ -407,18 +407,6 @@
     background: var(--paper);
     border-radius: 2px;
   }
-  .moveplate {
-    width: 34px;
-    height: 34px;
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    background: var(--paper);
-    font-family: var(--f-display);
-    font-weight: 800;
-    font-size: 18px;
-    display: grid;
-    place-items: center;
-  }
   .luckrow {
     display: flex;
     gap: 8px;

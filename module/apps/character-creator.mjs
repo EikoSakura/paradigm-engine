@@ -10,7 +10,7 @@ const STEP_LABELS = [
   "PARADIGMENGINE.Creator.Finishing"
 ];
 
-const TRADE = { floor: 3, cap: 8, total: 17 };
+const TRADE = { floor: 3, cap: 8, total: 12 };
 
 /* Creator textareas are plain text; the items' Description fields hold HTML. */
 export function paragraphs(text) {
@@ -80,9 +80,9 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
 
   #bond = { name: "" };
 
-  /* The creation trade: Hearts, Energy, Move one for one, floor 3, cap 8,
-     always totalling 17. */
-  #pools = { hearts: 6, energy: 6, move: 5 };
+  /* The creation trade: Hearts and Energy one for one, floor 3, cap 8,
+     always totalling 12. */
+  #pools = { hearts: 6, energy: 6 };
 
   #luck = [null, null, null];
 
@@ -121,8 +121,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     if (system.bonds[0]?.name) this.#bond.name = system.bonds[0].name;
     this.#pools = {
       hearts: Math.clamp(system.hearts.max ?? 6, TRADE.floor, TRADE.cap),
-      energy: Math.clamp(system.energy.max ?? 6, TRADE.floor, TRADE.cap),
-      move: Math.clamp(system.move ?? 5, TRADE.floor, TRADE.cap)
+      energy: Math.clamp(system.energy.max ?? 6, TRADE.floor, TRADE.cap)
     };
     if (system.luck.length === 3 && system.luck.every(slot => slot.value >= 1)) {
       this.#luck = system.luck.map(slot => slot.value);
@@ -283,7 +282,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   }
 
   #free() {
-    return TRADE.total - this.#pools.hearts - this.#pools.energy - this.#pools.move;
+    return TRADE.total - this.#pools.hearts - this.#pools.energy;
   }
 
   #checks() {
@@ -421,7 +420,6 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
           attributes: { ...this.#attrs },
           hearts: { value: this.#pools.hearts, max: this.#pools.hearts },
           energy: { value: this.#pools.energy, max: this.#pools.energy },
-          move: this.#pools.move,
           luck,
           bonds
         }

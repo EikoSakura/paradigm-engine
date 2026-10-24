@@ -16,7 +16,6 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       toggleLuck: this.#onToggleLuck,
       stepRank: this.#onStepRank,
       stepMax: this.#onStepMax,
-      stepMove: this.#onStepMove,
       createItem: this.#onCreateItem,
       openItem: this.#onOpenItem,
       deleteItem: this.#onDeleteItem,
@@ -28,9 +27,9 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
 
   static FORM_ARRAYS = ["luck"];
 
-  /* Stepper bounds for the pool maxes and Move: free range, floor 0.
-     The 3..8 creation trade lives in the Character Creator alone. */
-  static BOUNDS = { points: { min: 0, max: Infinity }, move: { min: 0, max: Infinity } };
+  /* Stepper bounds for the pool maxes: free range, floor 0. The 3..8
+     creation trade lives in the Character Creator alone. */
+  static BOUNDS = { points: { min: 0, max: Infinity } };
 
   /* Which rank badges currently show their die face. Display state only, never stored. */
   #flipped = new Set();
@@ -49,7 +48,6 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     context.rank = { letter: rank.rank, number: rank.difficulty, cssVar: rank.cssVar };
     context.hearts = { ...system.hearts, pips: BaseActorSheet.#pips(system.hearts) };
     context.energy = { ...system.energy, pips: BaseActorSheet.#pips(system.energy) };
-    context.move = system.move;
     context.luck = system.luck.map(slot => ({
       ...slot,
       stateLabel: game.i18n.localize(slot.spent ? "PARADIGMENGINE.Vitals.Spent" : "PARADIGMENGINE.Vitals.Ready")
@@ -169,13 +167,6 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       [`system.${kind}.max`]: newMax,
       [`system.${kind}.value`]: Math.min(value, newMax)
     });
-  }
-
-  static async #onStepMove(event, target) {
-    if (!this.isEditable) return;
-    const bounds = this.constructor.BOUNDS.move;
-    const move = Math.min(bounds.max, Math.max(bounds.min, this.document.system.move + Number(target.dataset.dir)));
-    await this.document.update({ "system.move": move });
   }
 
   static async #onCreateItem(event, target) {

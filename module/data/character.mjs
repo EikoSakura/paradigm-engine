@@ -1,4 +1,4 @@
-import { attributesField, hotbarField, luckField, moveField, pointsField, rankField, textField } from "./fields.mjs";
+import { attributesField, hotbarField, luckField, pointsField, rankField, textField } from "./fields.mjs";
 
 const { ArrayField, BooleanField, NumberField, SchemaField } = foundry.data.fields;
 
@@ -17,7 +17,6 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
       attributes: attributesField(),
       hearts: pointsField(),
       energy: pointsField(),
-      move: moveField(),
       luck: luckField(),
       hotbar: hotbarField(),
       bonds: new ArrayField(
@@ -32,8 +31,7 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
           newSkill: boxesField(3),
           rankSkill: boxesField(2),
           newHeart: boxesField(1),
-          newEnergy: boxesField(1),
-          move: boxesField(1)
+          newEnergy: boxesField(1)
         }),
         special: new SchemaField({
           luck: boxesField(3),
@@ -47,8 +45,8 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /* 0.4.0 renamed the Technique advancement boxes to Skill; the Trait
-     boxes are gone and drop with the keys the schema no longer holds. */
+  /* 0.4.0 renamed the Technique advancement boxes to Skill; the Trait and
+     Move boxes are gone and drop with the keys the schema no longer holds. */
   static migrateData(source, options) {
     const standard = source.advancements?.standard;
     if (standard) {
