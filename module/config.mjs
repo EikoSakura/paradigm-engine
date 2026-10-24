@@ -3,23 +3,23 @@
    area maximum, and Sync range through Bonds read it. difficulty is the
    number a roll against the Rank as a Difficulty must reach. */
 export const LADDER = [
-  { rank: "E", die: "d4", dieValue: 4, mod: 1, difficulty: 4, cssVar: "--rk-e" },
+  { rank: "E", die: "d4", dieValue: 4, mod: 1, difficulty: 5, cssVar: "--rk-e" },
   { rank: "D", die: "d6", dieValue: 6, mod: 2, difficulty: 7, cssVar: "--rk-d" },
-  { rank: "C", die: "d8", dieValue: 8, mod: 3, difficulty: 10, cssVar: "--rk-c" },
-  { rank: "B", die: "d10", dieValue: 10, mod: 4, difficulty: 13, cssVar: "--rk-b" },
-  { rank: "A", die: "d12", dieValue: 12, mod: 5, difficulty: 16, cssVar: "--rk-a" },
-  { rank: "S", die: "d12+2", dieValue: 14, mod: 6, difficulty: 19, cssVar: "--rk-s" }
+  { rank: "C", die: "d8", dieValue: 8, mod: 3, difficulty: 9, cssVar: "--rk-c" },
+  { rank: "B", die: "d10", dieValue: 10, mod: 4, difficulty: 11, cssVar: "--rk-b" },
+  { rank: "A", die: "d12", dieValue: 12, mod: 5, difficulty: 13, cssVar: "--rk-a" },
+  { rank: "S", die: "d12+2", dieValue: 14, mod: 6, difficulty: 16, cssVar: "--rk-s" }
 ];
 
 /* Difficulties: the Ladder plus the Difficulty-only SS. */
 export const DIFFICULTY = [
-  { rank: "E", number: 4, cssVar: "--rk-e" },
+  { rank: "E", number: 5, cssVar: "--rk-e" },
   { rank: "D", number: 7, cssVar: "--rk-d" },
-  { rank: "C", number: 10, cssVar: "--rk-c" },
-  { rank: "B", number: 13, cssVar: "--rk-b" },
-  { rank: "A", number: 16, cssVar: "--rk-a" },
-  { rank: "S", number: 19, cssVar: "--rk-s" },
-  { rank: "SS", number: 22, cssVar: "--beni" }
+  { rank: "C", number: 9, cssVar: "--rk-c" },
+  { rank: "B", number: 11, cssVar: "--rk-b" },
+  { rank: "A", number: 13, cssVar: "--rk-a" },
+  { rank: "S", number: 16, cssVar: "--rk-s" },
+  { rank: "SS", number: 19, cssVar: "--beni" }
 ];
 
 export const ATTRIBUTES = [
