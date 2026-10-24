@@ -1,13 +1,13 @@
-/* Ranks are indices 0..5 into the Ladder, E..S. dieValue is the Rank's
-   Die Value, the highest number its Die rolls. difficulty is the number
-   a roll against the Rank as a Difficulty must reach. */
+/* Ranks are indices 0..5 into the Ladder, E..S. mod is the Rank's Skill
+   Energy cost. difficulty is the number a roll against the Rank as a
+   Difficulty must reach. */
 export const LADDER = [
-  { rank: "E", die: "d4", dieValue: 4, mod: 1, difficulty: 5, cssVar: "--rk-e" },
-  { rank: "D", die: "d6", dieValue: 6, mod: 2, difficulty: 7, cssVar: "--rk-d" },
-  { rank: "C", die: "d8", dieValue: 8, mod: 3, difficulty: 9, cssVar: "--rk-c" },
-  { rank: "B", die: "d10", dieValue: 10, mod: 4, difficulty: 11, cssVar: "--rk-b" },
-  { rank: "A", die: "d12", dieValue: 12, mod: 5, difficulty: 13, cssVar: "--rk-a" },
-  { rank: "S", die: "d12+2", dieValue: 14, mod: 6, difficulty: 16, cssVar: "--rk-s" }
+  { rank: "E", die: "d4", mod: 1, difficulty: 5, cssVar: "--rk-e" },
+  { rank: "D", die: "d6", mod: 2, difficulty: 7, cssVar: "--rk-d" },
+  { rank: "C", die: "d8", mod: 3, difficulty: 9, cssVar: "--rk-c" },
+  { rank: "B", die: "d10", mod: 4, difficulty: 11, cssVar: "--rk-b" },
+  { rank: "A", die: "d12", mod: 5, difficulty: 13, cssVar: "--rk-a" },
+  { rank: "S", die: "d12+2", mod: 6, difficulty: 16, cssVar: "--rk-s" }
 ];
 
 /* Difficulties: the Ladder plus the Difficulty-only SS. */
