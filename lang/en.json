@@ -130,10 +130,6 @@
       "Spotlight": "The Spotlight passes.",
       "Luck": "Luck Dice cannot alter this roll."
     },
-    "PartyHud": {
-      "Folder": "Party",
-      "Overwhelmed": "Overwhelmed"
-    },
     "Encounter": {
       "Label": "Encounter",
       "Spotlight": "Spotlight",

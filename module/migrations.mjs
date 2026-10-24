@@ -30,6 +30,7 @@ export function registerMigrations() {
       await removeTension();
       await removeTracks();
       await skillsReplaceTraits();
+      await removeHuds();
     }
     await game.settings.set("paradigm-engine", SETTING, game.system.version);
   });
@@ -148,6 +149,15 @@ async function skillsReplaceTraits() {
     }
     if (!foundry.utils.isEmpty(update)) await actor.update(update);
   }
+}
+
+/* 0.4.0 removed the Party HUD and the Adversary frame. The Party folder
+   stays as an ordinary Actors folder; only its system flag goes. */
+async function removeHuds() {
+  const updates = game.folders
+    .filter(f => f._source.flags?.[game.system.id]?.party !== undefined)
+    .map(f => ({ _id: f.id, [`flags.${game.system.id}.party`]: del() }));
+  if (updates.length) await Folder.implementation.updateDocuments(updates);
 }
 
 /* 0.3.0 put the board on tiles: every existing scene measures 1 tile

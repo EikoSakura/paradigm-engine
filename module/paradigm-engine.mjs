@@ -6,8 +6,6 @@ import AdversarySheet from "./sheets/adversary-sheet.mjs";
 import ParadigmEngineItemSheet from "./sheets/item-sheet.mjs";
 import { registerSplash } from "./apps/splash.mjs";
 import { registerLuck } from "./apps/luck-picker.mjs";
-import { registerPartyHud } from "./apps/party-hud.mjs";
-import { registerAdversaryFrame } from "./apps/adversary-frame.mjs";
 import { registerSkillBar } from "./apps/skill-bar.mjs";
 import { registerSidebarToggle } from "./apps/sidebar-toggle.mjs";
 import { registerCombat } from "./combat.mjs";
@@ -20,8 +18,6 @@ import { registerMigrations } from "./migrations.mjs";
 Hooks.once("init", () => {
   registerSplash();
   registerLuck();
-  registerPartyHud();
-  registerAdversaryFrame();
   registerSkillBar();
   registerSidebarToggle();
   registerCombat();
