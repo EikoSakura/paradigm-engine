@@ -18,7 +18,6 @@ export async function postItemCard(item) {
       secrets: false
     })
   };
-  if (item.system.area) context.area = { cap: step.dieValue };
   const content = await renderTemplate("systems/paradigm-engine/templates/chat/item-card.hbs", context);
   return ChatMessage.implementation.create({
     content,

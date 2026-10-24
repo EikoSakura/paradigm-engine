@@ -16,11 +16,6 @@
     "minimum": "14",
     "verified": "14.369"
   },
-  "grid": {
-    "distance": 1,
-    "units": "tiles",
-    "diagonals": 3
-  },
   "socket": true,
   "esmodules": ["module/paradigm-engine.mjs"],
   "styles": ["styles/paradigm-engine.css"],

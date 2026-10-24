@@ -1,7 +1,6 @@
 import ParadigmEngineSheet from "./mixin.mjs";
 import { LADDER } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
-import { openItemArea } from "../apps/area.mjs";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 
@@ -14,8 +13,7 @@ export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemShe
       stepRank: this.#onStepRank,
       addRuling: this.#onAddRuling,
       deleteRuling: this.#onDeleteRuling,
-      postItem: this.#onPostItem,
-      openArea: this.#onOpenArea
+      postItem: this.#onPostItem
     }
   };
 
@@ -103,9 +101,5 @@ export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemShe
 
   static async #onPostItem() {
     await postItemCard(this.document);
-  }
-
-  static #onOpenArea() {
-    openItemArea(this.document);
   }
 }

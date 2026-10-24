@@ -34,20 +34,6 @@
       <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PARADIGMENGINE.Roll.Bonus"}}">
     </div>
   </div>
-  {{#if area}}
-  <div class="slab">{{localize "PARADIGMENGINE.Item.Area"}}</div>
-  <div class="arearow">
-    <span class="stepgrp">
-      <button type="button" class="stepbtn" data-action="areaStep" data-delta="-1"
-              aria-label="{{localize "PARADIGMENGINE.Area.Smaller"}}"{{#if area.downDisabled}} disabled{{/if}}>&minus;</button>
-      <span class="diebadge">{{area.size}}</span>
-      <button type="button" class="stepbtn" data-action="areaStep" data-delta="1"
-              aria-label="{{localize "PARADIGMENGINE.Area.Larger"}}"{{#if area.upDisabled}} disabled{{/if}}>+</button>
-    </span>
-    <span class="tiles">{{localize "PARADIGMENGINE.Vitals.Tiles"}}</span>
-    <button type="button" class="areaplace" data-action="place">{{localize "PARADIGMENGINE.Area.Place"}}</button>
-  </div>
-  {{/if}}
   <div class="slab">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
   <div class="diffs">
     {{#each difficulties}}

@@ -1,7 +1,6 @@
 /* Ranks are indices 0..5 into the Ladder, E..S. dieValue is the Rank's
-   Die Value, the highest number its Die rolls: Skill range, Skill
-   area maximum, and Sync range through Bonds read it. difficulty is the
-   number a roll against the Rank as a Difficulty must reach. */
+   Die Value, the highest number its Die rolls. difficulty is the number
+   a roll against the Rank as a Difficulty must reach. */
 export const LADDER = [
   { rank: "E", die: "d4", dieValue: 4, mod: 1, difficulty: 5, cssVar: "--rk-e" },
   { rank: "D", die: "d6", dieValue: 6, mod: 2, difficulty: 7, cssVar: "--rk-d" },

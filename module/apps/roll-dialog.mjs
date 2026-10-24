@@ -1,6 +1,5 @@
 import { DIFFICULTY, LADDER, ATTRIBUTES } from "../config.mjs";
 import { postActionRoll, postEnergyCard } from "../chat.mjs";
-import { placeBurst } from "./area.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -24,8 +23,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       step: this.#onStep,
       difficulty: this.#onDifficulty,
       limit: this.#onLimit,
-      areaStep: this.#onAreaStep,
-      place: this.#onPlace,
       roll: this.#onRoll
     }
   };
@@ -52,12 +49,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   #difficulty = null;
 
   #limitBreak = 0;
-
-  /* The Area size when the rolled Skill covers one, capped at its
-     Rank's Die Value; null while no area Skill is in the roll. */
-  #areaSize = null;
-
-  #areaCap = null;
 
   static open(actor, first) {
     this.#instances.get(actor.uuid)?.close();
@@ -102,22 +93,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     };
     context.seconds = seconds.map(s => ({ ...s, selected: s.value === this.#second }));
     context.bonus = this.#bonus;
-    const skill = this.#skillItem();
-    if (skill?.system.area) {
-      const cap = LADDER[skill.system.rank].dieValue;
-      if (this.#areaCap !== cap) {
-        this.#areaCap = cap;
-        this.#areaSize = cap;
-      }
-      context.area = {
-        size: this.#areaSize,
-        downDisabled: this.#areaSize <= 1,
-        upDisabled: this.#areaSize >= cap
-      };
-    } else {
-      this.#areaCap = null;
-      this.#areaSize = null;
-    }
     context.difficulties = DIFFICULTY.map((d, index) => ({ ...d, index, selected: this.#difficulty === index }));
     context.hasDifficulty = this.#difficulty !== null;
     context.limitBreak = this.#limitBreak;
@@ -231,17 +206,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     if (this.#difficulty === null) return;
     this.#limitBreak = Math.clamp(this.#limitBreak + Number(target.dataset.delta), 0, 6 - this.#difficulty);
     this.render();
-  }
-
-  static #onAreaStep(event, target) {
-    if (this.#areaCap === null) return;
-    this.#areaSize = Math.clamp(this.#areaSize + Number(target.dataset.delta), 1, this.#areaCap);
-    this.render();
-  }
-
-  static async #onPlace() {
-    if (this.#areaSize === null) return;
-    await placeBurst(this.#areaSize);
   }
 
   static async #onRoll() {

@@ -11,8 +11,6 @@ import { registerSidebarToggle } from "./apps/sidebar-toggle.mjs";
 import { registerCombat } from "./combat.mjs";
 import { registerTokenDefaults } from "./tokens.mjs";
 import { registerEncounterTracker } from "./apps/encounter-tracker.mjs";
-import { registerDistance } from "./apps/distance.mjs";
-import { registerAreas } from "./apps/area.mjs";
 import { registerMigrations } from "./migrations.mjs";
 
 Hooks.once("init", () => {
@@ -23,8 +21,6 @@ Hooks.once("init", () => {
   registerCombat();
   registerTokenDefaults();
   registerEncounterTracker();
-  registerDistance();
-  registerAreas();
   registerMigrations();
 
   CONFIG.Actor.dataModels.character = CharacterData;

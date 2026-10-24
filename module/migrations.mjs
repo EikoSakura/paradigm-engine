@@ -24,7 +24,6 @@ export function registerMigrations() {
     if (foundry.utils.isNewerVersion("0.3.0", stored)) {
       await renameRanks();
       await bondRanks();
-      await sceneTiles();
     }
     if (foundry.utils.isNewerVersion("0.4.0", stored)) {
       await removeTension();
@@ -32,6 +31,7 @@ export function registerMigrations() {
       await skillsReplaceTraits();
       await removeHuds();
       await removeMove();
+      await removeAreas();
     }
     await game.settings.set("paradigm-engine", SETTING, game.system.version);
   });
@@ -189,15 +189,23 @@ async function removeMove() {
   }
 }
 
-/* 0.3.0 put the board on tiles: every existing scene measures 1 tile
-   per grid space, units "tiles", whatever it was imported with, and
-   square grids count diagonals as 2 — the cardinal rule. */
-async function sceneTiles() {
-  const updates = game.scenes
-    .filter(s => (s._source.grid.distance !== 1) || (s._source.grid.units !== "tiles"))
-    .map(s => ({ _id: s.id, "grid.distance": 1, "grid.units": "tiles" }));
-  if (updates.length) await Scene.implementation.updateDocuments(updates);
-  await game.settings.set("core", "gridDiagonals", CONST.GRID_DIAGONALS.RECTILINEAR);
+/* 0.4.0 removed Areas. The Skill model no longer holds the area flag, so
+   each Skill's system is written back whole to clear the stored value:
+   world Items, actor Items, and unlinked token actors alike. Placed
+   bursts were ordinary Drawings and stay with their scenes. */
+async function removeAreas() {
+  const { ForcedReplacement } = foundry.data.operators;
+  const rewrite = items => items
+    .filter(item => item.type === "skill")
+    .map(item => ({ _id: item.id, system: ForcedReplacement.create(item.system.toObject()) }));
+  const world = rewrite(game.items.contents);
+  if (world.length) await Item.implementation.updateDocuments(world);
+  const unlinked = game.scenes.contents.flatMap(scene =>
+    scene.tokens.filter(token => !token.actorLink && token.actor).map(token => token.actor));
+  for (const actor of [...game.actors, ...unlinked]) {
+    const updates = rewrite(actor.items.contents);
+    if (updates.length) await actor.updateEmbeddedDocuments("Item", updates);
+  }
 }
 
 /* 0.3.0 renamed Grade to Rank: move each actor's grade to rank, and the

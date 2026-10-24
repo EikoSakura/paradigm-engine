@@ -2,7 +2,6 @@ import ParadigmEngineSheet from "./mixin.mjs";
 import { LADDER, ATTRIBUTES } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
-import { openItemArea } from "../apps/area.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 
@@ -20,8 +19,7 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       openItem: this.#onOpenItem,
       deleteItem: this.#onDeleteItem,
       postItem: this.#onPostItem,
-      openRoll: this.#onOpenRoll,
-      openArea: this.#onOpenArea
+      openRoll: this.#onOpenRoll
     }
   };
 
@@ -94,7 +92,6 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       return {
         id: item.id,
         name: item.name,
-        area: item.system.area,
         rulings: item.system.rulings,
         badge: this._badge(`skill.${item.id}`, item.system.rank),
         kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${item.system.kind}`),
@@ -198,10 +195,5 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       ? { kind: "skill", id: target.dataset.itemId }
       : { kind: "attribute", key: target.dataset.key };
     RollDialog.open(this.document, first);
-  }
-
-  static #onOpenArea(event, target) {
-    const item = this.document.items.get(target.dataset.itemId);
-    if (item) openItemArea(item);
   }
 }

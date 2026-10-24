@@ -789,15 +789,6 @@
     border-color: #a8771f;
     color: var(--ink);
   }
-  button.chip.areachip {
-    background: var(--paper);
-    cursor: pointer;
-    flex: none;
-  }
-  button.chip.areachip:hover {
-    border-color: var(--beni);
-    color: var(--beni-deep);
-  }
   .card p {
     font-size: 13px;
     margin: 0;
@@ -1067,32 +1058,6 @@
     color: var(--paper);
     border-color: var(--paper);
   }
-  button.chip.areachip {
-    background: var(--paper);
-    color: var(--ink);
-    border-color: var(--paper);
-    cursor: pointer;
-  }
-  button.chip.areachip:hover {
-    border-color: var(--beni);
-  }
-  .chip.check {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 10px;
-    background: var(--paper);
-    color: var(--ink);
-    border-color: var(--paper);
-    cursor: pointer;
-  }
-  .chip.check input {
-    width: 12px;
-    height: 12px;
-    margin: 0;
-    accent-color: var(--beni);
-    cursor: pointer;
-  }
   select.kindsel {
     border-color: var(--paper);
     background: transparent;
@@ -1196,33 +1161,6 @@
 .paradigm-engine.roll-dialog {
   .dbody {
     padding: 14px 14px 2px;
-  }
-  .arearow {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .arearow .tiles {
-    flex: 1;
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .arearow .areaplace {
-    border: 2px solid var(--ink);
-    border-radius: 0;
-    background: var(--paper);
-    font-weight: 900;
-    font-size: 10px;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    padding: 5px 10px;
-  }
-  .arearow .areaplace:hover {
-    border-color: var(--beni);
-    color: var(--beni-deep);
   }
   .dhead {
     display: flex;
@@ -1590,14 +1528,6 @@
   background: var(--gold);
   border-color: #a8771f;
   color: var(--ink);
-}
-.pe-card button.chip.areachip {
-  background: var(--paper);
-  color: var(--ink);
-  cursor: pointer;
-}
-.pe-card button.chip.areachip:hover {
-  border-color: var(--beni);
 }
 .pe-card .cbody {
   padding: 10px 12px 11px 16px;
@@ -3240,85 +3170,3 @@
   }
 }
 
-/* ===== tile count on the drag ruler label ===== */
-#measurement .waypoint-label .pe-distance {
-  font-weight: 700;
-  font-size: 0.9em;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-/* ===== the Area size dialog ===== */
-.paradigm-engine.area-dialog {
-  .areabody {
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .szrow {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .szlabel {
-    flex: 1;
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-  }
-  .stepper {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .stepper button {
-    width: 26px;
-    height: 26px;
-    border: 2px solid var(--ink);
-    background: var(--paper);
-    border-radius: 0;
-    font-size: 14px;
-    font-weight: 900;
-    line-height: 1;
-  }
-  .stepper button:disabled {
-    opacity: .3;
-    cursor: default;
-  }
-  .szval {
-    width: 34px;
-    height: 34px;
-    border: 2px solid var(--ink);
-    border-radius: 6px;
-    background: var(--paper);
-    font-family: var(--f-display);
-    font-weight: 800;
-    font-size: 18px;
-    display: grid;
-    place-items: center;
-  }
-  .sztiles {
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: .16em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .placebtn {
-    border: 2px solid var(--ink);
-    background: var(--beni);
-    color: #fff;
-    font-weight: 900;
-    font-size: 11px;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    padding: 9px 12px;
-    box-shadow: 3px 3px 0 rgba(34, 26, 54, .25);
-  }
-  .placebtn:active {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 rgba(34, 26, 54, .25);
-  }
-}

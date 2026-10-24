@@ -43,7 +43,6 @@
     "Vitals": {
       "Hearts": "Hearts",
       "Energy": "Energy",
-      "Tiles": "Tiles",
       "LuckDice": "Luck Dice",
       "Ready": "Ready",
       "Spent": "Spent"
@@ -79,15 +78,8 @@
     "Item": {
       "Rank": "Rank",
       "Kind": "Kind",
-      "Area": "Area",
       "Description": "Description",
       "Rulings": "Rulings"
-    },
-    "Area": {
-      "Size": "Size",
-      "Place": "Place",
-      "Smaller": "Smaller",
-      "Larger": "Larger"
     },
     "Skill": {
       "Activated": "Activated",
@@ -219,11 +211,6 @@
       "Back": "Back",
       "Next": "Next",
       "Position": "Step {n} of {total}"
-    },
-    "Distance": {
-      "Engaged": "Engaged",
-      "Tile": "{n} Tile",
-      "Tiles": "{n} Tiles"
     },
     "Builder": {
       "Title": "Adversary Builder",
