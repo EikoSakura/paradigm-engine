@@ -8,9 +8,7 @@
       {{else}}
       <div class="iname">{{name}}</div>
       {{/if}}
-      {{#if showChips}}
       <div class="obichips">
-        {{#if isTechnique}}
         {{#if editMode}}
         <select class="kindsel" name="system.kind" aria-label="{{localize "PARADIGMENGINE.Item.Kind"}}">
           {{selectOptions kindOptions selected=system.kind}}
@@ -19,7 +17,6 @@
         <span class="chip {{#if activated}}pap{{else}}inv{{/if}}">{{kindLabel}}</span>
         {{/if}}
         <span class="chip gold">{{costLabel}}</span>
-        {{/if}}
         {{#if editMode}}
         <label class="chip check">
           <input type="checkbox" name="system.area"{{#if system.area}} checked{{/if}}>
@@ -29,7 +26,6 @@
         <button type="button" class="chip areachip" data-action="openArea">{{localize "PARADIGMENGINE.Item.Area"}}</button>
         {{/if}}
       </div>
-      {{/if}}
     </div>
     <div class="sealwrap">
       <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PARADIGMENGINE.Item.Rank"}}">

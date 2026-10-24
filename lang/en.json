@@ -5,8 +5,7 @@
       "adversary": "Adversary"
     },
     "Item": {
-      "trait": "Trait",
-      "technique": "Technique"
+      "skill": "Skill"
     },
     "Combatant": {
       "participant": "Participant"
@@ -53,8 +52,7 @@
     "Panel": {
       "Attributes": "Attributes",
       "Ranks": "Ranks",
-      "Traits": "Traits",
-      "Techniques": "Techniques",
+      "Skills": "Skills",
       "Bonds": "Bonds",
       "Advancements": "Advancements",
       "Standard": "Standard",
@@ -65,7 +63,6 @@
     "Ladder": {
       "Rank": "Rank",
       "Die": "Die",
-      "Trait": "Trait",
       "Difficulty": "Difficulty"
     },
     "Attribute": {
@@ -93,7 +90,7 @@
       "Smaller": "Smaller",
       "Larger": "Larger"
     },
-    "Technique": {
+    "Skill": {
       "Activated": "Activated",
       "Triggered": "Triggered",
       "Energy": "{n} Energy"
@@ -113,8 +110,6 @@
     "Roll": {
       "Title": "Action Roll",
       "SecondDie": "Second Die",
-      "Trait": "Trait",
-      "None": "None",
       "Bonus": "Bonus",
       "StepUp": "Step Up",
       "StepDown": "Step Down",
@@ -132,44 +127,8 @@
       "Fumble": "Fumble"
     },
     "Rider": {
-      "Tension": "The Storyteller gains 1 Tension.",
-      "Tension2": "The Storyteller gains 2 Tension.",
       "Spotlight": "The Spotlight passes.",
       "Luck": "Luck Dice cannot alter this roll."
-    },
-    "Tension": {
-      "Menu": "Tension",
-      "Configure": "Configure",
-      "Label": "Tension",
-      "Raise": "Gain 1 Tension",
-      "Raise2": "Gain 2 Tension",
-      "GainLine": "The Storyteller gains {n} Tension.",
-      "Gained": "Gained",
-      "Full": "Tension Full",
-      "Announce": "Announce to Chat",
-      "Auto": "Auto Gain From Rolls",
-      "Save": "Save"
-    },
-    "Tracks": {
-      "Title": "Tracks",
-      "New": "New Track",
-      "Name": "Name",
-      "Segments": "Segments",
-      "Contest": "Contest",
-      "Sides": "Sides",
-      "AddSide": "Add Side",
-      "RemoveSide": "Remove Side",
-      "Create": "Create",
-      "Collapse": "Collapse",
-      "Expand": "Expand",
-      "Hide": "Hide",
-      "Delete": "Delete Track",
-      "DeletePrompt": "Delete {name}?",
-      "ChipFill": "{name} +{n}",
-      "ChipErase": "{name} −1",
-      "AppliedFill": "Filled · {name}",
-      "AppliedErase": "Erased · {name}",
-      "NoStoryteller": "No Storyteller is connected."
     },
     "PartyHud": {
       "Folder": "Party",
@@ -198,8 +157,8 @@
       "None": "No encounter.",
       "RankTitle": "Rank {rank} · Difficulty {number}"
     },
-    "TechBar": {
-      "Label": "Techniques",
+    "SkillBar": {
+      "Label": "Skills",
       "PageUp": "Page Up",
       "PageDown": "Page Down",
       "Slot1": "Use Slot 1",
@@ -219,10 +178,8 @@
       "Gain": "Gain",
       "StandardTail": "Cost 1 · Clear Each Season",
       "SpecialTail": "Cost 2 · Never Clear",
-      "NewTrait": "New Trait",
-      "RankTrait": "Rank Up Trait",
-      "NewTech": "New Technique",
-      "RankTech": "Rank Up Technique",
+      "NewSkill": "New Skill",
+      "RankSkill": "Rank Up Skill",
       "NewHeart": "New Heart",
       "NewEnergy": "New Energy",
       "Move": "+1 Move",
@@ -247,8 +204,7 @@
       "RaiseMove": "Raise Move",
       "LowerMove": "Lower Move",
       "LuckValue": "Recorded Value",
-      "AddTrait": "+ New Trait",
-      "AddTechnique": "+ New Technique",
+      "AddSkill": "+ New Skill",
       "AddBond": "+ New Bond",
       "BondRank": "Bond Rank"
     },
@@ -264,8 +220,7 @@
       "Finishing": "Finishing Touches",
       "StepUps": "Step Ups",
       "AttributesSide": "All Start at E, Cap C",
-      "TraitsSide": "Two, Rank D",
-      "TechniquesSide": "Two, Rank E",
+      "SkillsSide": "Two, Rank E",
       "BondSide": "One, Rank E",
       "Free": "Free",
       "Roll": "Roll 3d6",
@@ -284,9 +239,7 @@
       "Create": "Create Adversary",
       "Stats": "Stats",
       "StatsSide": "Storyteller-Set",
-      "AddTrait": "Add Trait",
-      "AddTechnique": "Add Technique",
-      "DesireTrack": "Desire Track"
+      "AddSkill": "Add Skill"
     }
   }
 }

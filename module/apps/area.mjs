@@ -2,7 +2,7 @@ import { LADDER } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-/* Areas: the Area chip on a Technique or Trait opens the Size dialog —
+/* Areas: the Area chip on a Skill opens the Size dialog —
    1 to the item's Die Value, defaulting to the Die Value, counted in
    tiles — and Place previews the burst on the canvas. A left click
    commits it as a polygon Drawing (V14 has no persistent Measured

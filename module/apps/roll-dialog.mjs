@@ -4,14 +4,13 @@ import { placeBurst } from "./area.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-/* The Action Roll picker. Opened from an Attribute or Technique name on an
+/* The Action Roll picker. Opened from an Attribute or Skill name on an
    actor sheet; that die is locked as the first die. One dialog per actor. */
 export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
-  constructor({ actor, first, trait, ...options } = {}) {
+  constructor({ actor, first, ...options } = {}) {
     super(options);
     this.#actor = actor;
     this.#first = first;
-    if (trait) this.#trait = trait;
     if (game.user.targets.size === 1) {
       const rank = game.user.targets.first().actor?.system.rank;
       if (typeof rank === "number") this.#difficulty = rank;
@@ -39,12 +38,10 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
 
   #actor;
 
-  /* { kind: "attribute", key } or { kind: "technique", id } */
+  /* { kind: "attribute", key } or { kind: "skill", id } */
   #first;
 
   #second = "";
-
-  #trait = "";
 
   /* Rank steps applied to [first, second] for this one roll, clamped E..S. */
   #steps = [0, 0];
@@ -56,15 +53,15 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
 
   #limitBreak = 0;
 
-  /* The Area size when the rolled Technique covers one, capped at its
-     Rank's Die Value; null while no area Technique is in the roll. */
+  /* The Area size when the rolled Skill covers one, capped at its
+     Rank's Die Value; null while no area Skill is in the roll. */
   #areaSize = null;
 
   #areaCap = null;
 
-  static open(actor, first, trait) {
+  static open(actor, first) {
     this.#instances.get(actor.uuid)?.close();
-    const dialog = new this({ actor, first, trait });
+    const dialog = new this({ actor, first });
     this.#instances.set(actor.uuid, dialog);
     dialog.render(true);
   }
@@ -82,12 +79,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     }
     const seconds = this.#seconds();
     if (!seconds.some(s => s.value === this.#second)) this.#second = seconds[0]?.value ?? "";
-    const traits = [...this.#actor.itemTypes.trait].sort((a, b) => a.sort - b.sort).map(item => ({
-      value: item.id,
-      label: `${item.name} +${LADDER[item.system.rank].mod}`
-    }));
-    if (this.#trait && !traits.some(t => t.value === this.#trait)) this.#trait = "";
-
     const second = this.#resolveSecond();
     const bases = [first.rank, second.rank];
     const ranks = this.#effRanks();
@@ -100,8 +91,8 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       stepClass: stepClass(0),
       upDisabled: ranks[0] >= 5,
       downDisabled: ranks[0] <= 0,
-      isTechnique: first.tech,
-      costLabel: first.tech ? game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[first.rank].mod }) : ""
+      isSkill: first.skill,
+      costLabel: first.skill ? game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: LADDER[first.rank].mod }) : ""
     };
     context.secondDie = {
       die: LADDER[ranks[1]].die,
@@ -110,11 +101,10 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       downDisabled: ranks[1] <= 0
     };
     context.seconds = seconds.map(s => ({ ...s, selected: s.value === this.#second }));
-    context.traits = traits.map(t => ({ ...t, selected: t.value === this.#trait }));
     context.bonus = this.#bonus;
-    const technique = this.#techniqueItem();
-    if (technique?.system.area) {
-      const cap = LADDER[technique.system.rank].dieValue;
+    const skill = this.#skillItem();
+    if (skill?.system.area) {
+      const cap = LADDER[skill.system.rank].dieValue;
       if (this.#areaCap !== cap) {
         this.#areaCap = cap;
         this.#areaSize = cap;
@@ -155,16 +145,16 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       return {
         name: game.i18n.localize(attribute.label),
         rank: this.#actor.system.attributes[attribute.key],
-        tech: false
+        skill: false
       };
     }
     const item = this.#actor.items.get(this.#first.id);
     if (!item) return null;
-    return { name: item.name, rank: item.system.rank, tech: true };
+    return { name: item.name, rank: item.system.rank, skill: true };
   }
 
-  /* From an Attribute: the other four Attributes and the actor's Techniques.
-     From a Technique: the five Attributes. */
+  /* From an Attribute: the other four Attributes and the actor's Skills.
+     From a Skill: the five Attributes. */
   #seconds() {
     const attributes = ATTRIBUTES
       .filter(a => !(this.#first.kind === "attribute" && a.key === this.#first.key))
@@ -172,13 +162,13 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
         value: `attribute.${a.key}`,
         label: `${game.i18n.localize(a.label)} · ${LADDER[this.#actor.system.attributes[a.key]].die}`
       }));
-    if (this.#first.kind === "technique") return attributes;
-    const techniques = [...this.#actor.itemTypes.technique].sort((a, b) => a.sort - b.sort).map(item => {
+    if (this.#first.kind === "skill") return attributes;
+    const skills = [...this.#actor.itemTypes.skill].sort((a, b) => a.sort - b.sort).map(item => {
       const step = LADDER[item.system.rank];
-      const cost = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
-      return { value: `technique.${item.id}`, label: `${item.name} · ${step.die} · ${cost}` };
+      const cost = game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod });
+      return { value: `skill.${item.id}`, label: `${item.name} · ${step.die} · ${cost}` };
     });
-    return [...attributes, ...techniques];
+    return [...attributes, ...skills];
   }
 
   #resolveSecond() {
@@ -193,18 +183,11 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     return { name: item.name, rank: item.system.rank };
   }
 
-  /* The one Technique in the roll, first or second die, or null. */
-  #techniqueItem() {
-    if (this.#first.kind === "technique") return this.#actor.items.get(this.#first.id) ?? null;
+  /* The one Skill in the roll, first or second die, or null. */
+  #skillItem() {
+    if (this.#first.kind === "skill") return this.#actor.items.get(this.#first.id) ?? null;
     const [kind, id] = this.#second.split(".");
-    return kind === "technique" ? this.#actor.items.get(id) ?? null : null;
-  }
-
-  #resolveTrait() {
-    if (!this.#trait) return null;
-    const item = this.#actor.items.get(this.#trait);
-    if (!item) return null;
-    return { name: item.name, rank: item.system.rank };
+    return kind === "skill" ? this.#actor.items.get(id) ?? null : null;
   }
 
   #effRanks() {
@@ -217,10 +200,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   #formula() {
     const ranks = this.#effRanks();
     if (!ranks) return "";
-    const parts = ranks.map(r => `1${LADDER[r].die}`);
-    const trait = this.#resolveTrait();
-    if (trait) parts.push(String(LADDER[trait.rank].mod));
-    let formula = parts.join(" + ");
+    let formula = ranks.map(r => `1${LADDER[r].die}`).join(" + ");
     if (this.#bonus > 0) formula += ` + ${this.#bonus}`;
     else if (this.#bonus < 0) formula += ` − ${-this.#bonus}`;
     return formula;
@@ -230,7 +210,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     const el = event.target.closest("[name]");
     if (!el) return;
     if (el.name === "second") this.#second = el.value;
-    else if (el.name === "trait") this.#trait = el.value;
     else if (el.name === "bonus") this.#bonus = Math.trunc(Number(el.value) || 0);
     else return;
     this.render();
@@ -269,11 +248,11 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     const first = this.#resolveFirst();
     const second = this.#resolveSecond();
     if (!first || !second) return this.close();
-    const technique = this.#techniqueItem();
-    if (technique) {
-      const cost = LADDER[technique.system.rank].mod;
+    const skill = this.#skillItem();
+    if (skill) {
+      const cost = LADDER[skill.system.rank].mod;
       const { value } = this.#actor.system.energy;
-      if (cost > value) return postEnergyCard(this.#actor, technique);
+      if (cost > value) return postEnergyCard(this.#actor, skill);
       await this.#actor.update({ "system.energy.value": value - cost });
     }
     const ranks = this.#effRanks();
@@ -281,7 +260,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       this.#actor,
       { name: first.name, rank: ranks[0] },
       { name: second.name, rank: ranks[1] },
-      this.#resolveTrait(),
       this.#bonus,
       this.#difficulty,
       this.#limitBreak

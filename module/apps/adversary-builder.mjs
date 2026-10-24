@@ -1,22 +1,19 @@
 import { ATTRIBUTES, LADDER } from "../config.mjs";
 import { paragraphs } from "./character-creator.mjs";
-import { createTrack } from "./tracks.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const STEP_LABELS = [
   "TYPES.Actor.adversary",
   "PARADIGMENGINE.Builder.Stats",
-  "PARADIGMENGINE.Panel.Traits",
-  "PARADIGMENGINE.Panel.Techniques",
+  "PARADIGMENGINE.Panel.Skills",
   "PARADIGMENGINE.Creator.Finishing"
 ];
 
 /* The Adversary Builder wizard, opened by the Storyteller from an
-   adversary sheet's title bar. Five steps hold display state only;
-   Create Adversary writes the actor, its Trait and Technique Items, and
-   the optional Desire Track on the existing schemas. One builder per
-   actor. */
+   adversary sheet's title bar. Four steps hold display state only;
+   Create Adversary writes the actor and its Skill Items on the
+   existing schemas. One builder per actor. */
 export default class AdversaryBuilder extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor, ...options } = {}) {
     super(options);
@@ -39,8 +36,6 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       removeRow: this.#onRemoveRow,
       stepRank: this.#onStepRank,
       setKind: this.#onSetKind,
-      toggleTrack: this.#onToggleTrack,
-      stepSegments: this.#onStepSegments,
       toggleRival: this.#onToggleRival,
       rollLuck: this.#onRollLuck,
       create: this.#onCreate
@@ -73,13 +68,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
 
   #energy = 6;
 
-  #traits = [];
-
-  #techs = [];
-
-  #track = false;
-
-  #segments = 4;
+  #skills = [];
 
   #rival = false;
 
@@ -147,7 +136,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       return {
         key: a.key,
         name: game.i18n.localize(a.label),
-        badge: this.#badge(key, rank, "die", this.#flipped.has(key)),
+        badge: this.#badge(key, rank, this.#flipped.has(key)),
         downDisabled: rank <= 0,
         upDisabled: rank >= 5
       };
@@ -165,37 +154,23 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       upDisabled: this.#energy >= 12
     };
 
-    context.traits = this.#traits.map((t, i) => ({
-      i,
-      ...t,
-      badge: this.#badge(`trait.${i}`, t.rank, "mod", t.flip),
-      downDisabled: t.rank <= 0,
-      upDisabled: t.rank >= 5
-    }));
-    context.techs = this.#techs.map((t, i) => ({
+    context.skills = this.#skills.map((t, i) => ({
       i,
       ...t,
       activated: t.kind === "Activated",
-      badge: this.#badge(`tech.${i}`, t.rank, "die", t.flip),
+      badge: this.#badge(`skill.${i}`, t.rank, t.flip),
       downDisabled: t.rank <= 0,
       upDisabled: t.rank >= 5,
-      costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[t.rank].mod })
+      costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: LADDER[t.rank].mod })
     }));
 
-    context.track = {
-      on: this.#track,
-      segments: this.#segments,
-      cells: Array(this.#segments).fill(true),
-      downDisabled: this.#segments <= 1,
-      upDisabled: this.#segments >= 12
-    };
     context.rival = this.#rival;
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
-    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 5 });
+    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 4 });
     context.first = this.#step === 0;
-    context.last = this.#step === 4;
+    context.last = this.#step === 3;
     context.canCreate = checks.every(Boolean);
     return context;
   }
@@ -214,15 +189,14 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     return [
       this.#name.trim().length > 0 && this.#desire.trim().length > 0,
       true,
-      this.#traits.every(t => t.name.trim().length > 0),
-      this.#techs.every(t => t.name.trim().length > 0),
+      this.#skills.every(t => t.name.trim().length > 0),
       !this.#rival || this.#luck.every(v => v !== null)
     ];
   }
 
-  #badge(key, rankIndex, face, flipped) {
+  #badge(key, rankIndex, flipped) {
     const step = LADDER[rankIndex];
-    const text = flipped ? (face === "mod" ? `+${step.mod}` : step.die) : step.rank;
+    const text = flipped ? step.die : step.rank;
     return { key, text, flipped, small: flipped && text.length > 3, cssVar: step.cssVar };
   }
 
@@ -236,8 +210,8 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     if (group === "name") this.#name = el.value;
     else if (group === "desire") this.#desire = el.value;
     else if (group === "fear") this.#fear = el.value;
-    else if (group === "trait" || group === "tech") {
-      const row = (group === "trait" ? this.#traits : this.#techs)[Number(i)];
+    else if (group === "skill") {
+      const row = this.#skills[Number(i)];
       if (row && (key === "name" || key === "text")) row[key] = el.value;
     } else return;
     this.#syncLive();
@@ -253,7 +227,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   }
 
   #goto(step) {
-    this.#step = Math.clamp(step, 0, 4);
+    this.#step = Math.clamp(step, 0, 3);
     this.render();
   }
 
@@ -289,8 +263,8 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   static #onFlipBadge(event, target) {
     const key = target.dataset.key;
     const [group, i] = key.split(".");
-    if (group === "trait" || group === "tech") {
-      const row = (group === "trait" ? this.#traits : this.#techs)[Number(i)];
+    if (group === "skill") {
+      const row = this.#skills[Number(i)];
       if (row) row.flip = !row.flip;
     } else if (this.#flipped.has(key)) this.#flipped.delete(key);
     else this.#flipped.add(key);
@@ -306,43 +280,28 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   }
 
   static #onAddRow(event, target) {
-    if (target.dataset.group === "trait") this.#traits.push({ name: "", rank: 0, text: "", flip: false });
-    else if (target.dataset.group === "tech") this.#techs.push({ name: "", kind: "Activated", rank: 0, text: "", flip: false });
-    else return;
+    if (target.dataset.group !== "skill") return;
+    this.#skills.push({ name: "", kind: "Activated", rank: 0, text: "", flip: false });
     this.render();
   }
 
   static #onRemoveRow(event, target) {
-    const rows = target.dataset.group === "trait" ? this.#traits
-      : target.dataset.group === "tech" ? this.#techs : null;
-    if (!rows) return;
-    rows.splice(Number(target.dataset.i), 1);
+    if (target.dataset.group !== "skill") return;
+    this.#skills.splice(Number(target.dataset.i), 1);
     this.render();
   }
 
   static #onStepRank(event, target) {
-    const rows = target.dataset.group === "trait" ? this.#traits
-      : target.dataset.group === "tech" ? this.#techs : null;
-    const row = rows?.[Number(target.dataset.i)];
+    const row = target.dataset.group === "skill" ? this.#skills[Number(target.dataset.i)] : null;
     if (!row) return;
     row.rank = Math.clamp(row.rank + Number(target.dataset.dir), 0, 5);
     this.render();
   }
 
   static #onSetKind(event, target) {
-    const row = this.#techs[Number(target.dataset.i)];
+    const row = this.#skills[Number(target.dataset.i)];
     if (!row) return;
     row.kind = target.dataset.kind === "Triggered" ? "Triggered" : "Activated";
-    this.render();
-  }
-
-  static #onToggleTrack() {
-    this.#track = !this.#track;
-    this.render();
-  }
-
-  static #onStepSegments(event, target) {
-    this.#segments = Math.clamp(this.#segments + Number(target.dataset.dir), 1, 12);
     this.render();
   }
 
@@ -376,12 +335,12 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       };
       if (this.#rival) system.luck = this.#luck.map(value => ({ die: 6, value, spent: false }));
       await actor.update({ name, system });
-      const items = [
-        ...this.#traits.map(t => ({ name: t.name.trim(), type: "trait", system: { rank: t.rank, text: paragraphs(t.text) } })),
-        ...this.#techs.map(t => ({ name: t.name.trim(), type: "technique", system: { rank: t.rank, kind: t.kind, text: paragraphs(t.text) } }))
-      ];
+      const items = this.#skills.map(t => ({
+        name: t.name.trim(),
+        type: "skill",
+        system: { rank: t.rank, kind: t.kind, text: paragraphs(t.text) }
+      }));
       if (items.length) await actor.createEmbeddedDocuments("Item", items);
-      if (this.#track) await createTrack(name, this.#segments);
       await this.close();
       actor.sheet.render(true);
     } finally {

@@ -59,57 +59,29 @@
     <section class="pane{{#if active.[2]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Panel.Traits"}}</span>
-          <span class="tail">{{localize "PARADIGMENGINE.Creator.TraitsSide"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Skills"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Creator.SkillsSide"}}</span>
         </div>
         <div class="panel-b">
           <div class="cards">
-            {{#each traits}}
+            {{#each skills}}
             <div class="card">
               <div class="toprow">
                 <div class="field">
-                  <label for="cc-trait-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
-                  <input type="text" id="cc-trait-{{this.i}}-name" name="trait.{{this.i}}.name" value="{{this.name}}">
-                </div>
-                {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
-              </div>
-              <div class="field">
-                <label for="cc-trait-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
-                <textarea id="cc-trait-{{this.i}}-text" name="trait.{{this.i}}.text" rows="2">{{this.text}}</textarea>
-              </div>
-            </div>
-            {{/each}}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pane{{#if active.[3]}} active{{/if}}">
-      <div class="panel">
-        <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Panel.Techniques"}}</span>
-          <span class="tail">{{localize "PARADIGMENGINE.Creator.TechniquesSide"}}</span>
-        </div>
-        <div class="panel-b">
-          <div class="cards">
-            {{#each techs}}
-            <div class="card">
-              <div class="toprow">
-                <div class="field">
-                  <label for="cc-tech-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
-                  <input type="text" id="cc-tech-{{this.i}}-name" name="tech.{{this.i}}.name" value="{{this.name}}">
+                  <label for="cc-skill-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
+                  <input type="text" id="cc-skill-{{this.i}}-name" name="skill.{{this.i}}.name" value="{{this.name}}">
                 </div>
                 {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
               </div>
               <div class="seg">
                 <button type="button" class="{{#if this.activated}}on{{/if}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Activated">{{localize "PARADIGMENGINE.Technique.Activated"}}</button>
+                  data-i="{{this.i}}" data-kind="Activated">{{localize "PARADIGMENGINE.Skill.Activated"}}</button>
                 <button type="button" class="{{#unless this.activated}}on{{/unless}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Triggered">{{localize "PARADIGMENGINE.Technique.Triggered"}}</button>
+                  data-i="{{this.i}}" data-kind="Triggered">{{localize "PARADIGMENGINE.Skill.Triggered"}}</button>
               </div>
               <div class="field">
-                <label for="cc-tech-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
-                <textarea id="cc-tech-{{this.i}}-text" name="tech.{{this.i}}.text" rows="3">{{this.text}}</textarea>
+                <label for="cc-skill-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
+                <textarea id="cc-skill-{{this.i}}-text" name="skill.{{this.i}}.text" rows="3">{{this.text}}</textarea>
               </div>
               <span class="chip gold">{{this.costLabel}}</span>
             </div>
@@ -119,7 +91,7 @@
       </div>
     </section>
 
-    <section class="pane{{#if active.[4]}} active{{/if}}">
+    <section class="pane{{#if active.[3]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
           <span class="en">{{localize "PARADIGMENGINE.Creator.Bond"}}</span>
@@ -137,7 +109,7 @@
       </div>
     </section>
 
-    <section class="pane{{#if active.[5]}} active{{/if}}">
+    <section class="pane{{#if active.[4]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Creator.Finishing"}}</span></div>
         <div class="panel-b">

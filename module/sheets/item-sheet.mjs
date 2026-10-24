@@ -24,7 +24,7 @@ export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemShe
     body: { template: "systems/paradigm-engine/templates/item/body.hbs" }
   };
 
-  /* Whether the seal shows its die or bonus face. Display state only, never stored. */
+  /* Whether the seal shows its die face. Display state only, never stored. */
   #flipped = false;
 
   async _renderFrame(options) {
@@ -44,29 +44,24 @@ export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemShe
     const context = await super._prepareContext(options);
     const system = this.document.system;
     const step = LADDER[system.rank];
-    const isTechnique = this.document.type === "technique";
-    const alt = isTechnique ? step.die : `+${step.mod}`;
+    const alt = step.die;
 
     context.system = system;
     context.name = this.document.name;
     context.editMode = this.isEditMode;
-    context.isTechnique = isTechnique;
     context.typeLabel = game.i18n.localize(`TYPES.Item.${this.document.type}`);
     context.seal = {
       text: this.#flipped ? alt : step.rank,
       flipped: this.#flipped,
       size: this.#flipped ? (alt.length > 3 ? "17px" : "26px") : "38px"
     };
-    if (isTechnique) {
-      context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${system.kind}`);
-      context.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
-      context.activated = system.kind === "Activated";
-      context.kindOptions = {
-        Activated: game.i18n.localize("PARADIGMENGINE.Technique.Activated"),
-        Triggered: game.i18n.localize("PARADIGMENGINE.Technique.Triggered")
-      };
-    }
-    context.showChips = isTechnique || context.editMode || system.area;
+    context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Skill.${system.kind}`);
+    context.costLabel = game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod });
+    context.activated = system.kind === "Activated";
+    context.kindOptions = {
+      Activated: game.i18n.localize("PARADIGMENGINE.Skill.Activated"),
+      Triggered: game.i18n.localize("PARADIGMENGINE.Skill.Triggered")
+    };
     context.showRulings = context.editMode || system.rulings.length > 0;
     context.enrichedText = await foundry.applications.ux.TextEditor.implementation.enrichHTML(system.text, {
       relativeTo: this.document,

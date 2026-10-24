@@ -1,5 +1,5 @@
 /* Ranks are indices 0..5 into the Ladder, E..S. dieValue is the Rank's
-   Die Value, the highest number its Die rolls: Technique range, Technique
+   Die Value, the highest number its Die rolls: Skill range, Skill
    area maximum, and Sync range through Bonds read it. difficulty is the
    number a roll against the Rank as a Difficulty must reach. */
 export const LADDER = [
@@ -31,10 +31,8 @@ export const ATTRIBUTES = [
 ];
 
 export const STANDARD_ADVANCEMENTS = [
-  { key: "newTrait", label: "PARADIGMENGINE.Advancement.NewTrait" },
-  { key: "rankTrait", label: "PARADIGMENGINE.Advancement.RankTrait" },
-  { key: "newTech", label: "PARADIGMENGINE.Advancement.NewTech" },
-  { key: "rankTech", label: "PARADIGMENGINE.Advancement.RankTech" },
+  { key: "newSkill", label: "PARADIGMENGINE.Advancement.NewSkill" },
+  { key: "rankSkill", label: "PARADIGMENGINE.Advancement.RankSkill" },
   { key: "newHeart", label: "PARADIGMENGINE.Advancement.NewHeart" },
   { key: "newEnergy", label: "PARADIGMENGINE.Advancement.NewEnergy" },
   { key: "move", label: "PARADIGMENGINE.Advancement.Move" }

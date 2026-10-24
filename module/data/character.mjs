@@ -29,10 +29,8 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
       advancements: new SchemaField({
         unspent: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 0 }),
         standard: new SchemaField({
-          newTrait: boxesField(3),
-          rankTrait: boxesField(2),
-          newTech: boxesField(3),
-          rankTech: boxesField(2),
+          newSkill: boxesField(3),
+          rankSkill: boxesField(2),
           newHeart: boxesField(1),
           newEnergy: boxesField(1),
           move: boxesField(1)
@@ -47,5 +45,18 @@ export default class CharacterData extends foundry.abstract.TypeDataModel {
       history: textField(),
       notes: textField()
     };
+  }
+
+  /* 0.4.0 renamed the Technique advancement boxes to Skill; the Trait
+     boxes are gone and drop with the keys the schema no longer holds. */
+  static migrateData(source, options) {
+    const standard = source.advancements?.standard;
+    if (standard) {
+      for (const [from, to] of [["newTech", "newSkill"], ["rankTech", "rankSkill"]]) {
+        if ((from in standard) && !(to in standard)) standard[to] = standard[from];
+        delete standard[from];
+      }
+    }
+    return super.migrateData(source, options);
   }
 }

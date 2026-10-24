@@ -2,28 +2,23 @@ import { DIFFICULTY, LADDER } from "./config.mjs";
 
 const { renderTemplate } = foundry.applications.handlebars;
 
-/* Post a Trait or Technique to chat. The card is a snapshot at post time. */
+/* Post a Skill to chat. The card is a snapshot at post time. */
 export async function postItemCard(item) {
   const step = LADDER[item.system.rank];
-  const isTechnique = item.type === "technique";
   const context = {
     name: item.name,
     rank: step.rank,
     cssVar: step.cssVar,
-    isTechnique,
+    kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${item.system.kind}`),
+    costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
+    activated: item.system.kind === "Activated",
     rulings: item.system.rulings.filter(r => r.trim()),
     enrichedText: await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.text, {
       relativeTo: item,
       secrets: false
     })
   };
-  if (isTechnique) {
-    context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${item.system.kind}`);
-    context.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
-    context.activated = item.system.kind === "Activated";
-  }
   if (item.system.area) context.area = { cap: step.dieValue };
-  context.showMeta = isTechnique || !!context.area;
   const content = await renderTemplate("systems/paradigm-engine/templates/chat/item-card.hbs", context);
   return ChatMessage.implementation.create({
     content,
@@ -31,14 +26,14 @@ export async function postItemCard(item) {
   });
 }
 
-/* Post the blocked-roll card: a Technique the actor cannot pay for. */
+/* Post the blocked-roll card: a Skill the actor cannot pay for. */
 export async function postEnergyCard(actor, item) {
   const step = LADDER[item.system.rank];
   const context = {
     name: item.name,
     rank: step.rank,
     cssVar: step.cssVar,
-    costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod }),
+    costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
     line: game.i18n.format("PARADIGMENGINE.Chat.NoEnergy", { left: actor.system.energy.value })
   };
   const content = await renderTemplate("systems/paradigm-engine/templates/chat/energy-card.hbs", context);
@@ -72,13 +67,13 @@ export function evaluateBand(faces, total, effective, adversary = false) {
 
 const RIDERS = {
   Critical: [],
-  Success: ["Tension"],
-  Failure: ["Tension", "Spotlight"],
-  Fumble: ["Tension2", "Spotlight", "Luck"]
+  Success: [],
+  Failure: ["Spotlight"],
+  Fumble: ["Spotlight", "Luck"]
 };
 
 /* Template context from a roll card's stored state: { title, faces, lucky,
-   luck, trait, bonus }. The total is recomputed from the faces so Luck
+   luck, bonus }. The total is recomputed from the faces so Luck
    replacements re-total. */
 function rollCardContext(card) {
   let band = null;
@@ -99,23 +94,19 @@ function rollCardContext(card) {
     band,
     title: card.title,
     faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i] })),
-    total: card.faces.reduce((a, b) => a + b, 0) + (card.trait?.mod ?? 0) + card.bonus,
-    trait: card.trait,
+    total: card.faces.reduce((a, b) => a + b, 0) + card.bonus,
     bonus: card.bonus ? `${card.bonus > 0 ? "+" : "−"}${Math.abs(card.bonus)}` : null,
     luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name }))
   };
 }
 
-/* Post an Action Roll: two dice, one optional Trait bonus, one optional flat
-   bonus, backed by a real Roll. first and second are { name, rank } with any
-   die steps already applied; trait is { name, rank } or null; bonus is a
-   signed integer; difficulty is a DIFFICULTY index or null, raised by
-   limitBreak steps and capped at SS. The card's state rides the message as a
-   flag so Luck spends can re-render it. */
-export async function postActionRoll(actor, first, second, trait, bonus = 0, difficulty = null, limitBreak = 0) {
-  const parts = [first, second].map(d => `1${LADDER[d.rank].die}`);
-  if (trait) parts.push(String(LADDER[trait.rank].mod));
-  let formula = parts.join(" + ");
+/* Post an Action Roll: two dice and one optional flat bonus, backed by a
+   real Roll. first and second are { name, rank } with any die steps already
+   applied; bonus is a signed integer; difficulty is a DIFFICULTY index or
+   null, raised by limitBreak steps and capped at SS. The card's state rides
+   the message as a flag so Luck spends can re-render it. */
+export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0) {
+  let formula = [first, second].map(d => `1${LADDER[d.rank].die}`).join(" + ");
   if (bonus > 0) formula += ` + ${bonus}`;
   else if (bonus < 0) formula += ` - ${-bonus}`;
   const roll = await new foundry.dice.Roll(formula).evaluate();
@@ -124,7 +115,6 @@ export async function postActionRoll(actor, first, second, trait, bonus = 0, dif
     faces: roll.dice.map(d => d.total),
     lucky: [false, false],
     luck: [],
-    trait: trait ? { name: trait.name, mod: LADDER[trait.rank].mod } : null,
     bonus
   };
   if (difficulty !== null) {
@@ -156,7 +146,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName) {
   card.lucky[dieIndex] = true;
   card.luck.push(spenderName);
   if (card.difficulty) {
-    const total = card.faces.reduce((a, b) => a + b, 0) + (card.trait?.mod ?? 0) + card.bonus;
+    const total = card.faces.reduce((a, b) => a + b, 0) + card.bonus;
     card.difficulty.band = evaluateBand(card.faces, total, card.difficulty.effective, card.difficulty.adversary);
   }
   const splash = readSplash(card.faces);
@@ -164,7 +154,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName) {
   const flags = { "paradigm-engine": { card } };
   if (splash !== prior) {
     if (splash) flags["paradigm-engine"].splash = splash;
-    else flags["paradigm-engine"]["-=splash"] = null;
+    else flags["paradigm-engine"].splash = new foundry.data.operators.ForcedDeletion();
   }
   const content = await renderTemplate("systems/paradigm-engine/templates/chat/roll-card.hbs", rollCardContext(card));
   await message.update({ content, flags });

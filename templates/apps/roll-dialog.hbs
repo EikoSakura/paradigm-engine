@@ -9,7 +9,7 @@
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="1"
               aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if first.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
-    {{#if first.isTechnique}}
+    {{#if first.isSkill}}
     <span class="chip gold">{{first.costLabel}}</span>
     {{/if}}
   </div>
@@ -29,17 +29,6 @@
     </span>
   </div>
   <div class="tworow">
-    {{#if traits.length}}
-    <div class="grow">
-      <div class="slab">{{localize "PARADIGMENGINE.Roll.Trait"}}</div>
-      <select class="dsel" name="trait" aria-label="{{localize "PARADIGMENGINE.Roll.Trait"}}">
-        <option value="">{{localize "PARADIGMENGINE.Roll.None"}}</option>
-        {{#each traits}}
-        <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
-        {{/each}}
-      </select>
-    </div>
-    {{/if}}
     <div>
       <div class="slab">{{localize "PARADIGMENGINE.Roll.Bonus"}}</div>
       <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PARADIGMENGINE.Roll.Bonus"}}">

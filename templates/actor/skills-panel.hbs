@@ -1,14 +1,14 @@
 <div class="panel">
-  <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Techniques"}}</span></div>
+  <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Skills"}}</span></div>
   <div class="panel-b">
-    {{#each techniques}}
+    {{#each skills}}
     <div class="card draggable" data-item-id="{{this.id}}">
       <div class="card-h">
         {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
         {{#if @root.editMode}}
         <button type="button" class="ttl ttl-open" data-action="openItem" data-item-id="{{this.id}}"><b>{{this.name}}</b></button>
         {{else}}
-        <button type="button" class="ttl ttl-roll" data-action="openRoll" data-first="technique"
+        <button type="button" class="ttl ttl-roll" data-action="openRoll" data-first="skill"
           data-item-id="{{this.id}}"><b>{{this.name}}</b></button>
         {{/if}}
         <span class="chip{{#if this.activated}} solid{{/if}}">{{this.kindLabel}}</span>
@@ -30,7 +30,7 @@
     </div>
     {{/each}}
     {{#if editMode}}
-    <button type="button" class="addbtn" data-action="createItem" data-type="technique">{{localize "PARADIGMENGINE.Edit.AddTechnique"}}</button>
+    <button type="button" class="addbtn" data-action="createItem" data-type="skill">{{localize "PARADIGMENGINE.Edit.AddSkill"}}</button>
     {{/if}}
   </div>
 </div>

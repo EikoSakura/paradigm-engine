@@ -5,8 +5,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const STEP_LABELS = [
   "PARADIGMENGINE.Header.Character",
   "PARADIGMENGINE.Panel.Attributes",
-  "PARADIGMENGINE.Panel.Traits",
-  "PARADIGMENGINE.Panel.Techniques",
+  "PARADIGMENGINE.Panel.Skills",
   "PARADIGMENGINE.Creator.Bond",
   "PARADIGMENGINE.Creator.Finishing"
 ];
@@ -35,8 +34,8 @@ function plainLines(html) {
    bar. State seeds from the actor, and every change is kept on the actor
    flag "creator", so reopening resumes the selections instead of starting
    over. Create Character writes the opening actor and replaces the
-   creator's own two Traits and two Techniques, never touching items added
-   outside it. One creator per actor. */
+   creator's own two Skills, never touching items added outside it.
+   One creator per actor. */
 export default class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor, ...options } = {}) {
     super(options);
@@ -77,9 +76,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   /* Attribute Ranks double as spent Step Ups: all start at E (0), cap C (2). */
   #attrs = { might: 0, agility: 0, mind: 0, spirit: 0, charm: 0 };
 
-  #traits = [{ name: "", text: "" }, { name: "", text: "" }];
-
-  #techs = [{ name: "", kind: "Activated", text: "" }, { name: "", kind: "Activated", text: "" }];
+  #skills = [{ name: "", kind: "Activated", text: "" }, { name: "", kind: "Activated", text: "" }];
 
   #bond = { name: "" };
 
@@ -91,12 +88,12 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
 
   #sealFlip = false;
 
-  /* Which rank badges currently show their die or bonus face. Display state only. */
+  /* Which rank badges currently show their die face. Display state only. */
   #flipped = new Set();
 
   #creating = false;
 
-  /* Items the seed read the Trait and Technique rows from; Create replaces them. */
+  /* Items the seed read the Skill rows from; Create replaces them. */
   #seededIds = [];
 
   #dirty = false;
@@ -112,17 +109,13 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     for (const key of Object.keys(this.#attrs)) {
       this.#attrs[key] = Math.clamp(system.attributes[key] ?? 0, 0, 2);
     }
-    const traits = actor.itemTypes.trait;
-    const techs = actor.itemTypes.technique;
-    this.#seededIds = [...traits.slice(0, 2), ...techs.slice(0, 2)].map(item => item.id);
-    this.#traits = this.#traits.map((row, i) => traits[i]
-      ? { name: traits[i].name, text: plainLines(traits[i].system.text) }
-      : row);
-    this.#techs = this.#techs.map((row, i) => techs[i]
+    const skills = actor.itemTypes.skill;
+    this.#seededIds = skills.slice(0, 2).map(item => item.id);
+    this.#skills = this.#skills.map((row, i) => skills[i]
       ? {
-        name: techs[i].name,
-        kind: techs[i].system.kind === "Triggered" ? "Triggered" : "Activated",
-        text: plainLines(techs[i].system.text)
+        name: skills[i].name,
+        kind: skills[i].system.kind === "Triggered" ? "Triggered" : "Activated",
+        text: plainLines(skills[i].system.text)
       }
       : row);
     if (system.bonds[0]?.name) this.#bond.name = system.bonds[0].name;
@@ -141,20 +134,16 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     const saved = this.#actor.getFlag("paradigm-engine", "creator");
     if (!saved) return;
     if (typeof saved.name === "string") this.#name = saved.name;
-    if (Number.isInteger(saved.step)) this.#step = Math.clamp(saved.step, 0, 5);
+    if (Number.isInteger(saved.step)) this.#step = Math.clamp(saved.step, 0, 4);
     for (const key of Object.keys(this.#attrs)) {
       if (Number.isInteger(saved.attrs?.[key])) this.#attrs[key] = Math.clamp(saved.attrs[key], 0, 2);
     }
-    this.#traits = this.#traits.map((row, i) => ({
-      name: typeof saved.traits?.[i]?.name === "string" ? saved.traits[i].name : row.name,
-      text: typeof saved.traits?.[i]?.text === "string" ? saved.traits[i].text : row.text
-    }));
-    this.#techs = this.#techs.map((row, i) => {
-      const kind = saved.techs?.[i]?.kind;
+    this.#skills = this.#skills.map((row, i) => {
+      const kind = saved.skills?.[i]?.kind;
       return {
-        name: typeof saved.techs?.[i]?.name === "string" ? saved.techs[i].name : row.name,
+        name: typeof saved.skills?.[i]?.name === "string" ? saved.skills[i].name : row.name,
         kind: kind === "Triggered" || kind === "Activated" ? kind : row.kind,
-        text: typeof saved.techs?.[i]?.text === "string" ? saved.techs[i].text : row.text
+        text: typeof saved.skills?.[i]?.text === "string" ? saved.skills[i].text : row.text
       };
     });
     if (typeof saved.bond?.name === "string") this.#bond.name = saved.bond.name;
@@ -171,8 +160,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       step: this.#step,
       name: this.#name,
       attrs: { ...this.#attrs },
-      traits: this.#traits.map(t => ({ ...t })),
-      techs: this.#techs.map(t => ({ ...t })),
+      skills: this.#skills.map(t => ({ ...t })),
       bond: { ...this.#bond },
       pools: { ...this.#pools },
       luck: [...this.#luck]
@@ -241,20 +229,19 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       return {
         key: a.key,
         name: game.i18n.localize(a.label),
-        badge: this.#badge(`attributes.${a.key}`, rank, "die"),
+        badge: this.#badge(`attributes.${a.key}`, rank),
         downDisabled: rank <= 0,
         upDisabled: rank >= 2 || spent >= 5
       };
     });
-    context.traits = this.#traits.map((t, i) => ({ i, ...t, badge: this.#badge(`trait.${i}`, 1, "mod") }));
-    context.techs = this.#techs.map((t, i) => ({
+    context.skills = this.#skills.map((t, i) => ({
       i,
       ...t,
       activated: t.kind === "Activated",
-      badge: this.#badge(`tech.${i}`, 0, "die"),
-      costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[0].mod })
+      badge: this.#badge(`skill.${i}`, 0),
+      costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: LADDER[0].mod })
     }));
-    context.bond = { name: this.#bond.name, badge: this.#badge("bond", 0, "die") };
+    context.bond = { name: this.#bond.name, badge: this.#badge("bond", 0) };
     context.seal = this.#sealFlip
       ? { text: String(LADDER[1].difficulty), label: game.i18n.localize("PARADIGMENGINE.Ladder.Difficulty") }
       : { text: LADDER[1].rank, label: game.i18n.localize("PARADIGMENGINE.Header.Rank") };
@@ -269,9 +256,9 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
-    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 6 });
+    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 5 });
     context.first = this.#step === 0;
-    context.last = this.#step === 5;
+    context.last = this.#step === 4;
     context.canCreate = checks.every(Boolean);
     return context;
   }
@@ -303,17 +290,16 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     return [
       this.#name.trim().length > 0,
       this.#spent() === 5,
-      this.#traits.every(t => t.name.trim().length > 0),
-      this.#techs.every(t => t.name.trim().length > 0),
+      this.#skills.every(t => t.name.trim().length > 0),
       this.#bond.name.trim().length > 0,
       this.#luck.every(v => v !== null) && this.#free() === 0
     ];
   }
 
-  #badge(key, rankIndex, face) {
+  #badge(key, rankIndex) {
     const step = LADDER[rankIndex];
     const flipped = this.#flipped.has(key);
-    const text = flipped ? (face === "mod" ? `+${step.mod}` : step.die) : step.rank;
+    const text = flipped ? step.die : step.rank;
     return { key, text, flipped, small: flipped && text.length > 3, cssVar: step.cssVar };
   }
 
@@ -326,8 +312,8 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     const [group, i, key] = el.name.split(".");
     if (group === "name") this.#name = el.value;
     else if (group === "bond" && i === "name") this.#bond.name = el.value;
-    else if (group === "trait" || group === "tech") {
-      const row = (group === "trait" ? this.#traits : this.#techs)[Number(i)];
+    else if (group === "skill") {
+      const row = this.#skills[Number(i)];
       if (row && (key === "name" || key === "text")) row[key] = el.value;
     } else return;
     this.#touch();
@@ -344,7 +330,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   }
 
   #goto(step) {
-    this.#step = Math.clamp(step, 0, 5);
+    this.#step = Math.clamp(step, 0, 4);
     this.#touch();
     this.render();
   }
@@ -380,7 +366,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   }
 
   static #onSetKind(event, target) {
-    const row = this.#techs[Number(target.dataset.i)];
+    const row = this.#skills[Number(target.dataset.i)];
     if (!row) return;
     row.kind = target.dataset.kind === "Triggered" ? "Triggered" : "Activated";
     this.#touch();
@@ -444,10 +430,12 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       const stale = [...new Set([...this.#seededIds, ...mine])].filter(id => actor.items.has(id));
       if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale);
       const flags = { "paradigm-engine": { creator: true } };
-      await actor.createEmbeddedDocuments("Item", [
-        ...this.#traits.map(t => ({ name: t.name.trim(), type: "trait", system: { rank: 1, text: paragraphs(t.text) }, flags })),
-        ...this.#techs.map(t => ({ name: t.name.trim(), type: "technique", system: { rank: 0, kind: t.kind, text: paragraphs(t.text) }, flags }))
-      ]);
+      await actor.createEmbeddedDocuments("Item", this.#skills.map(t => ({
+        name: t.name.trim(),
+        type: "skill",
+        system: { rank: 0, kind: t.kind, text: paragraphs(t.text) },
+        flags
+      })));
       await this.close();
       actor.sheet.render(true);
     } finally {

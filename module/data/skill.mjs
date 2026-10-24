@@ -2,7 +2,7 @@ import { rankField, rulingsField } from "./fields.mjs";
 
 const { BooleanField, HTMLField, StringField } = foundry.data.fields;
 
-export default class TechniqueData extends foundry.abstract.TypeDataModel {
+export default class SkillData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
       rank: rankField(),

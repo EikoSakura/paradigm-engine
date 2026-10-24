@@ -37,8 +37,7 @@
       "adversary": {}
     },
     "Item": {
-      "trait": {},
-      "technique": {}
+      "skill": {}
     },
     "Combatant": {
       "participant": {}

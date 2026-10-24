@@ -54,7 +54,7 @@ export default class CharacterSheet extends BaseActorSheet {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const system = this.document.system;
-    context.bonds = system.bonds.map((bond, i) => ({ ...bond, badge: this._badge(`bond.${i}`, bond.rank, "die") }));
+    context.bonds = system.bonds.map((bond, i) => ({ ...bond, badge: this._badge(`bond.${i}`, bond.rank) }));
     context.canAddBond = system.bonds.length < 6;
     context.bondRanks = Object.fromEntries(LADDER.map((step, i) => [i, step.rank]));
     context.advancements = {

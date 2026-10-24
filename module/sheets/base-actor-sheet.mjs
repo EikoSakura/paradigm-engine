@@ -32,7 +32,7 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
      The 3..8 creation trade lives in the Character Creator alone. */
   static BOUNDS = { points: { min: 0, max: Infinity }, move: { min: 0, max: Infinity } };
 
-  /* Which rank badges currently show their die or bonus face. Display state only, never stored. */
+  /* Which rank badges currently show their die face. Display state only, never stored. */
   #flipped = new Set();
 
   async _prepareContext(options) {
@@ -60,11 +60,10 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       key: a.key,
       name: game.i18n.localize(a.label),
       desc: game.i18n.localize(a.desc),
-      badge: this._badge(`attributes.${a.key}`, system.attributes[a.key], "die")
+      badge: this._badge(`attributes.${a.key}`, system.attributes[a.key])
     }));
     context.ladder = LADDER;
-    context.traits = await this.#prepareItems("trait");
-    context.techniques = await this.#prepareItems("technique");
+    context.skills = await this.#prepareItems();
     context.dieOptions = { 6: "d6", 8: "d8", 10: "d10", 12: "d12" };
     return context;
   }
@@ -90,28 +89,24 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     return data;
   }
 
-  async #prepareItems(type) {
-    const items = [...this.document.itemTypes[type]].sort((a, b) => a.sort - b.sort);
-    const isTechnique = type === "technique";
+  async #prepareItems() {
+    const items = [...this.document.itemTypes.skill].sort((a, b) => a.sort - b.sort);
     return Promise.all(items.map(async item => {
       const step = LADDER[item.system.rank];
-      const card = {
+      return {
         id: item.id,
         name: item.name,
         area: item.system.area,
         rulings: item.system.rulings,
-        badge: this._badge(`${type}.${item.id}`, item.system.rank, isTechnique ? "die" : "mod"),
+        badge: this._badge(`skill.${item.id}`, item.system.rank),
+        kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${item.system.kind}`),
+        costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
+        activated: item.system.kind === "Activated",
         enrichedText: await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.text, {
           relativeTo: item,
           secrets: this.document.isOwner
         })
       };
-      if (isTechnique) {
-        card.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${item.system.kind}`);
-        card.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
-        card.activated = item.system.kind === "Activated";
-      }
-      return card;
     }));
   }
 
@@ -119,10 +114,10 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     return Array.from({ length: max }, (_, i) => i < value);
   }
 
-  _badge(key, rankIndex, face) {
+  _badge(key, rankIndex) {
     const step = LADDER[rankIndex];
     const flipped = this.#flipped.has(key);
-    const text = flipped ? (face === "mod" ? `+${step.mod}` : step.die) : step.rank;
+    const text = flipped ? step.die : step.rank;
     return { key, text, flipped, small: flipped && text.length > 3, cssVar: step.cssVar };
   }
 
@@ -186,7 +181,7 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
   static async #onCreateItem(event, target) {
     if (!this.isEditable) return;
     const type = target.dataset.type;
-    if (type !== "trait" && type !== "technique") return;
+    if (type !== "skill") return;
     const name = CONFIG.Item.documentClass.defaultName({ type, parent: this.document });
     await this.document.createEmbeddedDocuments("Item", [{ name, type }], { renderSheet: true });
   }
@@ -208,8 +203,8 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
   }
 
   static #onOpenRoll(event, target) {
-    const first = target.dataset.first === "technique"
-      ? { kind: "technique", id: target.dataset.itemId }
+    const first = target.dataset.first === "skill"
+      ? { kind: "skill", id: target.dataset.itemId }
       : { kind: "attribute", key: target.dataset.key };
     RollDialog.open(this.document, first);
   }
