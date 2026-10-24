@@ -23,25 +23,25 @@ export const DIFFICULTY = [
 ];
 
 export const ATTRIBUTES = [
-  { key: "might", label: "PROJECTANIME.Attribute.Might", desc: "PROJECTANIME.Attribute.MightDesc" },
-  { key: "agility", label: "PROJECTANIME.Attribute.Agility", desc: "PROJECTANIME.Attribute.AgilityDesc" },
-  { key: "mind", label: "PROJECTANIME.Attribute.Mind", desc: "PROJECTANIME.Attribute.MindDesc" },
-  { key: "spirit", label: "PROJECTANIME.Attribute.Spirit", desc: "PROJECTANIME.Attribute.SpiritDesc" },
-  { key: "charm", label: "PROJECTANIME.Attribute.Charm", desc: "PROJECTANIME.Attribute.CharmDesc" }
+  { key: "might", label: "PARADIGMENGINE.Attribute.Might", desc: "PARADIGMENGINE.Attribute.MightDesc" },
+  { key: "agility", label: "PARADIGMENGINE.Attribute.Agility", desc: "PARADIGMENGINE.Attribute.AgilityDesc" },
+  { key: "mind", label: "PARADIGMENGINE.Attribute.Mind", desc: "PARADIGMENGINE.Attribute.MindDesc" },
+  { key: "spirit", label: "PARADIGMENGINE.Attribute.Spirit", desc: "PARADIGMENGINE.Attribute.SpiritDesc" },
+  { key: "charm", label: "PARADIGMENGINE.Attribute.Charm", desc: "PARADIGMENGINE.Attribute.CharmDesc" }
 ];
 
 export const STANDARD_ADVANCEMENTS = [
-  { key: "newTrait", label: "PROJECTANIME.Advancement.NewTrait" },
-  { key: "rankTrait", label: "PROJECTANIME.Advancement.RankTrait" },
-  { key: "newTech", label: "PROJECTANIME.Advancement.NewTech" },
-  { key: "rankTech", label: "PROJECTANIME.Advancement.RankTech" },
-  { key: "newHeart", label: "PROJECTANIME.Advancement.NewHeart" },
-  { key: "newEnergy", label: "PROJECTANIME.Advancement.NewEnergy" },
-  { key: "move", label: "PROJECTANIME.Advancement.Move" }
+  { key: "newTrait", label: "PARADIGMENGINE.Advancement.NewTrait" },
+  { key: "rankTrait", label: "PARADIGMENGINE.Advancement.RankTrait" },
+  { key: "newTech", label: "PARADIGMENGINE.Advancement.NewTech" },
+  { key: "rankTech", label: "PARADIGMENGINE.Advancement.RankTech" },
+  { key: "newHeart", label: "PARADIGMENGINE.Advancement.NewHeart" },
+  { key: "newEnergy", label: "PARADIGMENGINE.Advancement.NewEnergy" },
+  { key: "move", label: "PARADIGMENGINE.Advancement.Move" }
 ];
 
 export const SPECIAL_ADVANCEMENTS = [
-  { key: "luck", label: "PROJECTANIME.Advancement.Luck" },
-  { key: "rank", label: "PROJECTANIME.Advancement.Rank" },
-  { key: "attribute", label: "PROJECTANIME.Advancement.Attribute" }
+  { key: "luck", label: "PARADIGMENGINE.Advancement.Luck" },
+  { key: "rank", label: "PARADIGMENGINE.Advancement.Rank" },
+  { key: "attribute", label: "PARADIGMENGINE.Advancement.Attribute" }
 ];

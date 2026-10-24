@@ -1,4 +1,4 @@
-<div class="pa-card">
+<div class="pe-card">
   <div class="chead">
     <span class="cname">{{title}}</span>
   </div>
@@ -8,7 +8,7 @@
       <span class="face{{#if this.lucky}} lucky{{/if}}" data-index="{{@index}}">{{this.value}}</span>
       {{/each}}
       <div class="rtotal">
-        <span class="tlab">{{localize "PROJECTANIME.Roll.Total"}}</span>
+        <span class="tlab">{{localize "PARADIGMENGINE.Roll.Total"}}</span>
         <span class="tnum">{{total}}</span>
       </div>
     </div>
@@ -16,7 +16,7 @@
     <div class="rtrait"><span class="rmark">◆</span><span>{{trait.name}} +{{trait.mod}}</span></div>
     {{/if}}
     {{#if bonus}}
-    <div class="rtrait"><span class="rmark">◆</span><span>{{localize "PROJECTANIME.Roll.Bonus"}} {{bonus}}</span></div>
+    <div class="rtrait"><span class="rmark">◆</span><span>{{localize "PARADIGMENGINE.Roll.Bonus"}} {{bonus}}</span></div>
     {{/if}}
     {{#each luck}}
     <div class="rtrait luck"><span class="rmark">◆</span><span>{{this}}</span></div>

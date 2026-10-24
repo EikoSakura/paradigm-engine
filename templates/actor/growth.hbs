@@ -1,21 +1,21 @@
 <section class="tab growth {{tab.cssClass}}" data-group="primary" data-tab="growth">
   <div class="growgrid">
     <div class="panel">
-      <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Panel.Advancements"}}</span></div>
+      <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Advancements"}}</span></div>
       <div class="panel-b centered">
         <div class="bignum">{{advancements.unspent}}</div>
-        <div class="vlabel">{{localize "PROJECTANIME.Advancement.Unspent"}}</div>
+        <div class="vlabel">{{localize "PARADIGMENGINE.Advancement.Unspent"}}</div>
         <div class="stepper">
-          <button type="button" data-action="stepUnspent" data-dir="-1" aria-label="{{localize "PROJECTANIME.Advancement.Spend"}}">−</button>
-          <button type="button" data-action="stepUnspent" data-dir="1" aria-label="{{localize "PROJECTANIME.Advancement.Gain"}}">＋</button>
+          <button type="button" data-action="stepUnspent" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Advancement.Spend"}}">−</button>
+          <button type="button" data-action="stepUnspent" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Advancement.Gain"}}">＋</button>
         </div>
       </div>
     </div>
     <div>
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Standard"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Advancement.StandardTail"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Standard"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Advancement.StandardTail"}}</span>
         </div>
         <div class="panel-b">
           {{#each advancements.standard}}
@@ -34,8 +34,8 @@
       </div>
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Special"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Advancement.SpecialTail"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Special"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Advancement.SpecialTail"}}</span>
         </div>
         <div class="panel-b">
           {{#each advancements.special}}

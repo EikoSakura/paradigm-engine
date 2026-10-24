@@ -18,13 +18,13 @@ export async function postItemCard(item) {
     })
   };
   if (isTechnique) {
-    context.kindLabel = game.i18n.localize(`PROJECTANIME.Technique.${item.system.kind}`);
-    context.costLabel = game.i18n.format("PROJECTANIME.Technique.Energy", { n: step.mod });
+    context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${item.system.kind}`);
+    context.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
     context.activated = item.system.kind === "Activated";
   }
   if (item.system.area) context.area = { cap: step.dieValue };
   context.showMeta = isTechnique || !!context.area;
-  const content = await renderTemplate("systems/project-anime/templates/chat/item-card.hbs", context);
+  const content = await renderTemplate("systems/paradigm-engine/templates/chat/item-card.hbs", context);
   return ChatMessage.implementation.create({
     content,
     speaker: ChatMessage.implementation.getSpeaker({ actor: item.actor })
@@ -38,10 +38,10 @@ export async function postEnergyCard(actor, item) {
     name: item.name,
     rank: step.rank,
     cssVar: step.cssVar,
-    costLabel: game.i18n.format("PROJECTANIME.Technique.Energy", { n: step.mod }),
-    line: game.i18n.format("PROJECTANIME.Chat.NoEnergy", { left: actor.system.energy.value })
+    costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod }),
+    line: game.i18n.format("PARADIGMENGINE.Chat.NoEnergy", { left: actor.system.energy.value })
   };
-  const content = await renderTemplate("systems/project-anime/templates/chat/energy-card.hbs", context);
+  const content = await renderTemplate("systems/paradigm-engine/templates/chat/energy-card.hbs", context);
   return ChatMessage.implementation.create({
     content,
     speaker: ChatMessage.implementation.getSpeaker({ actor })
@@ -89,10 +89,10 @@ function rollCardContext(card) {
       rank: step.rank,
       number: step.number,
       cssVar: step.cssVar,
-      word: game.i18n.localize(`PROJECTANIME.Band.${d.band}`),
+      word: game.i18n.localize(`PARADIGMENGINE.Band.${d.band}`),
       fumble: d.band === "Fumble",
-      limitBreak: d.limitBreak > 0 ? game.i18n.format("PROJECTANIME.Roll.LimitBreakTag", { n: d.limitBreak }) : null,
-      riders: d.adversary ? [] : RIDERS[d.band].map(k => ({ key: k, text: game.i18n.localize(`PROJECTANIME.Rider.${k}`) }))
+      limitBreak: d.limitBreak > 0 ? game.i18n.format("PARADIGMENGINE.Roll.LimitBreakTag", { n: d.limitBreak }) : null,
+      riders: d.adversary ? [] : RIDERS[d.band].map(k => ({ key: k, text: game.i18n.localize(`PARADIGMENGINE.Rider.${k}`) }))
     };
   }
   return {
@@ -102,7 +102,7 @@ function rollCardContext(card) {
     total: card.faces.reduce((a, b) => a + b, 0) + (card.trait?.mod ?? 0) + card.bonus,
     trait: card.trait,
     bonus: card.bonus ? `${card.bonus > 0 ? "+" : "−"}${Math.abs(card.bonus)}` : null,
-    luck: card.luck.map(name => game.i18n.format("PROJECTANIME.Roll.Luck", { name }))
+    luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name }))
   };
 }
 
@@ -133,13 +133,13 @@ export async function postActionRoll(actor, first, second, trait, bonus = 0, dif
     card.difficulty = { index: difficulty, limitBreak, effective, adversary, band: evaluateBand(card.faces, roll.total, effective, adversary) };
   }
   const splash = readSplash(card.faces);
-  const content = await renderTemplate("systems/project-anime/templates/chat/roll-card.hbs", rollCardContext(card));
+  const content = await renderTemplate("systems/paradigm-engine/templates/chat/roll-card.hbs", rollCardContext(card));
   return ChatMessage.implementation.create({
     content,
     rolls: [roll],
     sound: CONFIG.sounds.dice,
     speaker: ChatMessage.implementation.getSpeaker({ actor }),
-    flags: { "project-anime": splash ? { card, splash } : { card } }
+    flags: { "paradigm-engine": splash ? { card, splash } : { card } }
   });
 }
 
@@ -149,7 +149,7 @@ export async function postActionRoll(actor, first, second, trait, bonus = 0, dif
    updates when the Combo or Fumble state changes, and every client plays the
    splash from the update. */
 export async function applyLuckSwap(message, dieIndex, value, spenderName) {
-  const card = foundry.utils.deepClone(message.getFlag("project-anime", "card"));
+  const card = foundry.utils.deepClone(message.getFlag("paradigm-engine", "card"));
   if (!card || !(dieIndex in card.faces)) return;
   if (readSplash(card.faces) === "fumble") return;
   card.faces[dieIndex] = value;
@@ -160,12 +160,12 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName) {
     card.difficulty.band = evaluateBand(card.faces, total, card.difficulty.effective, card.difficulty.adversary);
   }
   const splash = readSplash(card.faces);
-  const prior = message.getFlag("project-anime", "splash") ?? null;
-  const flags = { "project-anime": { card } };
+  const prior = message.getFlag("paradigm-engine", "splash") ?? null;
+  const flags = { "paradigm-engine": { card } };
   if (splash !== prior) {
-    if (splash) flags["project-anime"].splash = splash;
-    else flags["project-anime"]["-=splash"] = null;
+    if (splash) flags["paradigm-engine"].splash = splash;
+    else flags["paradigm-engine"]["-=splash"] = null;
   }
-  const content = await renderTemplate("systems/project-anime/templates/chat/roll-card.hbs", rollCardContext(card));
+  const content = await renderTemplate("systems/paradigm-engine/templates/chat/roll-card.hbs", rollCardContext(card));
   await message.update({ content, flags });
 }

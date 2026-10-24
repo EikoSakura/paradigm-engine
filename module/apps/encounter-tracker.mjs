@@ -11,7 +11,7 @@ import { LADDER } from "../config.mjs";
 
 export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTracker {
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime-encounter"],
+    classes: ["paradigm-engine-encounter"],
     actions: {
       flipRank: this.#onFlipRank,
       toggleHand: this.#onToggleHand,
@@ -22,9 +22,9 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
   };
 
   static PARTS = {
-    controls: { template: "systems/project-anime/templates/apps/encounter-controls.hbs" },
+    controls: { template: "systems/paradigm-engine/templates/apps/encounter-controls.hbs" },
     panel: {
-      template: "systems/project-anime/templates/apps/encounter-tracker.hbs",
+      template: "systems/paradigm-engine/templates/apps/encounter-tracker.hbs",
       scrollable: [".ebody"]
     }
   };
@@ -56,13 +56,13 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
           name: holder.name,
           img: await this._getCombatantThumbnail(holder),
           st: !holder.isParty,
-          side: game.i18n.localize(`PROJECTANIME.Encounter.${holder.isParty ? "Party" : "Storyteller"}`),
+          side: game.i18n.localize(`PARADIGMENGINE.Encounter.${holder.isParty ? "Party" : "Storyteller"}`),
           return: gm && !holder.isParty
         };
       } else {
         context.plate = {
           open: true,
-          hint: game.i18n.localize(`PROJECTANIME.Encounter.${gm ? "HintStoryteller" : "HintPlayer"}`)
+          hint: game.i18n.localize(`PARADIGMENGINE.Encounter.${gm ? "HintStoryteller" : "HintPlayer"}`)
         };
       }
     }
@@ -92,7 +92,7 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
       down,
       hidden: combatant.hidden,
       state: down
-        ? game.i18n.localize(`PROJECTANIME.Encounter.${combatant.isParty ? "Overwhelmed" : "Defeated"}`)
+        ? game.i18n.localize(`PARADIGMENGINE.Encounter.${combatant.isParty ? "Overwhelmed" : "Defeated"}`)
         : null
     };
     const actor = combatant.actor;
@@ -103,15 +103,15 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
         text: flipped ? ladder.difficulty : ladder.rank,
         flipped,
         cssVar: ladder.cssVar,
-        title: game.i18n.format("PROJECTANIME.Encounter.RankTitle", { rank: ladder.rank, number: ladder.difficulty })
+        title: game.i18n.format("PARADIGMENGINE.Encounter.RankTitle", { rank: ladder.rank, number: ladder.difficulty })
       };
     }
     if (gm) {
       row.badge = raised ? pos : 0;
       row.eye = !combatant.isParty;
-      row.eyeLabel = game.i18n.localize(`PROJECTANIME.Encounter.${combatant.hidden ? "Reveal" : "Hide"}`);
+      row.eyeLabel = game.i18n.localize(`PARADIGMENGINE.Encounter.${combatant.hidden ? "Reveal" : "Hide"}`);
       row.skull = true;
-      row.skullLabel = game.i18n.localize(`PROJECTANIME.Encounter.${combatant.isParty ? "Overwhelmed" : "Defeated"}`);
+      row.skullLabel = game.i18n.localize(`PARADIGMENGINE.Encounter.${combatant.isParty ? "Overwhelmed" : "Defeated"}`);
       row.hand = started && !down;
     } else if (started && combatant.isParty && combatant.isOwner && !down) {
       const stHolds = !!holder && !holder.isParty;
@@ -120,8 +120,8 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
       row.next = true;
       row.raised = !!combatant.system.hand?.raised;
       row.nextLabel = row.raised && pos
-        ? game.i18n.format("PROJECTANIME.Encounter.NextN", { n: pos })
-        : game.i18n.localize("PROJECTANIME.Encounter.Next");
+        ? game.i18n.format("PARADIGMENGINE.Encounter.NextN", { n: pos })
+        : game.i18n.localize("PARADIGMENGINE.Encounter.Next");
     } else {
       row.badge = raised ? pos : 0;
     }
@@ -181,7 +181,7 @@ export class EncounterTracker extends foundry.applications.sidebar.tabs.CombatTr
     if (!combat || !combatant?.isOwner) return;
     const storyteller = game.users.activeGM;
     if (!storyteller) return;
-    await storyteller.query("project-anime.takeSpotlight", {
+    await storyteller.query("paradigm-engine.takeSpotlight", {
       combatId: combat.id,
       combatantId: combatant.id
     });
@@ -206,7 +206,7 @@ export class EncounterCombatantConfig extends foundry.applications.sheets.Combat
   static PARTS = {
     body: {
       root: true,
-      template: "systems/project-anime/templates/apps/combatant-config.hbs"
+      template: "systems/paradigm-engine/templates/apps/combatant-config.hbs"
     },
     footer: { template: "templates/generic/form-footer.hbs" }
   };
@@ -217,7 +217,7 @@ export function registerEncounterTracker() {
   /* TAKE's disabled state follows the Storyteller's connection. */
   Hooks.on("userConnected", () => ui.combat?.render({ parts: ["panel"] }));
   foundry.applications.apps.DocumentSheetConfig.registerSheet(
-    foundry.documents.Combatant, "project-anime", EncounterCombatantConfig,
-    { makeDefault: true, label: "PROJECTANIME.Sheet.Combatant" }
+    foundry.documents.Combatant, "paradigm-engine", EncounterCombatantConfig,
+    { makeDefault: true, label: "PARADIGMENGINE.Sheet.Combatant" }
   );
 }

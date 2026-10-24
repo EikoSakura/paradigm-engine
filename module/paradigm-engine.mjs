@@ -4,7 +4,7 @@ import TraitData from "./data/trait.mjs";
 import TechniqueData from "./data/technique.mjs";
 import CharacterSheet from "./sheets/character-sheet.mjs";
 import AdversarySheet from "./sheets/adversary-sheet.mjs";
-import ProjectAnimeItemSheet from "./sheets/item-sheet.mjs";
+import ParadigmEngineItemSheet from "./sheets/item-sheet.mjs";
 import { registerSplash } from "./apps/splash.mjs";
 import { registerLuck } from "./apps/luck-picker.mjs";
 import { registerTension } from "./apps/tension.mjs";
@@ -41,28 +41,28 @@ Hooks.once("init", () => {
   CONFIG.Item.dataModels.trait = TraitData;
   CONFIG.Item.dataModels.technique = TechniqueData;
 
-  foundry.documents.collections.Actors.registerSheet("project-anime", CharacterSheet, {
+  foundry.documents.collections.Actors.registerSheet("paradigm-engine", CharacterSheet, {
     types: ["character"],
     makeDefault: true,
-    label: "PROJECTANIME.Sheet.Character"
+    label: "PARADIGMENGINE.Sheet.Character"
   });
-  foundry.documents.collections.Actors.registerSheet("project-anime", AdversarySheet, {
+  foundry.documents.collections.Actors.registerSheet("paradigm-engine", AdversarySheet, {
     types: ["adversary"],
     makeDefault: true,
-    label: "PROJECTANIME.Sheet.Adversary"
+    label: "PARADIGMENGINE.Sheet.Adversary"
   });
-  foundry.documents.collections.Items.registerSheet("project-anime", ProjectAnimeItemSheet, {
+  foundry.documents.collections.Items.registerSheet("paradigm-engine", ParadigmEngineItemSheet, {
     types: ["trait", "technique"],
     makeDefault: true,
-    label: "PROJECTANIME.Sheet.Item"
+    label: "PARADIGMENGINE.Sheet.Item"
   });
 
   foundry.applications.handlebars.loadTemplates([
-    "systems/project-anime/templates/actor/badge.hbs",
-    "systems/project-anime/templates/actor/vitals.hbs",
-    "systems/project-anime/templates/actor/rail.hbs",
-    "systems/project-anime/templates/actor/traits-panel.hbs",
-    "systems/project-anime/templates/actor/techniques-panel.hbs",
-    "systems/project-anime/templates/apps/encounter-row.hbs"
+    "systems/paradigm-engine/templates/actor/badge.hbs",
+    "systems/paradigm-engine/templates/actor/vitals.hbs",
+    "systems/paradigm-engine/templates/actor/rail.hbs",
+    "systems/paradigm-engine/templates/actor/traits-panel.hbs",
+    "systems/paradigm-engine/templates/actor/techniques-panel.hbs",
+    "systems/paradigm-engine/templates/apps/encounter-row.hbs"
   ]);
 });

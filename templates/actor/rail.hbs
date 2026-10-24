@@ -1,17 +1,17 @@
 <div>
   <div class="panel">
-    <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Panel.Attributes"}}</span></div>
+    <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Attributes"}}</span></div>
     <div class="panel-b">
       {{#each attributes}}
       <div class="attr">
         {{#if @root.editMode}}
         <button type="button" class="rkbtn" data-action="stepRank" data-kind="attribute" data-key="{{this.key}}"
-          data-dir="-1" aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}">−</button>
+          data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
         {{/if}}
-        {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+        {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
         {{#if @root.editMode}}
         <button type="button" class="rkbtn" data-action="stepRank" data-kind="attribute" data-key="{{this.key}}"
-          data-dir="1" aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}">＋</button>
+          data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
         <span class="nm"><b>{{this.name}}</b><span>{{this.desc}}</span></span>
         {{else}}
         <button type="button" class="nm nm-roll" data-action="openRoll" data-first="attribute"
@@ -22,15 +22,15 @@
     </div>
   </div>
   <div class="panel">
-    <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Panel.Ranks"}}</span></div>
+    <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Ranks"}}</span></div>
     <div class="panel-b">
       <table class="ladder">
         <thead>
           <tr>
-            <th>{{localize "PROJECTANIME.Ladder.Rank"}}</th>
-            <th>{{localize "PROJECTANIME.Ladder.Die"}}</th>
-            <th>{{localize "PROJECTANIME.Ladder.Trait"}}</th>
-            <th>{{localize "PROJECTANIME.Ladder.Difficulty"}}</th>
+            <th>{{localize "PARADIGMENGINE.Ladder.Rank"}}</th>
+            <th>{{localize "PARADIGMENGINE.Ladder.Die"}}</th>
+            <th>{{localize "PARADIGMENGINE.Ladder.Trait"}}</th>
+            <th>{{localize "PARADIGMENGINE.Ladder.Difficulty"}}</th>
           </tr>
         </thead>
         <tbody>

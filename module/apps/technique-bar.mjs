@@ -16,7 +16,7 @@ const PAGES = 5;
 const SLOTS = 10;
 
 /* Marks a drag that left a bar slot, so a slot drop moves instead of fills. */
-const SLOT_TYPE = "application/x-project-anime-slot";
+const SLOT_TYPE = "application/x-paradigm-engine-slot";
 
 let bar = null;
 
@@ -25,8 +25,8 @@ const refresh = foundry.utils.debounce(() => bar?.render(), 0);
 export function registerTechniqueBar() {
   for (let n = 1; n <= SLOTS; n++) {
     const digit = n % 10;
-    game.keybindings.register("project-anime", `slot${n}`, {
-      name: `PROJECTANIME.TechBar.Slot${n}`,
+    game.keybindings.register("paradigm-engine", `slot${n}`, {
+      name: `PARADIGMENGINE.TechBar.Slot${n}`,
       editable: [{ key: `Digit${digit}` }],
       onDown: () => bar?.useKey(n) ?? false
     });
@@ -60,7 +60,7 @@ class TechniqueBar extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    bar: { template: "systems/project-anime/templates/apps/technique-bar.hbs" }
+    bar: { template: "systems/paradigm-engine/templates/apps/technique-bar.hbs" }
   };
 
   /* The visible page. Display state only, never stored. */

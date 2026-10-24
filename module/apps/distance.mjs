@@ -16,14 +16,14 @@ const RANGE_COLOR = "#d9a13b";
 /* A tile count as text, rounded to tenths. */
 function countLabel(tiles) {
   const n = tiles.toNearest(0.1);
-  return game.i18n.format(n === 1 ? "PROJECTANIME.Distance.Tile" : "PROJECTANIME.Distance.Tiles", {
+  return game.i18n.format(n === 1 ? "PARADIGMENGINE.Distance.Tile" : "PARADIGMENGINE.Distance.Tiles", {
     n: n.toLocaleString(game.i18n.lang)
   });
 }
 
 /* Engaged within one tile, else the tile count. */
 function distanceLabel(tiles) {
-  if (tiles <= 1 + EPS) return game.i18n.localize("PROJECTANIME.Distance.Engaged");
+  if (tiles <= 1 + EPS) return game.i18n.localize("PARADIGMENGINE.Distance.Engaged");
   return countLabel(tiles);
 }
 
@@ -58,7 +58,7 @@ export function getDistance(tokenA, tokenB) {
    ============================================================ */
 
 export class DistanceTokenRuler extends foundry.canvas.placeables.tokens.TokenRuler {
-  static WAYPOINT_LABEL_TEMPLATE = "systems/project-anime/templates/hud/waypoint-label.hbs";
+  static WAYPOINT_LABEL_TEMPLATE = "systems/paradigm-engine/templates/hud/waypoint-label.hbs";
 
   refresh(rulerData) {
     super.refresh(rulerData);
@@ -242,7 +242,7 @@ export function registerDistance() {
   CONFIG.fontDefinitions["Zen Kaku Gothic New"] ??= {
     editor: false,
     fonts: [
-      { urls: ["systems/project-anime/fonts/ZenKakuGothicNew-Bold.woff2"], weight: "700" }
+      { urls: ["systems/paradigm-engine/fonts/ZenKakuGothicNew-Bold.woff2"], weight: "700" }
     ]
   };
 

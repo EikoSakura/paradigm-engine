@@ -19,7 +19,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime", "sheet", "roll-dialog"],
+    classes: ["paradigm-engine", "sheet", "roll-dialog"],
     position: { width: 380, height: "auto" },
     actions: {
       step: this.#onStep,
@@ -32,7 +32,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/roll-dialog.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/roll-dialog.hbs" }
   };
 
   static #instances = new Map();
@@ -70,7 +70,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   get title() {
-    return game.i18n.localize("PROJECTANIME.Roll.Title");
+    return game.i18n.localize("PARADIGMENGINE.Roll.Title");
   }
 
   async _prepareContext(options) {
@@ -101,7 +101,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       upDisabled: ranks[0] >= 5,
       downDisabled: ranks[0] <= 0,
       isTechnique: first.tech,
-      costLabel: first.tech ? game.i18n.format("PROJECTANIME.Technique.Energy", { n: LADDER[first.rank].mod }) : ""
+      costLabel: first.tech ? game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[first.rank].mod }) : ""
     };
     context.secondDie = {
       die: LADDER[ranks[1]].die,
@@ -175,7 +175,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     if (this.#first.kind === "technique") return attributes;
     const techniques = [...this.#actor.itemTypes.technique].sort((a, b) => a.sort - b.sort).map(item => {
       const step = LADDER[item.system.rank];
-      const cost = game.i18n.format("PROJECTANIME.Technique.Energy", { n: step.mod });
+      const cost = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
       return { value: `technique.${item.id}`, label: `${item.name} · ${step.die} · ${cost}` };
     });
     return [...attributes, ...techniques];

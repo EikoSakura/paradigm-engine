@@ -1,4 +1,4 @@
-/* Project: Anime — shared stylesheet for all sheets. */
+/* Paradigm Engine — shared stylesheet for all sheets. */
 
 /* ===== fonts (bundled, OFL — see fonts/OFL-*.txt) ===== */
 @font-face {
@@ -39,7 +39,7 @@
 }
 
 /* ===== shared sheet chrome ===== */
-.project-anime.sheet {
+.paradigm-engine.sheet {
   --ink: #221a36;
   --ink-2: #2e2447;
   --paper: #f7f2e7;
@@ -188,7 +188,7 @@
     flex-direction: column;
     overflow: hidden auto;
     container-type: inline-size;
-    container-name: pa-sheet;
+    container-name: pe-sheet;
   }
 
   .sheet-head {
@@ -1019,7 +1019,7 @@
   }
 
   /* narrow window */
-  @container pa-sheet (max-width: 720px) {
+  @container pe-sheet (max-width: 720px) {
     .maingrid,
     .growgrid,
     .pgrid {
@@ -1029,7 +1029,7 @@
 }
 
 /* ===== item sheets ===== */
-.project-anime.item {
+.paradigm-engine.item {
   .obi {
     padding: 20px 20px 18px 30px;
   }
@@ -1205,7 +1205,7 @@
 }
 
 /* ===== action roll dialog ===== */
-.project-anime.roll-dialog {
+.paradigm-engine.roll-dialog {
   .dbody {
     padding: 14px 14px 2px;
   }
@@ -1473,7 +1473,7 @@
 }
 
 /* ===== tension settings dialog ===== */
-.project-anime.tension-settings {
+.paradigm-engine.tension-settings {
   .dbody {
     padding: 14px;
   }
@@ -1515,7 +1515,7 @@
 /* ===== chat cards =====
    Self-contained: chat messages sit outside the sheet scope and either
    Foundry chat theme, so the card carries its own tokens. */
-.pa-card {
+.pe-card {
   --ink: #221a36;
   --paper: #f7f2e7;
   --muted: rgba(34, 26, 54, .62);
@@ -1540,7 +1540,7 @@
   line-height: 1.5;
   color: var(--ink);
 }
-.pa-card::before {
+.pe-card::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1551,7 +1551,7 @@
   border-right: 1.5px solid var(--paper);
   z-index: 2;
 }
-.pa-card .chead {
+.pe-card .chead {
   position: relative;
   display: grid;
   gap: 5px;
@@ -1560,25 +1560,25 @@
   padding: 7px 10px 7px 15px;
   overflow: hidden;
 }
-.pa-card .ctitle {
+.pe-card .ctitle {
   display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
   z-index: 1;
 }
-.pa-card .ctitle:not(:last-child) {
+.pe-card .ctitle:not(:last-child) {
   padding-bottom: 6px;
   border-bottom: 1.5px solid rgba(247, 242, 231, .3);
 }
-.pa-card .cmeta {
+.pe-card .cmeta {
   display: flex;
   align-items: center;
   gap: 8px;
   position: relative;
   z-index: 1;
 }
-.pa-card .chead::after {
+.pe-card .chead::after {
   content: "";
   position: absolute;
   right: 0;
@@ -1589,7 +1589,7 @@
   background-size: 6px 6px;
   clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%);
 }
-.pa-card .cname {
+.pe-card .cname {
   font-family: var(--f-display);
   font-weight: 700;
   font-size: 15px;
@@ -1598,20 +1598,20 @@
   position: relative;
   z-index: 1;
 }
-.pa-card .dia {
+.pe-card .dia {
   position: relative;
   width: 26px;
   height: 26px;
   flex: none;
 }
-.pa-card .dia i {
+.pe-card .dia i {
   position: absolute;
   inset: 4px;
   transform: rotate(45deg);
   border: 1.5px solid rgba(247, 242, 231, .9);
   background: var(--rkc, var(--rk-e));
 }
-.pa-card .dia b {
+.pe-card .dia b {
   position: absolute;
   inset: 0;
   display: grid;
@@ -1622,7 +1622,7 @@
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
 }
-.pa-card .chip {
+.pe-card .chip {
   display: inline-block;
   font-size: 8.5px;
   font-weight: 900;
@@ -1634,38 +1634,38 @@
   position: relative;
   z-index: 1;
 }
-.pa-card .chip.pap {
+.pe-card .chip.pap {
   background: var(--paper);
   color: var(--ink);
 }
-.pa-card .chip.inv {
+.pe-card .chip.inv {
   background: transparent;
   color: var(--paper);
 }
-.pa-card .chip.gold {
+.pe-card .chip.gold {
   background: var(--gold);
   border-color: #a8771f;
   color: var(--ink);
 }
-.pa-card button.chip.areachip {
+.pe-card button.chip.areachip {
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
 }
-.pa-card button.chip.areachip:hover {
+.pe-card button.chip.areachip:hover {
   border-color: var(--beni);
 }
-.pa-card .cbody {
+.pe-card .cbody {
   padding: 10px 12px 11px 16px;
 }
-.pa-card .cbody p {
+.pe-card .cbody p {
   font-size: 12.5px;
   margin: 0;
 }
-.pa-card .cbody p + p {
+.pe-card .cbody p + p {
   margin-top: 7px;
 }
-.pa-card .ruled {
+.pe-card .ruled {
   display: flex;
   gap: 7px;
   font-size: 11.5px;
@@ -1673,18 +1673,18 @@
   padding-left: 0;
   border-left: none;
 }
-.pa-card .rmark {
+.pe-card .rmark {
   color: var(--beni);
   flex: none;
   font-size: 10px;
   line-height: 1.7;
 }
-.pa-card .dicerow {
+.pe-card .dicerow {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.pa-card .face {
+.pe-card .face {
   display: grid;
   place-items: center;
   width: 38px;
@@ -1696,25 +1696,25 @@
   font-weight: 800;
   font-size: 19px;
 }
-.pa-card .face.spendable {
+.pe-card .face.spendable {
   cursor: pointer;
 }
-.pa-card .face.spendable:hover {
+.pe-card .face.spendable:hover {
   border-color: var(--beni);
   color: var(--beni);
 }
-.pa-card .face.lucky {
+.pe-card .face.lucky {
   background: var(--gold);
   border-color: #a8771f;
 }
-.pa-card .rtrait.luck .rmark {
+.pe-card .rtrait.luck .rmark {
   color: var(--gold);
 }
-.pa-card .rtotal {
+.pe-card .rtotal {
   margin-left: auto;
   text-align: right;
 }
-.pa-card .tlab {
+.pe-card .tlab {
   display: block;
   font-size: 8.5px;
   font-weight: 900;
@@ -1722,20 +1722,20 @@
   text-transform: uppercase;
   color: var(--muted);
 }
-.pa-card .tnum {
+.pe-card .tnum {
   font-family: var(--f-display);
   font-weight: 800;
   font-size: 30px;
   line-height: 1;
 }
-.pa-card .rtrait {
+.pe-card .rtrait {
   display: flex;
   gap: 7px;
   font-size: 11.5px;
   margin-top: 9px;
   font-weight: 500;
 }
-.pa-card .dband {
+.pe-card .dband {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1744,7 +1744,7 @@
   padding-top: 9px;
   border-top: 1.5px dashed rgba(34, 26, 54, .22);
 }
-.pa-card .gtag {
+.pe-card .gtag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1757,28 +1757,28 @@
   font-weight: 800;
   font-size: 13px;
 }
-.pa-card .gtag small {
+.pe-card .gtag small {
   font-family: var(--f-ui);
   font-size: 9px;
   font-weight: 700;
 }
-.pa-card .bword {
+.pe-card .bword {
   font-family: var(--f-display);
   font-weight: 800;
   font-size: 18px;
   letter-spacing: .04em;
 }
-.pa-card .bword.fumble {
+.pe-card .bword.fumble {
   color: var(--beni);
 }
-.pa-card .lbtag {
+.pe-card .lbtag {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--beni);
 }
-.pa-card .riders {
+.pe-card .riders {
   margin-top: 6px;
   text-align: center;
   font-size: 11px;
@@ -1787,7 +1787,7 @@
 }
 
 /* ===== combo / fumble splash ===== */
-.pa-splash {
+.pe-splash {
   --ink: #221a36;
   --paper: #f7f2e7;
   --beni: #d92b48;
@@ -1802,33 +1802,33 @@
   overflow: hidden;
   cursor: pointer;
 }
-.pa-splash.closing { pointer-events: none; }
+.pe-splash.closing { pointer-events: none; }
 
-.pa-splash .dim {
+.pe-splash .dim {
   position: absolute;
   inset: 0;
   background: rgba(34, 26, 54, .28);
   opacity: 0;
-  animation: pa-dim-in .18s ease-out both;
+  animation: pe-dim-in .18s ease-out both;
 }
-.pa-splash.fumble .dim {
+.pe-splash.fumble .dim {
   background:
     radial-gradient(circle at 50% 50%, transparent 30%, rgba(34, 26, 54, .5) 100%),
     rgba(34, 26, 54, .34);
 }
 
-.pa-splash .lines {
+.pe-splash .lines {
   position: absolute;
   inset: -30%;
   background: repeating-conic-gradient(from 0deg at 50% 50%,
     rgba(247, 242, 231, .55) 0deg 1.6deg,
     transparent 1.6deg 8deg);
   opacity: 0;
-  animation: pa-lines .5s ease-out .06s both;
+  animation: pe-lines .5s ease-out .06s both;
 }
-.pa-splash.fumble .lines { display: none; }
+.pe-splash.fumble .lines { display: none; }
 
-.pa-splash .band {
+.pe-splash .band {
   position: absolute;
   left: -6%;
   right: -6%;
@@ -1841,31 +1841,31 @@
     var(--beni);
   border-block: 4px solid var(--ink);
   box-shadow: 0 10px 0 rgba(34, 26, 54, .28);
-  animation: pa-band-slash .32s cubic-bezier(.18, 1.3, .32, 1) .05s both;
+  animation: pe-band-slash .32s cubic-bezier(.18, 1.3, .32, 1) .05s both;
 }
-.pa-splash.combo .band { transform: translateY(-50%) rotate(-4deg); }
-.pa-splash.fumble .band {
+.pe-splash.combo .band { transform: translateY(-50%) rotate(-4deg); }
+.pe-splash.fumble .band {
   transform: translateY(-50%) rotate(2.5deg);
   background:
     repeating-linear-gradient(-45deg, rgba(247, 242, 231, .04) 0 14px, transparent 14px 28px),
     var(--ink);
   border-block: 4px solid var(--beni-deep);
-  animation: pa-band-drop .5s cubic-bezier(.22, 1.5, .36, 1) .05s both;
+  animation: pe-band-drop .5s cubic-bezier(.22, 1.5, .36, 1) .05s both;
 }
 
-.pa-splash .inner {
+.pe-splash .inner {
   display: grid;
   justify-items: center;
   gap: 2px;
   padding: 0 4vw;
 }
 
-.pa-splash .faces {
+.pe-splash .faces {
   display: flex;
   gap: 12px;
   margin-bottom: 6px;
 }
-.pa-splash .face {
+.pe-splash .face {
   display: grid;
   place-items: center;
   width: clamp(40px, 5vw, 52px);
@@ -1878,11 +1878,11 @@
   font-weight: 800;
   font-size: clamp(22px, 2.8vw, 28px);
   box-shadow: 4px 4px 0 rgba(34, 26, 54, .3);
-  animation: pa-face-pop .3s cubic-bezier(.2, 1.6, .4, 1) both;
+  animation: pe-face-pop .3s cubic-bezier(.2, 1.6, .4, 1) both;
 }
-.pa-splash .face:first-child { animation-delay: .3s; rotate: -6deg; }
-.pa-splash .face:last-child { animation-delay: .4s; rotate: 5deg; }
-.pa-splash.fumble .face {
+.pe-splash .face:first-child { animation-delay: .3s; rotate: -6deg; }
+.pe-splash .face:last-child { animation-delay: .4s; rotate: 5deg; }
+.pe-splash.fumble .face {
   border-style: dashed;
   border-color: var(--beni);
   color: var(--beni);
@@ -1890,7 +1890,7 @@
   box-shadow: 4px 4px 0 rgba(0, 0, 0, .4);
 }
 
-.pa-splash .word {
+.pe-splash .word {
   font-family: var(--f-display);
   font-weight: 800;
   font-size: clamp(64px, 13vw, 148px);
@@ -1900,17 +1900,17 @@
   text-shadow:
     3px 3px 0 var(--ink),
     6px 6px 0 rgba(34, 26, 54, .35);
-  animation: pa-word-pop .34s cubic-bezier(.2, 1.5, .36, 1) .16s both;
+  animation: pe-word-pop .34s cubic-bezier(.2, 1.5, .36, 1) .16s both;
 }
-.pa-splash.fumble .word {
+.pe-splash.fumble .word {
   letter-spacing: .1em;
   text-shadow:
     3px 3px 0 var(--beni-deep),
     6px 6px 0 rgba(0, 0, 0, .45);
-  animation: pa-word-stamp .3s cubic-bezier(.3, 1.4, .5, 1) .3s both;
+  animation: pe-word-stamp .3s cubic-bezier(.3, 1.4, .5, 1) .3s both;
 }
 
-.pa-splash .who {
+.pe-splash .who {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1921,69 +1921,69 @@
   letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--paper);
-  animation: pa-who-in .3s ease-out .5s both;
+  animation: pe-who-in .3s ease-out .5s both;
 }
-.pa-splash .who::before,
-.pa-splash .who::after {
+.pe-splash .who::before,
+.pe-splash .who::after {
   content: "\25C6";
   font-size: .7em;
   color: var(--gold);
 }
-.pa-splash.fumble .who::before,
-.pa-splash.fumble .who::after { color: var(--beni); }
+.pe-splash.fumble .who::before,
+.pe-splash.fumble .who::after { color: var(--beni); }
 
-.pa-splash.closing .dim,
-.pa-splash.closing .lines { transition: opacity .28s ease-in; opacity: 0 !important; }
-.pa-splash.combo.closing .band {
+.pe-splash.closing .dim,
+.pe-splash.closing .lines { transition: opacity .28s ease-in; opacity: 0 !important; }
+.pe-splash.combo.closing .band {
   transition: translate .3s cubic-bezier(.6, 0, .9, .4), opacity .3s ease-in;
   translate: 110vw 0;
   opacity: 0;
 }
-.pa-splash.fumble.closing .band {
+.pe-splash.fumble.closing .band {
   transition: translate .3s cubic-bezier(.6, 0, .9, .4), opacity .3s ease-in;
   translate: 0 60vh;
   opacity: 0;
 }
 
-@keyframes pa-dim-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes pa-lines {
+@keyframes pe-dim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pe-lines {
   from { opacity: 0; scale: .8; }
   30% { opacity: .8; }
   to { opacity: .35; scale: 1; }
 }
-@keyframes pa-band-slash {
+@keyframes pe-band-slash {
   from { translate: -110vw 0; }
   to { translate: 0 0; }
 }
-@keyframes pa-band-drop {
+@keyframes pe-band-drop {
   from { translate: 0 -80vh; }
   60% { translate: 0 3vh; }
   to { translate: 0 0; }
 }
-@keyframes pa-word-pop {
+@keyframes pe-word-pop {
   from { opacity: 0; scale: 2.4; rotate: -6deg; }
   to { opacity: 1; scale: 1; rotate: 0deg; }
 }
-@keyframes pa-word-stamp {
+@keyframes pe-word-stamp {
   from { opacity: 0; scale: 1.9; filter: blur(4px); }
   to { opacity: 1; scale: 1; filter: blur(0); }
 }
-@keyframes pa-face-pop {
+@keyframes pe-face-pop {
   from { opacity: 0; scale: 0; }
   to { opacity: 1; scale: 1; }
 }
-@keyframes pa-who-in {
+@keyframes pe-who-in {
   from { opacity: 0; translate: 0 10px; }
   to { opacity: 1; translate: 0 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pa-splash * { animation-duration: .01s !important; animation-delay: 0s !important; }
-  .pa-splash.closing .band { transition: opacity .2s ease; translate: 0 0; }
+  .pe-splash * { animation-duration: .01s !important; animation-delay: 0s !important; }
+  .pe-splash.closing .band { transition: opacity .2s ease; translate: 0 0; }
 }
 
 /* ===== spend luck picker ===== */
-.project-anime.luck-picker {
+.paradigm-engine.luck-picker {
   .lpick {
     padding: 12px;
     display: grid;
@@ -2153,7 +2153,7 @@
 }
 
 /* the GM's gain chip on roll cards */
-.pa-card .tchip {
+.pe-card .tchip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2174,27 +2174,27 @@
   box-shadow: 2px 2px 0 var(--ink);
   cursor: pointer;
 }
-.pa-card .tchip:active {
+.pe-card .tchip:active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--ink);
 }
-.pa-card .tchip.done,
-.pa-card .tchip.full {
+.pe-card .tchip.done,
+.pe-card .tchip.full {
   background: #ece4d1;
   color: var(--ink);
   box-shadow: none;
   cursor: default;
 }
-.pa-card .tchip.done:active,
-.pa-card .tchip.full:active {
+.pe-card .tchip.done:active,
+.pe-card .tchip.full:active {
   transform: none;
 }
-.pa-card .tchip.full {
+.pe-card .tchip.full {
   opacity: .55;
 }
 
 /* tension announce line */
-.pa-tline {
+.pe-tline {
   padding: 5px 8px;
   background: #f7f2e7;
   border: 1px solid #221a36;
@@ -2202,7 +2202,7 @@
   font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
   font-size: 11px;
 }
-.pa-tline::before {
+.pe-tline::before {
   content: "◆ ";
   color: #d92b48;
 }
@@ -2420,7 +2420,7 @@
 }
 
 /* ===== new track dialog ===== */
-.project-anime.track-new {
+.paradigm-engine.track-new {
   .dbody {
     padding: 14px;
   }
@@ -2527,14 +2527,14 @@
 }
 
 /* track chips on roll cards, for the Storyteller and the card's author */
-.pa-card .trackrow {
+.pe-card .trackrow {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
   margin-top: 6px;
 }
-.pa-card .trchip {
+.pe-card .trchip {
   display: inline-flex;
   align-items: center;
   width: auto;
@@ -2553,20 +2553,20 @@
   box-shadow: 2px 2px 0 var(--ink);
   cursor: pointer;
 }
-.pa-card .trchip:not(:disabled):active {
+.pe-card .trchip:not(:disabled):active {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--ink);
 }
-.pa-card .trchip.erase {
+.pe-card .trchip.erase {
   background: var(--beni);
   color: var(--paper);
 }
-.pa-card .trchip:disabled {
+.pe-card .trchip:disabled {
   opacity: .5;
   box-shadow: none;
   cursor: default;
 }
-.pa-card .trchip.done {
+.pe-card .trchip.done {
   background: #ece4d1;
   color: var(--ink);
   opacity: 1;
@@ -3037,7 +3037,7 @@
 /* ===== encounter tracker ===== */
 /* The Combat sidebar tab. The core encounter controls above the panel
    keep their core chrome; the glass skin is scoped to the panel. */
-.project-anime-encounter {
+.paradigm-engine-encounter {
   --ink: #221a36;
   --paper: #f7f2e7;
   --paper2: #ece4d1;
@@ -3054,30 +3054,30 @@
   --f-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --f-ui: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
 }
-.project-anime-encounter.sidebar-tab:not(.sidebar-popout).active {
+.paradigm-engine-encounter.sidebar-tab:not(.sidebar-popout).active {
   display: flex;
   flex-direction: column;
 }
-.project-anime-encounter.sidebar-popout .window-content {
+.paradigm-engine-encounter.sidebar-popout .window-content {
   padding: 0;
 }
-.project-anime-encounter .combat-tracker-header {
+.paradigm-engine-encounter .combat-tracker-header {
   flex: none;
   display: flex;
   flex-direction: column;
   padding: 8px 8px 0;
   gap: 8px;
 }
-.project-anime-encounter .combat-tracker-header.empty {
+.paradigm-engine-encounter .combat-tracker-header.empty {
   display: none;
 }
-.project-anime-encounter .encounters {
+.paradigm-engine-encounter .encounters {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.project-anime-encounter .encounter-panel {
+.paradigm-engine-encounter .encounter-panel {
   flex: 0 1 auto;
   min-height: 0;
   display: flex;
@@ -3090,7 +3090,7 @@
   font-family: var(--f-ui);
   color: var(--paper);
 }
-.project-anime-encounter .encounter-panel button {
+.paradigm-engine-encounter .encounter-panel button {
   width: auto;
   height: auto;
   min-width: 0;
@@ -3107,13 +3107,13 @@
   line-height: normal;
   cursor: pointer;
 }
-.project-anime-encounter .encounter-panel button:focus-visible {
+.paradigm-engine-encounter .encounter-panel button:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
 
 /* header band */
-.project-anime-encounter .hdr {
+.paradigm-engine-encounter .hdr {
   position: relative;
   flex: none;
   padding: 12px 14px 12px 24px;
@@ -3121,7 +3121,7 @@
   background-image: radial-gradient(rgba(247, 242, 231, .10) 1px, transparent 1px);
   background-size: 7px 7px;
 }
-.project-anime-encounter .hdr::before {
+.paradigm-engine-encounter .hdr::before {
   content: "";
   position: absolute;
   left: 0;
@@ -3130,7 +3130,7 @@
   width: 10px;
   background: var(--beni);
 }
-.project-anime-encounter .hdr::after {
+.paradigm-engine-encounter .hdr::after {
   content: "";
   position: absolute;
   left: 10px;
@@ -3139,14 +3139,14 @@
   width: 1px;
   background: var(--paper);
 }
-.project-anime-encounter .hdr .eyebrow {
+.paradigm-engine-encounter .hdr .eyebrow {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .26em;
   color: var(--dim);
   text-transform: uppercase;
 }
-.project-anime-encounter .hdr .ename {
+.paradigm-engine-encounter .hdr .ename {
   margin: 2px 0 0;
   padding: 0;
   border: none;
@@ -3162,7 +3162,7 @@
 }
 
 /* spotlight plate */
-.project-anime-encounter .plate {
+.paradigm-engine-encounter .plate {
   flex: none;
   margin: 12px 12px 2px;
   border: 1px solid rgba(247, 242, 231, .25);
@@ -3173,7 +3173,7 @@
   position: relative;
   transition: background .15s, border-color .15s, box-shadow .15s;
 }
-.project-anime-encounter .plate .eyebrow {
+.paradigm-engine-encounter .plate .eyebrow {
   position: absolute;
   top: -7px;
   left: 10px;
@@ -3185,20 +3185,20 @@
   color: var(--gold);
   text-transform: uppercase;
 }
-.project-anime-encounter .plate.st {
+.paradigm-engine-encounter .plate.st {
   background: rgba(217, 43, 72, .16);
   border-color: rgba(217, 43, 72, .6);
   box-shadow: inset 4px 0 0 var(--beni), 0 0 14px rgba(217, 43, 72, .30);
 }
-.project-anime-encounter .plate.open {
+.paradigm-engine-encounter .plate.open {
   border-style: dashed;
   border-color: rgba(247, 242, 231, .35);
 }
-.project-anime-encounter .plate .who {
+.paradigm-engine-encounter .plate .who {
   flex: 1;
   min-width: 0;
 }
-.project-anime-encounter .plate .who .nm {
+.paradigm-engine-encounter .plate .who .nm {
   font-family: var(--f-display);
   font-weight: 700;
   font-size: 16px;
@@ -3207,7 +3207,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.project-anime-encounter .plate .who .side {
+.paradigm-engine-encounter .plate .who .side {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .2em;
@@ -3215,14 +3215,14 @@
   text-transform: uppercase;
   margin-top: 2px;
 }
-.project-anime-encounter .plate .hint {
+.paradigm-engine-encounter .plate .hint {
   font-size: 11px;
   color: var(--dim);
   line-height: 1.4;
 }
 
 /* portraits */
-.project-anime-encounter .pfp {
+.paradigm-engine-encounter .pfp {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -3231,24 +3231,24 @@
   background: rgba(247, 242, 231, .10);
   border: 2px solid rgba(247, 242, 231, .35);
 }
-.project-anime-encounter .plate.party .pfp {
+.paradigm-engine-encounter .plate.party .pfp {
   border-color: var(--gold);
   box-shadow: 0 0 10px rgba(217, 161, 59, .45);
 }
-.project-anime-encounter .plate.st .pfp {
+.paradigm-engine-encounter .plate.st .pfp {
   border-color: var(--beni);
 }
 
 /* body */
-.project-anime-encounter .ebody {
+.paradigm-engine-encounter .ebody {
   flex: 0 1 auto;
   min-height: 0;
   overflow: hidden auto;
 }
-.project-anime-encounter .sec {
+.paradigm-engine-encounter .sec {
   padding: 10px 12px 4px;
 }
-.project-anime-encounter .sec-label {
+.paradigm-engine-encounter .sec-label {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3259,7 +3259,7 @@
   text-transform: uppercase;
   margin-bottom: 6px;
 }
-.project-anime-encounter .sec-label::after {
+.paradigm-engine-encounter .sec-label::after {
   content: "";
   flex: 1;
   height: 1px;
@@ -3267,18 +3267,18 @@
 }
 
 /* up next queue */
-.project-anime-encounter .queue {
+.paradigm-engine-encounter .queue {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-.project-anime-encounter .queue .q {
+.paradigm-engine-encounter .queue .q {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 2px 2px;
 }
-.project-anime-encounter .queue .q .no {
+.paradigm-engine-encounter .queue .q .no {
   width: 16px;
   height: 16px;
   flex: none;
@@ -3290,14 +3290,14 @@
   font-size: 10px;
   font-weight: 700;
 }
-.project-anime-encounter .queue .q .qn {
+.paradigm-engine-encounter .queue .q .qn {
   font-size: 12px;
   font-weight: 500;
   color: var(--paper2);
 }
 
 /* rows */
-.project-anime-encounter .row {
+.paradigm-engine-encounter .row {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3308,24 +3308,24 @@
   cursor: pointer;
   transition: background .15s, border-color .15s, box-shadow .15s;
 }
-.project-anime-encounter .row:not(.active):hover {
+.paradigm-engine-encounter .row:not(.active):hover {
   background: rgba(247, 242, 231, .05);
 }
-.project-anime-encounter .row.active {
+.paradigm-engine-encounter .row.active {
   border-color: rgba(217, 43, 72, .55);
   background: rgba(217, 43, 72, .08);
   box-shadow: inset 3px 0 0 var(--beni), 0 0 12px rgba(217, 43, 72, .30);
 }
-.project-anime-encounter .row.ghost {
+.paradigm-engine-encounter .row.ghost {
   opacity: .4;
 }
-.project-anime-encounter .row .pfp {
+.paradigm-engine-encounter .row .pfp {
   width: 30px;
   height: 30px;
   font-size: 13px;
   border-width: 1px;
 }
-.project-anime-encounter .row .nm {
+.paradigm-engine-encounter .row .nm {
   flex: 1;
   min-width: 0;
   font-size: 13px;
@@ -3334,14 +3334,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.project-anime-encounter .row.down .nm {
+.paradigm-engine-encounter .row.down .nm {
   text-decoration: line-through;
   color: var(--dim);
 }
-.project-anime-encounter .row.down .pfp {
+.paradigm-engine-encounter .row.down .pfp {
   opacity: .5;
 }
-.project-anime-encounter .state {
+.paradigm-engine-encounter .state {
   font-size: 7px;
   font-weight: 700;
   letter-spacing: .14em;
@@ -3353,7 +3353,7 @@
 }
 
 /* rank plate */
-.project-anime-encounter .gplate {
+.paradigm-engine-encounter .gplate {
   width: 20px;
   height: 20px;
   flex: none;
@@ -3367,7 +3367,7 @@
   background: rgba(0, 0, 0, .25);
   transition: box-shadow .15s;
 }
-.project-anime-encounter .gplate span {
+.paradigm-engine-encounter .gplate span {
   transform: rotate(-45deg);
   color: var(--rkc);
   font-family: var(--f-display);
@@ -3375,20 +3375,20 @@
   font-size: 11px;
   line-height: 1;
 }
-.project-anime-encounter .gplate.num span {
+.paradigm-engine-encounter .gplate.num span {
   font-family: var(--f-ui);
   font-weight: 700;
   font-size: 10px;
 }
-.project-anime-encounter .gplate:hover {
+.paradigm-engine-encounter .gplate:hover {
   box-shadow: 0 0 8px currentColor;
 }
-.project-anime-encounter .encounter-panel .gplate:focus-visible {
+.paradigm-engine-encounter .encounter-panel .gplate:focus-visible {
   outline-offset: 3px;
 }
 
 /* queue position badge */
-.project-anime-encounter .badge {
+.paradigm-engine-encounter .badge {
   width: 16px;
   height: 16px;
   flex: none;
@@ -3402,7 +3402,7 @@
 }
 
 /* chips */
-.project-anime-encounter .chip {
+.paradigm-engine-encounter .chip {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: .12em;
@@ -3414,42 +3414,42 @@
   border: 1px solid;
   transition: background .15s, color .15s;
 }
-.project-anime-encounter .chip:disabled {
+.paradigm-engine-encounter .chip:disabled {
   opacity: .4;
   cursor: default;
 }
-.project-anime-encounter .chip.next {
+.paradigm-engine-encounter .chip.next {
   color: rgba(247, 242, 231, .75);
   border-color: rgba(247, 242, 231, .4);
 }
-.project-anime-encounter .chip.next:hover {
+.paradigm-engine-encounter .chip.next:hover {
   color: var(--paper);
   border-color: var(--paper);
 }
-.project-anime-encounter .chip.next.on {
+.paradigm-engine-encounter .chip.next.on {
   color: var(--ink);
   background: var(--gold);
   border-color: var(--gold);
 }
-.project-anime-encounter .chip.take {
+.paradigm-engine-encounter .chip.take {
   color: var(--gold);
   border-color: var(--gold);
 }
-.project-anime-encounter .chip.take:hover:not(:disabled) {
+.paradigm-engine-encounter .chip.take:hover:not(:disabled) {
   color: var(--ink);
   background: var(--gold);
 }
-.project-anime-encounter .chip.ret {
+.paradigm-engine-encounter .chip.ret {
   color: var(--paper);
   background: var(--beni);
   border-color: var(--beni);
 }
-.project-anime-encounter .chip.ret:hover {
+.paradigm-engine-encounter .chip.ret:hover {
   background: #b81f39;
 }
 
 /* icon buttons */
-.project-anime-encounter .iconbtn {
+.paradigm-engine-encounter .iconbtn {
   width: 22px;
   height: 22px;
   flex: none;
@@ -3460,35 +3460,35 @@
   border-radius: 2px;
   transition: color .15s;
 }
-.project-anime-encounter .iconbtn:hover {
+.paradigm-engine-encounter .iconbtn:hover {
   color: var(--paper);
 }
-.project-anime-encounter .iconbtn.on {
+.paradigm-engine-encounter .iconbtn.on {
   color: var(--beni);
 }
-.project-anime-encounter .encounter-panel .iconbtn:focus-visible {
+.paradigm-engine-encounter .encounter-panel .iconbtn:focus-visible {
   outline-offset: 1px;
 }
-.project-anime-encounter .iconbtn svg {
+.paradigm-engine-encounter .iconbtn svg {
   width: 14px;
   height: 14px;
   display: block;
 }
-.project-anime-encounter .iconbtn.hand {
+.paradigm-engine-encounter .iconbtn.hand {
   color: rgba(247, 242, 231, .55);
 }
-.project-anime-encounter .iconbtn.hand:hover {
+.paradigm-engine-encounter .iconbtn.hand:hover {
   color: var(--beni);
 }
 
 /* footer */
-.project-anime-encounter .ftr {
+.paradigm-engine-encounter .ftr {
   flex: none;
   padding: 12px;
   border-top: 1px solid var(--hairline);
   margin-top: 6px;
 }
-.project-anime-encounter .ftr button {
+.paradigm-engine-encounter .ftr button {
   width: 100%;
   font-size: 10px;
   font-weight: 700;
@@ -3498,25 +3498,25 @@
   border-radius: 2px;
   transition: background .15s, color .15s;
 }
-.project-anime-encounter .ftr .end {
+.paradigm-engine-encounter .ftr .end {
   color: var(--beni);
   background: transparent;
   border: 1px solid rgba(217, 43, 72, .6);
 }
-.project-anime-encounter .ftr .end:hover {
+.paradigm-engine-encounter .ftr .end:hover {
   color: var(--paper);
   background: var(--beni);
 }
-.project-anime-encounter .ftr .begin {
+.paradigm-engine-encounter .ftr .begin {
   color: var(--paper);
   background: var(--beni);
   border: 1px solid var(--beni);
 }
-.project-anime-encounter .ftr .begin:hover {
+.paradigm-engine-encounter .ftr .begin:hover {
   background: #b81f39;
 }
 
-.project-anime-encounter .empty {
+.paradigm-engine-encounter .empty {
   padding: 26px 14px;
   text-align: center;
   font-size: 11px;
@@ -3524,14 +3524,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .project-anime-encounter .encounter-panel * {
+  .paradigm-engine-encounter .encounter-panel * {
     transition: none !important;
   }
 }
 
 /* ===== character creator & adversary builder ===== */
-.project-anime.character-creator,
-.project-anime.adversary-builder {
+.paradigm-engine.character-creator,
+.paradigm-engine.adversary-builder {
   .window-header .dots {
     display: flex;
     gap: 6px;
@@ -3913,7 +3913,7 @@
     box-shadow: 3px 3px 0 rgba(34, 26, 54, .25);
   }
 
-  @container pa-sheet (max-width: 640px) {
+  @container pe-sheet (max-width: 640px) {
     .cards {
       grid-template-columns: 1fr;
     }
@@ -3921,7 +3921,7 @@
 }
 
 /* ===== adversary builder ===== */
-.project-anime.adversary-builder {
+.paradigm-engine.adversary-builder {
   /* stats */
   .statgrid {
     display: flex;
@@ -4110,7 +4110,7 @@
 }
 
 /* ===== tile count on the drag ruler label ===== */
-#measurement .waypoint-label .pa-distance {
+#measurement .waypoint-label .pe-distance {
   font-weight: 700;
   font-size: 0.9em;
   letter-spacing: 1px;
@@ -4118,7 +4118,7 @@
 }
 
 /* ===== the Area size dialog ===== */
-.project-anime.area-dialog {
+.paradigm-engine.area-dialog {
   .areabody {
     padding: 14px;
     display: flex;

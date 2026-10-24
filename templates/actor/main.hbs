@@ -1,12 +1,12 @@
 <section class="tab main {{tab.cssClass}}" data-group="primary" data-tab="main">
   <div class="maingrid">
-    {{> "systems/project-anime/templates/actor/rail.hbs"}}
+    {{> "systems/paradigm-engine/templates/actor/rail.hbs"}}
     <div>
-      {{> "systems/project-anime/templates/actor/traits-panel.hbs"}}
-      {{> "systems/project-anime/templates/actor/techniques-panel.hbs"}}
+      {{> "systems/paradigm-engine/templates/actor/traits-panel.hbs"}}
+      {{> "systems/paradigm-engine/templates/actor/techniques-panel.hbs"}}
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Bonds"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Bonds"}}</span>
           <span class="tail">{{bonds.length}} / 6</span>
         </div>
         <div class="panel-b">
@@ -15,22 +15,22 @@
             <div class="card-h">
               {{#if @root.editMode}}
               <select class="kindsel" name="system.bonds.{{@index}}.rank" data-dtype="Number"
-                aria-label="{{localize "PROJECTANIME.Edit.BondRank"}}">
+                aria-label="{{localize "PARADIGMENGINE.Edit.BondRank"}}">
                 {{selectOptions @root.bondRanks selected=this.rank}}
               </select>
               <span class="ttl"><input class="ed-input ed-name" type="text" name="system.bonds.{{@index}}.name"
-                value="{{this.name}}" placeholder="{{localize "PROJECTANIME.Placeholder.BondName"}}"></span>
+                value="{{this.name}}" placeholder="{{localize "PARADIGMENGINE.Placeholder.BondName"}}"></span>
               <button type="button" class="delbtn" data-action="deleteBond" data-i="{{@index}}"
-                aria-label="{{localize "PROJECTANIME.Edit.Remove"}}">✕</button>
+                aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
               {{else}}
-              {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+              {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
               <span class="ttl"><b>{{this.name}}</b></span>
               {{/if}}
             </div>
           </div>
           {{/each}}
           {{#if editMode}}{{#if canAddBond}}
-          <button type="button" class="addbtn" data-action="addBond">{{localize "PROJECTANIME.Edit.AddBond"}}</button>
+          <button type="button" class="addbtn" data-action="addBond">{{localize "PARADIGMENGINE.Edit.AddBond"}}</button>
           {{/if}}{{/if}}
         </div>
       </div>

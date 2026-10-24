@@ -3,7 +3,7 @@
   <header class="obi">
     <div class="obi-inner">
       <div class="idblock">
-        <div class="eyebrow">{{localize "PROJECTANIME.Creator.Title"}}</div>
+        <div class="eyebrow">{{localize "PARADIGMENGINE.Creator.Title"}}</div>
         <div class="cname">{{obiName}}</div>
       </div>
     </div>
@@ -22,10 +22,10 @@
 
     <section class="pane{{#if active.[0]}} active{{/if}}">
       <div class="panel">
-        <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Header.Character"}}</span></div>
+        <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Header.Character"}}</span></div>
         <div class="panel-b">
           <div class="field">
-            <label for="cc-name">{{localize "PROJECTANIME.Header.Name"}}</label>
+            <label for="cc-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
             <input type="text" id="cc-name" name="name" value="{{name}}">
           </div>
         </div>
@@ -35,20 +35,20 @@
     <section class="pane{{#if active.[1]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Attributes"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Creator.AttributesSide"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Attributes"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Creator.AttributesSide"}}</span>
         </div>
         <div class="panel-b">
-          <div class="stepups"><span class="n">{{stepUps}}</span><span class="t">{{localize "PROJECTANIME.Creator.StepUps"}}</span></div>
+          <div class="stepups"><span class="n">{{stepUps}}</span><span class="t">{{localize "PARADIGMENGINE.Creator.StepUps"}}</span></div>
           {{#each attributes}}
           <div class="attr-row">
             <span class="name">{{this.name}}</span>
-            {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+            {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
             <span class="stepper">
               <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="-1"
-                aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}"{{#if this.downDisabled}} disabled{{/if}}>−</button>
+                aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if this.downDisabled}} disabled{{/if}}>−</button>
               <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="1"
-                aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}"{{#if this.upDisabled}} disabled{{/if}}>＋</button>
+                aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if this.upDisabled}} disabled{{/if}}>＋</button>
             </span>
           </div>
           {{/each}}
@@ -59,8 +59,8 @@
     <section class="pane{{#if active.[2]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Traits"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Creator.TraitsSide"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Traits"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Creator.TraitsSide"}}</span>
         </div>
         <div class="panel-b">
           <div class="cards">
@@ -68,13 +68,13 @@
             <div class="card">
               <div class="toprow">
                 <div class="field">
-                  <label for="cc-trait-{{this.i}}-name">{{localize "PROJECTANIME.Header.Name"}}</label>
+                  <label for="cc-trait-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
                   <input type="text" id="cc-trait-{{this.i}}-name" name="trait.{{this.i}}.name" value="{{this.name}}">
                 </div>
-                {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+                {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
               </div>
               <div class="field">
-                <label for="cc-trait-{{this.i}}-text">{{localize "PROJECTANIME.Item.Description"}}</label>
+                <label for="cc-trait-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
                 <textarea id="cc-trait-{{this.i}}-text" name="trait.{{this.i}}.text" rows="2">{{this.text}}</textarea>
               </div>
             </div>
@@ -87,8 +87,8 @@
     <section class="pane{{#if active.[3]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Panel.Techniques"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Creator.TechniquesSide"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Panel.Techniques"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Creator.TechniquesSide"}}</span>
         </div>
         <div class="panel-b">
           <div class="cards">
@@ -96,19 +96,19 @@
             <div class="card">
               <div class="toprow">
                 <div class="field">
-                  <label for="cc-tech-{{this.i}}-name">{{localize "PROJECTANIME.Header.Name"}}</label>
+                  <label for="cc-tech-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
                   <input type="text" id="cc-tech-{{this.i}}-name" name="tech.{{this.i}}.name" value="{{this.name}}">
                 </div>
-                {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+                {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
               </div>
               <div class="seg">
                 <button type="button" class="{{#if this.activated}}on{{/if}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Activated">{{localize "PROJECTANIME.Technique.Activated"}}</button>
+                  data-i="{{this.i}}" data-kind="Activated">{{localize "PARADIGMENGINE.Technique.Activated"}}</button>
                 <button type="button" class="{{#unless this.activated}}on{{/unless}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Triggered">{{localize "PROJECTANIME.Technique.Triggered"}}</button>
+                  data-i="{{this.i}}" data-kind="Triggered">{{localize "PARADIGMENGINE.Technique.Triggered"}}</button>
               </div>
               <div class="field">
-                <label for="cc-tech-{{this.i}}-text">{{localize "PROJECTANIME.Item.Description"}}</label>
+                <label for="cc-tech-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
                 <textarea id="cc-tech-{{this.i}}-text" name="tech.{{this.i}}.text" rows="3">{{this.text}}</textarea>
               </div>
               <span class="chip gold">{{this.costLabel}}</span>
@@ -122,16 +122,16 @@
     <section class="pane{{#if active.[4]}} active{{/if}}">
       <div class="panel">
         <div class="panel-h">
-          <span class="en">{{localize "PROJECTANIME.Creator.Bond"}}</span>
-          <span class="tail">{{localize "PROJECTANIME.Creator.BondSide"}}</span>
+          <span class="en">{{localize "PARADIGMENGINE.Creator.Bond"}}</span>
+          <span class="tail">{{localize "PARADIGMENGINE.Creator.BondSide"}}</span>
         </div>
         <div class="panel-b">
           <div class="toprow">
             <div class="field">
-              <label for="cc-bond-name">{{localize "PROJECTANIME.Header.Name"}}</label>
+              <label for="cc-bond-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
               <input type="text" id="cc-bond-name" name="bond.name" value="{{bond.name}}">
             </div>
-            {{> "systems/project-anime/templates/actor/badge.hbs" bond.badge}}
+            {{> "systems/paradigm-engine/templates/actor/badge.hbs" bond.badge}}
           </div>
         </div>
       </div>
@@ -139,17 +139,17 @@
 
     <section class="pane{{#if active.[5]}} active{{/if}}">
       <div class="panel">
-        <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Creator.Finishing"}}</span></div>
+        <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Creator.Finishing"}}</span></div>
         <div class="panel-b">
           <div class="finish">
-            <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Header.Rank"}}">
+            <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
               <span class="g">{{seal.text}}</span>
               <span class="lbl">{{seal.label}}</span>
             </button>
             <div class="pools">
-              <div class="free"><span class="n">{{free}}</span><span class="t">{{localize "PROJECTANIME.Creator.Free"}}</span></div>
+              <div class="free"><span class="n">{{free}}</span><span class="t">{{localize "PARADIGMENGINE.Creator.Free"}}</span></div>
               <div class="pool-row trade">
-                <span class="plabel">{{localize "PROJECTANIME.Vitals.Hearts"}}</span>
+                <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Hearts"}}</span>
                 <div class="pips">
                   {{#each pools.hearts.pips}}
                   <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape heart" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
@@ -157,13 +157,13 @@
                 </div>
                 <span class="stepper">
                   <button type="button" data-action="stepPool" data-pool="hearts" data-dir="-1"
-                    aria-label="{{localize "PROJECTANIME.Edit.LowerMax"}}"{{#if pools.hearts.downDisabled}} disabled{{/if}}>−</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if pools.hearts.downDisabled}} disabled{{/if}}>−</button>
                   <button type="button" data-action="stepPool" data-pool="hearts" data-dir="1"
-                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMax"}}"{{#if pools.hearts.upDisabled}} disabled{{/if}}>＋</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if pools.hearts.upDisabled}} disabled{{/if}}>＋</button>
                 </span>
               </div>
               <div class="pool-row trade">
-                <span class="plabel">{{localize "PROJECTANIME.Vitals.Energy"}}</span>
+                <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Energy"}}</span>
                 <div class="pips">
                   {{#each pools.energy.pips}}
                   <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape bolt" d="M13 2 4.5 13.5H11l-1.2 8.5 8.7-11.5H12L13 2z"/></svg></span>
@@ -171,28 +171,28 @@
                 </div>
                 <span class="stepper">
                   <button type="button" data-action="stepPool" data-pool="energy" data-dir="-1"
-                    aria-label="{{localize "PROJECTANIME.Edit.LowerMax"}}"{{#if pools.energy.downDisabled}} disabled{{/if}}>−</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if pools.energy.downDisabled}} disabled{{/if}}>−</button>
                   <button type="button" data-action="stepPool" data-pool="energy" data-dir="1"
-                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMax"}}"{{#if pools.energy.upDisabled}} disabled{{/if}}>＋</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if pools.energy.upDisabled}} disabled{{/if}}>＋</button>
                 </span>
               </div>
               <div class="pool-row trade">
-                <span class="plabel">{{localize "PROJECTANIME.Vitals.Move"}}</span>
+                <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Move"}}</span>
                 <div class="pips"><span class="moveplate">{{pools.move.value}}</span></div>
                 <span class="stepper">
                   <button type="button" data-action="stepPool" data-pool="move" data-dir="-1"
-                    aria-label="{{localize "PROJECTANIME.Edit.LowerMove"}}"{{#if pools.move.downDisabled}} disabled{{/if}}>−</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.LowerMove"}}"{{#if pools.move.downDisabled}} disabled{{/if}}>−</button>
                   <button type="button" data-action="stepPool" data-pool="move" data-dir="1"
-                    aria-label="{{localize "PROJECTANIME.Edit.RaiseMove"}}"{{#if pools.move.upDisabled}} disabled{{/if}}>＋</button>
+                    aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMove"}}"{{#if pools.move.upDisabled}} disabled{{/if}}>＋</button>
                 </span>
               </div>
               <div class="pool-row trade">
-                <span class="plabel">{{localize "PROJECTANIME.Vitals.LuckDice"}}</span>
+                <span class="plabel">{{localize "PARADIGMENGINE.Vitals.LuckDice"}}</span>
                 <div class="luck-slots">
                   {{#each luck}}
                   <div class="luck{{#if this.filled}} filled{{/if}}">{{#if this.filled}}{{this.value}}{{else}}<span class="dot"></span>{{/if}}</div>
                   {{/each}}
-                  <button type="button" class="rollbtn" data-action="rollLuck"{{#if rolled}} disabled{{/if}}>{{localize "PROJECTANIME.Creator.Roll"}}</button>
+                  <button type="button" class="rollbtn" data-action="rollLuck"{{#if rolled}} disabled{{/if}}>{{localize "PARADIGMENGINE.Creator.Roll"}}</button>
                 </div>
               </div>
             </div>
@@ -204,12 +204,12 @@
   </div>
 
   <footer class="cfoot">
-    <button type="button" class="btn ghost" data-action="back"{{#if first}} disabled{{/if}}>{{localize "PROJECTANIME.Creator.Back"}}</button>
+    <button type="button" class="btn ghost" data-action="back"{{#if first}} disabled{{/if}}>{{localize "PARADIGMENGINE.Creator.Back"}}</button>
     <span class="pos">{{position}}</span>
     {{#if last}}
-    <button type="button" class="btn create" data-action="create"{{#unless canCreate}} disabled{{/unless}}>{{localize "PROJECTANIME.Creator.Create"}}</button>
+    <button type="button" class="btn create" data-action="create"{{#unless canCreate}} disabled{{/unless}}>{{localize "PARADIGMENGINE.Creator.Create"}}</button>
     {{else}}
-    <button type="button" class="btn main" data-action="next">{{localize "PROJECTANIME.Creator.Next"}}</button>
+    <button type="button" class="btn main" data-action="next">{{localize "PARADIGMENGINE.Creator.Next"}}</button>
     {{/if}}
   </footer>
 

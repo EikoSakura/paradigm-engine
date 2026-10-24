@@ -1,6 +1,6 @@
 {
-  "id": "project-anime",
-  "title": "Project: Anime",
+  "id": "paradigm-engine",
+  "title": "Paradigm Engine",
   "description": "A fiction-first framework that uses anime as a medium to run any game or world.",
   "version": "0.3.2",
   "authors": [
@@ -9,12 +9,12 @@
       "url": "https://github.com/EikoSakura"
     }
   ],
-  "url": "https://github.com/EikoSakura/project-anime",
-  "manifest": "https://github.com/EikoSakura/project-anime/releases/latest/download/system.json",
-  "download": "https://github.com/EikoSakura/project-anime/releases/download/v0.3.2/project-anime.zip",
+  "url": "https://github.com/EikoSakura/paradigm-engine",
+  "manifest": "https://github.com/EikoSakura/paradigm-engine/releases/latest/download/system.json",
+  "download": "https://github.com/EikoSakura/paradigm-engine/releases/download/v0.3.2/paradigm-engine.zip",
   "compatibility": {
     "minimum": "14",
-    "verified": "14.364"
+    "verified": "14.369"
   },
   "grid": {
     "distance": 1,
@@ -22,8 +22,8 @@
     "diagonals": 3
   },
   "socket": true,
-  "esmodules": ["module/project-anime.mjs"],
-  "styles": ["styles/project-anime.css"],
+  "esmodules": ["module/paradigm-engine.mjs"],
+  "styles": ["styles/paradigm-engine.css"],
   "languages": [
     {
       "lang": "en",

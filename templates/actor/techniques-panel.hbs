@@ -1,10 +1,10 @@
 <div class="panel">
-  <div class="panel-h"><span class="en">{{localize "PROJECTANIME.Panel.Techniques"}}</span></div>
+  <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Techniques"}}</span></div>
   <div class="panel-b">
     {{#each techniques}}
     <div class="card draggable" data-item-id="{{this.id}}">
       <div class="card-h">
-        {{> "systems/project-anime/templates/actor/badge.hbs" this.badge}}
+        {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
         {{#if @root.editMode}}
         <button type="button" class="ttl ttl-open" data-action="openItem" data-item-id="{{this.id}}"><b>{{this.name}}</b></button>
         {{else}}
@@ -14,23 +14,23 @@
         <span class="chip{{#if this.activated}} solid{{/if}}">{{this.kindLabel}}</span>
         <span class="chip gold">{{this.costLabel}}</span>
         {{#if this.area}}
-        <button type="button" class="chip areachip" data-action="openArea" data-item-id="{{this.id}}">{{localize "PROJECTANIME.Item.Area"}}</button>
+        <button type="button" class="chip areachip" data-action="openArea" data-item-id="{{this.id}}">{{localize "PARADIGMENGINE.Item.Area"}}</button>
         {{/if}}
         <button type="button" class="postbtn" data-action="postItem" data-item-id="{{this.id}}"
-          data-tooltip="PROJECTANIME.Chat.Post" aria-label="{{localize "PROJECTANIME.Chat.Post"}}"><i class="fa-solid fa-message"></i></button>
+          data-tooltip="PARADIGMENGINE.Chat.Post" aria-label="{{localize "PARADIGMENGINE.Chat.Post"}}"><i class="fa-solid fa-message"></i></button>
         {{#if @root.editMode}}
         <button type="button" class="delbtn" data-action="deleteItem" data-item-id="{{this.id}}"
-          aria-label="{{localize "PROJECTANIME.Edit.Remove"}}">✕</button>
+          aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
         {{/if}}
       </div>
       <div class="card-text">{{{this.enrichedText}}}</div>
       {{#each this.rulings}}
-      <div class="ruled"><em>{{localize "PROJECTANIME.RuledInPlay"}}</em> {{this}}</div>
+      <div class="ruled"><em>{{localize "PARADIGMENGINE.RuledInPlay"}}</em> {{this}}</div>
       {{/each}}
     </div>
     {{/each}}
     {{#if editMode}}
-    <button type="button" class="addbtn" data-action="createItem" data-type="technique">{{localize "PROJECTANIME.Edit.AddTechnique"}}</button>
+    <button type="button" class="addbtn" data-action="createItem" data-type="technique">{{localize "PARADIGMENGINE.Edit.AddTechnique"}}</button>
     {{/if}}
   </div>
 </div>

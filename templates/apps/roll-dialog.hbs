@@ -4,36 +4,36 @@
     <span class="cname">{{first.name}}</span>
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="-1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepDown"}}"{{#if first.downDisabled}} disabled{{/if}}>&#9660;</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if first.downDisabled}} disabled{{/if}}>&#9660;</button>
       <span class="chip pap {{first.stepClass}}">{{first.die}}</span>
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepUp"}}"{{#if first.upDisabled}} disabled{{/if}}>&#9650;</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if first.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
     {{#if first.isTechnique}}
     <span class="chip gold">{{first.costLabel}}</span>
     {{/if}}
   </div>
-  <div class="slab">{{localize "PROJECTANIME.Roll.SecondDie"}}</div>
+  <div class="slab">{{localize "PARADIGMENGINE.Roll.SecondDie"}}</div>
   <div class="dierow">
-    <select class="dsel" name="second" aria-label="{{localize "PROJECTANIME.Roll.SecondDie"}}">
+    <select class="dsel" name="second" aria-label="{{localize "PARADIGMENGINE.Roll.SecondDie"}}">
       {{#each seconds}}
       <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
       {{/each}}
     </select>
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="-1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepDown"}}"{{#if secondDie.downDisabled}} disabled{{/if}}>&#9660;</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if secondDie.downDisabled}} disabled{{/if}}>&#9660;</button>
       <span class="diebadge {{secondDie.stepClass}}">{{secondDie.die}}</span>
       <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepUp"}}"{{#if secondDie.upDisabled}} disabled{{/if}}>&#9650;</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if secondDie.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
   </div>
   <div class="tworow">
     {{#if traits.length}}
     <div class="grow">
-      <div class="slab">{{localize "PROJECTANIME.Roll.Trait"}}</div>
-      <select class="dsel" name="trait" aria-label="{{localize "PROJECTANIME.Roll.Trait"}}">
-        <option value="">{{localize "PROJECTANIME.Roll.None"}}</option>
+      <div class="slab">{{localize "PARADIGMENGINE.Roll.Trait"}}</div>
+      <select class="dsel" name="trait" aria-label="{{localize "PARADIGMENGINE.Roll.Trait"}}">
+        <option value="">{{localize "PARADIGMENGINE.Roll.None"}}</option>
         {{#each traits}}
         <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
         {{/each}}
@@ -41,39 +41,39 @@
     </div>
     {{/if}}
     <div>
-      <div class="slab">{{localize "PROJECTANIME.Roll.Bonus"}}</div>
-      <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PROJECTANIME.Roll.Bonus"}}">
+      <div class="slab">{{localize "PARADIGMENGINE.Roll.Bonus"}}</div>
+      <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PARADIGMENGINE.Roll.Bonus"}}">
     </div>
   </div>
   {{#if area}}
-  <div class="slab">{{localize "PROJECTANIME.Item.Area"}}</div>
+  <div class="slab">{{localize "PARADIGMENGINE.Item.Area"}}</div>
   <div class="arearow">
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="areaStep" data-delta="-1"
-              aria-label="{{localize "PROJECTANIME.Area.Smaller"}}"{{#if area.downDisabled}} disabled{{/if}}>&minus;</button>
+              aria-label="{{localize "PARADIGMENGINE.Area.Smaller"}}"{{#if area.downDisabled}} disabled{{/if}}>&minus;</button>
       <span class="diebadge">{{area.size}}</span>
       <button type="button" class="stepbtn" data-action="areaStep" data-delta="1"
-              aria-label="{{localize "PROJECTANIME.Area.Larger"}}"{{#if area.upDisabled}} disabled{{/if}}>+</button>
+              aria-label="{{localize "PARADIGMENGINE.Area.Larger"}}"{{#if area.upDisabled}} disabled{{/if}}>+</button>
     </span>
-    <span class="tiles">{{localize "PROJECTANIME.Vitals.Tiles"}}</span>
-    <button type="button" class="areaplace" data-action="place">{{localize "PROJECTANIME.Area.Place"}}</button>
+    <span class="tiles">{{localize "PARADIGMENGINE.Vitals.Tiles"}}</span>
+    <button type="button" class="areaplace" data-action="place">{{localize "PARADIGMENGINE.Area.Place"}}</button>
   </div>
   {{/if}}
-  <div class="slab">{{localize "PROJECTANIME.Roll.Difficulty"}}</div>
+  <div class="slab">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
   <div class="diffs">
     {{#each difficulties}}
     <button type="button" class="gbtn{{#if this.selected}} sel{{/if}}" data-action="difficulty" data-index="{{this.index}}"
             style="--gc: var({{this.cssVar}})"><b>{{this.rank}}</b><small>{{this.number}}</small></button>
     {{/each}}
   </div>
-  <div class="slab">{{localize "PROJECTANIME.Roll.LimitBreak"}}</div>
+  <div class="slab">{{localize "PARADIGMENGINE.Roll.LimitBreak"}}</div>
   <div class="lbrow{{#unless hasDifficulty}} off{{/unless}}">
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="limit" data-delta="-1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepDown"}}"{{#if lbDownDisabled}} disabled{{/if}}>&minus;</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if lbDownDisabled}} disabled{{/if}}>&minus;</button>
       <span class="diebadge">{{limitBreak}}</span>
       <button type="button" class="stepbtn" data-action="limit" data-delta="1"
-              aria-label="{{localize "PROJECTANIME.Roll.StepUp"}}"{{#if lbUpDisabled}} disabled{{/if}}>+</button>
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if lbUpDisabled}} disabled{{/if}}>+</button>
     </span>
     {{#if effective}}
     <span class="eff">&#9656; <span class="gtag" style="--gc: var({{effective.cssVar}})"><b>{{effective.rank}}</b><small>{{effective.number}}</small></span></span>
@@ -82,6 +82,6 @@
 </div>
 <div class="dfoot">
   <span class="formula">{{formula}}</span>
-  <button type="button" class="rollbtn" data-action="roll">{{localize "PROJECTANIME.Roll.Roll"}}</button>
+  <button type="button" class="rollbtn" data-action="roll">{{localize "PARADIGMENGINE.Roll.Roll"}}</button>
 </div>
 </div>

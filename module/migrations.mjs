@@ -3,17 +3,20 @@
    the running one. */
 
 const SETTING = "migrationVersion";
+const OLD_ID = "project-anime";
 
 export function registerMigrations() {
-  game.settings.register("project-anime", SETTING, {
+  game.settings.register("paradigm-engine", SETTING, {
     scope: "world",
     config: false,
     type: String,
     default: "0.0.0"
   });
   Hooks.once("ready", async () => {
+    carryClientSettings();
     if (game.users.activeGM?.isSelf !== true) return;
-    const stored = game.settings.get("project-anime", SETTING);
+    await renameSystem();
+    const stored = game.settings.get("paradigm-engine", SETTING);
     if (!foundry.utils.isNewerVersion(game.system.version, stored)) return;
     if (foundry.utils.isNewerVersion("0.2.0", stored)) await removeZones();
     if (foundry.utils.isNewerVersion("0.3.0", stored)) {
@@ -21,8 +24,52 @@ export function registerMigrations() {
       await bondRanks();
       await sceneTiles();
     }
-    await game.settings.set("project-anime", SETTING, game.system.version);
+    await game.settings.set("paradigm-engine", SETTING, game.system.version);
   });
+}
+
+/* 0.4.0 renamed the system from project-anime to paradigm-engine: world
+   settings and document flags stored under the old id move to the new
+   one, old copies deleted. Runs once, keyed on the old migration record,
+   and carries that record so earlier migrations do not run again. */
+async function renameSystem() {
+  const world = game.settings.storage.get("world");
+  if (!world.getSetting(`${OLD_ID}.${SETTING}`)) return;
+  for (const key of [SETTING, "tension", "tensionAnnounce", "tensionAuto", "tracks"]) {
+    const setting = world.getSetting(`${OLD_ID}.${key}`);
+    if (!setting) continue;
+    await game.settings.set(game.system.id, key, setting.value);
+    await setting.delete();
+  }
+  const carry = doc => {
+    const flags = doc._source.flags?.[OLD_ID];
+    if (flags === undefined) return null;
+    return { _id: doc.id, [`flags.${game.system.id}`]: foundry.utils.deepClone(flags), [`flags.-=${OLD_ID}`]: null };
+  };
+  for (const collection of [game.actors, game.items, game.folders, game.messages, game.scenes, game.users]) {
+    const updates = collection.map(carry).filter(Boolean);
+    if (updates.length) await collection.documentClass.updateDocuments(updates);
+  }
+  for (const actor of game.actors) {
+    const updates = actor.items.map(carry).filter(Boolean);
+    if (updates.length) await actor.updateEmbeddedDocuments("Item", updates);
+  }
+  for (const scene of game.scenes) {
+    const updates = scene.tokens.map(carry).filter(Boolean);
+    if (updates.length) await scene.updateEmbeddedDocuments("Token", updates);
+  }
+}
+
+/* Client settings live in this browser's local storage: move each key
+   stored under the old id to the new one, on every client. */
+function carryClientSettings() {
+  const storage = game.settings.storage.get("client");
+  for (const key of Object.keys(storage)) {
+    if (!key.startsWith(`${OLD_ID}.`)) continue;
+    const moved = `${game.system.id}.${key.slice(OLD_ID.length + 1)}`;
+    if (storage.getItem(moved) === null) storage.setItem(moved, storage.getItem(key));
+    storage.removeItem(key);
+  }
 }
 
 /* 0.3.0 put the board on tiles: every existing scene measures 1 tile
@@ -106,13 +153,13 @@ async function removeZones() {
   for (const scene of game.scenes) {
     for (const region of scene.regions) {
       const ids = region._source.behaviors
-        .filter(b => b.type === "project-anime.zone")
+        .filter(b => [`${OLD_ID}.zone`, `${game.system.id}.zone`].includes(b.type))
         .map(b => b._id);
       if (ids.length) await region.deleteEmbeddedDocuments("RegionBehavior", ids);
     }
     const updates = scene.tokens
-      .filter(t => t._source.flags?.["project-anime"]?.zone !== undefined)
-      .map(t => ({ _id: t.id, "flags.project-anime.-=zone": null }));
+      .filter(t => t._source.flags?.["paradigm-engine"]?.zone !== undefined)
+      .map(t => ({ _id: t.id, "flags.paradigm-engine.-=zone": null }));
     if (updates.length) await scene.updateEmbeddedDocuments("Token", updates);
   }
 }

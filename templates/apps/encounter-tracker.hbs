@@ -1,16 +1,16 @@
 <div class="encounter-panel">
   <header class="hdr">
-    <div class="eyebrow">{{localize "PROJECTANIME.Encounter.Label"}}</div>
+    <div class="eyebrow">{{localize "PARADIGMENGINE.Encounter.Label"}}</div>
     {{#if name}}<h2 class="ename">{{name}}</h2>{{/if}}
   </header>
 
   {{#if hasCombat}}
   {{#if started}}
   <div class="plate{{#if plate.open}} open{{else if plate.st}} st{{else}} party{{/if}}">
-    <div class="eyebrow">{{localize "PROJECTANIME.Encounter.Spotlight"}}</div>
+    <div class="eyebrow">{{localize "PARADIGMENGINE.Encounter.Spotlight"}}</div>
     {{#if plate.open}}
     <div class="who">
-      <div class="nm">{{localize "PROJECTANIME.Encounter.Open"}}</div>
+      <div class="nm">{{localize "PARADIGMENGINE.Encounter.Open"}}</div>
     </div>
     <div class="hint">{{plate.hint}}</div>
     {{else}}
@@ -20,7 +20,7 @@
       <div class="side">{{plate.side}}</div>
     </div>
     {{#if plate.return}}
-    <button type="button" class="chip ret" data-action="returnSpotlight">{{localize "PROJECTANIME.Encounter.Return"}}</button>
+    <button type="button" class="chip ret" data-action="returnSpotlight">{{localize "PARADIGMENGINE.Encounter.Return"}}</button>
     {{/if}}
     {{/if}}
   </div>
@@ -29,7 +29,7 @@
   <div class="ebody">
     {{#if queue.length}}
     <div class="sec">
-      <div class="sec-label">{{localize "PROJECTANIME.Encounter.UpNext"}}</div>
+      <div class="sec-label">{{localize "PARADIGMENGINE.Encounter.UpNext"}}</div>
       <div class="queue">
         {{#each queue}}
         <div class="q">
@@ -43,18 +43,18 @@
 
     {{#if party.length}}
     <div class="sec">
-      <div class="sec-label">{{localize "PROJECTANIME.Encounter.Party"}}</div>
+      <div class="sec-label">{{localize "PARADIGMENGINE.Encounter.Party"}}</div>
       {{#each party}}
-      {{> "systems/project-anime/templates/apps/encounter-row.hbs"}}
+      {{> "systems/paradigm-engine/templates/apps/encounter-row.hbs"}}
       {{/each}}
     </div>
     {{/if}}
 
     {{#if storyteller.length}}
     <div class="sec">
-      <div class="sec-label">{{localize "PROJECTANIME.Encounter.Storyteller"}}</div>
+      <div class="sec-label">{{localize "PARADIGMENGINE.Encounter.Storyteller"}}</div>
       {{#each storyteller}}
-      {{> "systems/project-anime/templates/apps/encounter-row.hbs"}}
+      {{> "systems/paradigm-engine/templates/apps/encounter-row.hbs"}}
       {{/each}}
     </div>
     {{/if}}
@@ -63,14 +63,14 @@
   {{#if gm}}
   <footer class="ftr">
     {{#if started}}
-    <button type="button" class="combat-control end" data-action="endCombat">{{localize "PROJECTANIME.Encounter.End"}}</button>
+    <button type="button" class="combat-control end" data-action="endCombat">{{localize "PARADIGMENGINE.Encounter.End"}}</button>
     {{else}}
-    <button type="button" class="combat-control begin" data-action="startCombat">{{localize "PROJECTANIME.Encounter.Begin"}}</button>
+    <button type="button" class="combat-control begin" data-action="startCombat">{{localize "PARADIGMENGINE.Encounter.Begin"}}</button>
     {{/if}}
   </footer>
   {{/if}}
 
   {{else}}
-  <div class="empty">{{localize "PROJECTANIME.Encounter.None"}}</div>
+  <div class="empty">{{localize "PARADIGMENGINE.Encounter.None"}}</div>
   {{/if}}
 </div>

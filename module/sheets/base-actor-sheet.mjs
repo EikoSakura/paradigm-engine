@@ -1,4 +1,4 @@
-import ProjectAnimeSheet from "./mixin.mjs";
+import ParadigmEngineSheet from "./mixin.mjs";
 import { LADDER, ATTRIBUTES } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
@@ -6,7 +6,7 @@ import { openItemArea } from "../apps/area.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 
-export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
+export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["actor"],
     position: { width: 880, height: 920 },
@@ -52,7 +52,7 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
     context.move = system.move;
     context.luck = system.luck.map(slot => ({
       ...slot,
-      stateLabel: game.i18n.localize(slot.spent ? "PROJECTANIME.Vitals.Spent" : "PROJECTANIME.Vitals.Ready")
+      stateLabel: game.i18n.localize(slot.spent ? "PARADIGMENGINE.Vitals.Spent" : "PARADIGMENGINE.Vitals.Ready")
     }));
     context.showLuck = true;
     context.showRivalToggle = false;
@@ -107,8 +107,8 @@ export default class BaseActorSheet extends ProjectAnimeSheet(ActorSheetV2) {
         })
       };
       if (isTechnique) {
-        card.kindLabel = game.i18n.localize(`PROJECTANIME.Technique.${item.system.kind}`);
-        card.costLabel = game.i18n.format("PROJECTANIME.Technique.Energy", { n: step.mod });
+        card.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${item.system.kind}`);
+        card.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
         card.activated = item.system.kind === "Activated";
       }
       return card;

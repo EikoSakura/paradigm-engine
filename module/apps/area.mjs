@@ -34,7 +34,7 @@ export class AreaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime", "sheet", "area-dialog"],
+    classes: ["paradigm-engine", "sheet", "area-dialog"],
     position: { width: 250, height: "auto" },
     actions: {
       step: this.#onStep,
@@ -43,7 +43,7 @@ export class AreaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/area-dialog.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/area-dialog.hbs" }
   };
 
   static #instance = null;
@@ -60,7 +60,7 @@ export class AreaDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   get title() {
-    return game.i18n.localize("PROJECTANIME.Item.Area");
+    return game.i18n.localize("PARADIGMENGINE.Item.Area");
   }
 
   async _prepareContext(options) {

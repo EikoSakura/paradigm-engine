@@ -27,7 +27,7 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime", "sheet", "luck-picker"],
+    classes: ["paradigm-engine", "sheet", "luck-picker"],
     position: { width: 260, height: "auto" },
     actions: {
       pick: this.#onPick
@@ -35,7 +35,7 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/luck-picker.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/luck-picker.hbs" }
   };
 
   static #instance = null;
@@ -51,7 +51,7 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   get title() {
-    return game.i18n.localize("PROJECTANIME.Luck.Title");
+    return game.i18n.localize("PARADIGMENGINE.Luck.Title");
   }
 
   async _prepareContext(options) {
@@ -77,7 +77,7 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
     luck[index] = { ...luck[index], spent: true };
     await actor.update({ "system.luck": luck });
     if (direct) await applyLuckSwap(message, this.#dieIndex, die.value, actor.name);
-    else game.socket.emit("system.project-anime", {
+    else game.socket.emit("system.paradigm-engine", {
       type: "luckSwap",
       messageId: message.id,
       dieIndex: this.#dieIndex,
@@ -91,7 +91,7 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
 /* Face clicks on roll cards, and the GM side of the swap relay. */
 export function registerLuck() {
   Hooks.on("renderChatMessageHTML", (message, html) => {
-    const card = message.getFlag("project-anime", "card");
+    const card = message.getFlag("paradigm-engine", "card");
     if (!card || readSplash(card.faces) === "fumble") return;
     if (!luckHolders().length) return;
     for (const face of html.querySelectorAll(".dicerow .face")) {
@@ -99,7 +99,7 @@ export function registerLuck() {
       face.addEventListener("click", () => LuckPicker.open(message, Number(face.dataset.index)));
     }
   });
-  game.socket.on("system.project-anime", async data => {
+  game.socket.on("system.paradigm-engine", async data => {
     if (data?.type !== "luckSwap") return;
     if (game.users.activeGM?.isSelf !== true) return;
     const message = game.messages.get(data.messageId);

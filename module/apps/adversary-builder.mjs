@@ -6,10 +6,10 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const STEP_LABELS = [
   "TYPES.Actor.adversary",
-  "PROJECTANIME.Builder.Stats",
-  "PROJECTANIME.Panel.Traits",
-  "PROJECTANIME.Panel.Techniques",
-  "PROJECTANIME.Creator.Finishing"
+  "PARADIGMENGINE.Builder.Stats",
+  "PARADIGMENGINE.Panel.Traits",
+  "PARADIGMENGINE.Panel.Techniques",
+  "PARADIGMENGINE.Creator.Finishing"
 ];
 
 /* The Adversary Builder wizard, opened by the Storyteller from an
@@ -24,7 +24,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime", "sheet", "adversary-builder"],
+    classes: ["paradigm-engine", "sheet", "adversary-builder"],
     position: { width: 880, height: "auto" },
     actions: {
       goto: this.#onGoto,
@@ -48,7 +48,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/adversary-builder.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/adversary-builder.hbs" }
   };
 
   static #instances = new Map();
@@ -112,7 +112,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     this.window.title.before(dots);
     const sheetname = document.createElement("span");
     sheetname.className = "sheetname";
-    sheetname.textContent = game.i18n.localize("PROJECTANIME.Builder.Title");
+    sheetname.textContent = game.i18n.localize("PARADIGMENGINE.Builder.Title");
     this.window.title.after(sheetname);
     return frame;
   }
@@ -122,7 +122,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     const checks = this.#checks();
     const rankStep = LADDER[this.#rank];
 
-    context.obiName = this.#name.trim() || game.i18n.localize("PROJECTANIME.Builder.New");
+    context.obiName = this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Builder.New");
     context.steps = STEP_LABELS.map((label, index) => ({
       index,
       n: index + 1,
@@ -137,8 +137,8 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     context.fear = this.#fear;
 
     context.seal = this.#sealFlip
-      ? { text: String(rankStep.difficulty), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
-      : { text: rankStep.rank, label: game.i18n.localize("PROJECTANIME.Header.Rank") };
+      ? { text: String(rankStep.difficulty), label: game.i18n.localize("PARADIGMENGINE.Ladder.Difficulty") }
+      : { text: rankStep.rank, label: game.i18n.localize("PARADIGMENGINE.Header.Rank") };
     context.sealDownDisabled = this.#rank <= 0;
     context.sealUpDisabled = this.#rank >= 5;
     context.attributes = ATTRIBUTES.map(a => {
@@ -179,7 +179,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
       badge: this.#badge(`tech.${i}`, t.rank, "die", t.flip),
       downDisabled: t.rank <= 0,
       upDisabled: t.rank >= 5,
-      costLabel: game.i18n.format("PROJECTANIME.Technique.Energy", { n: LADDER[t.rank].mod })
+      costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[t.rank].mod })
     }));
 
     context.track = {
@@ -193,7 +193,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
-    context.position = game.i18n.format("PROJECTANIME.Creator.Position", { n: this.#step + 1, total: 5 });
+    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 5 });
     context.first = this.#step === 0;
     context.last = this.#step === 4;
     context.canCreate = checks.every(Boolean);
@@ -246,7 +246,7 @@ export default class AdversaryBuilder extends HandlebarsApplicationMixin(Applica
   #syncLive() {
     const checks = this.#checks();
     this.element.querySelector(".obi .cname").textContent =
-      this.#name.trim() || game.i18n.localize("PROJECTANIME.Builder.New");
+      this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Builder.New");
     this.element.querySelectorAll(".crail button").forEach((b, i) => b.classList.toggle("done", checks[i]));
     const create = this.element.querySelector('[data-action="create"]');
     if (create) create.disabled = !checks.every(Boolean);

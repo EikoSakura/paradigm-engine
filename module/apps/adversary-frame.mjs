@@ -35,7 +35,7 @@ class AdversaryFrame extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    cards: { template: "systems/project-anime/templates/apps/adversary-frame.hbs" }
+    cards: { template: "systems/paradigm-engine/templates/apps/adversary-frame.hbs" }
   };
 
   /* Which cards' plates currently show their Difficulty number. Display state only, never stored. */

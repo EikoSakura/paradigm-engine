@@ -3,12 +3,12 @@ import { ATTRIBUTES, LADDER } from "../config.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 const STEP_LABELS = [
-  "PROJECTANIME.Header.Character",
-  "PROJECTANIME.Panel.Attributes",
-  "PROJECTANIME.Panel.Traits",
-  "PROJECTANIME.Panel.Techniques",
-  "PROJECTANIME.Creator.Bond",
-  "PROJECTANIME.Creator.Finishing"
+  "PARADIGMENGINE.Header.Character",
+  "PARADIGMENGINE.Panel.Attributes",
+  "PARADIGMENGINE.Panel.Traits",
+  "PARADIGMENGINE.Panel.Techniques",
+  "PARADIGMENGINE.Creator.Bond",
+  "PARADIGMENGINE.Creator.Finishing"
 ];
 
 const TRADE = { floor: 3, cap: 8, total: 17 };
@@ -46,7 +46,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["project-anime", "sheet", "character-creator"],
+    classes: ["paradigm-engine", "sheet", "character-creator"],
     position: { width: 880, height: "auto" },
     actions: {
       goto: this.#onGoto,
@@ -63,7 +63,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/character-creator.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/character-creator.hbs" }
   };
 
   static #instances = new Map();
@@ -138,7 +138,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
 
   /* The saved draft wins over the seed. */
   #restore() {
-    const saved = this.#actor.getFlag("project-anime", "creator");
+    const saved = this.#actor.getFlag("paradigm-engine", "creator");
     if (!saved) return;
     if (typeof saved.name === "string") this.#name = saved.name;
     if (Number.isInteger(saved.step)) this.#step = Math.clamp(saved.step, 0, 5);
@@ -188,7 +188,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     if (!this.#dirty || !this.#actor.isOwner) return;
     this.#dirty = false;
     try {
-      await this.#actor.setFlag("project-anime", "creator", this.#snapshot());
+      await this.#actor.setFlag("paradigm-engine", "creator", this.#snapshot());
     } catch {
       /* The actor can be gone by the time the debounce fires. */
     }
@@ -214,7 +214,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     this.window.title.before(dots);
     const sheetname = document.createElement("span");
     sheetname.className = "sheetname";
-    sheetname.textContent = game.i18n.localize("PROJECTANIME.Creator.Title");
+    sheetname.textContent = game.i18n.localize("PARADIGMENGINE.Creator.Title");
     this.window.title.after(sheetname);
     return frame;
   }
@@ -224,7 +224,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     const checks = this.#checks();
     const spent = this.#spent();
 
-    context.obiName = this.#name.trim() || game.i18n.localize("PROJECTANIME.Creator.New");
+    context.obiName = this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Creator.New");
     context.steps = STEP_LABELS.map((label, index) => ({
       index,
       n: index + 1,
@@ -252,12 +252,12 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
       ...t,
       activated: t.kind === "Activated",
       badge: this.#badge(`tech.${i}`, 0, "die"),
-      costLabel: game.i18n.format("PROJECTANIME.Technique.Energy", { n: LADDER[0].mod })
+      costLabel: game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: LADDER[0].mod })
     }));
     context.bond = { name: this.#bond.name, badge: this.#badge("bond", 0, "die") };
     context.seal = this.#sealFlip
-      ? { text: String(LADDER[1].difficulty), label: game.i18n.localize("PROJECTANIME.Ladder.Difficulty") }
-      : { text: LADDER[1].rank, label: game.i18n.localize("PROJECTANIME.Header.Rank") };
+      ? { text: String(LADDER[1].difficulty), label: game.i18n.localize("PARADIGMENGINE.Ladder.Difficulty") }
+      : { text: LADDER[1].rank, label: game.i18n.localize("PARADIGMENGINE.Header.Rank") };
     const free = this.#free();
     context.free = free;
     context.pools = Object.fromEntries(Object.entries(this.#pools).map(([key, value]) => [key, {
@@ -269,7 +269,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
-    context.position = game.i18n.format("PROJECTANIME.Creator.Position", { n: this.#step + 1, total: 6 });
+    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 6 });
     context.first = this.#step === 0;
     context.last = this.#step === 5;
     context.canCreate = checks.every(Boolean);
@@ -337,7 +337,7 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
   #syncLive() {
     const checks = this.#checks();
     this.element.querySelector(".obi .cname").textContent =
-      this.#name.trim() || game.i18n.localize("PROJECTANIME.Creator.New");
+      this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Creator.New");
     this.element.querySelectorAll(".crail button").forEach((b, i) => b.classList.toggle("done", checks[i]));
     const create = this.element.querySelector('[data-action="create"]');
     if (create) create.disabled = !checks.every(Boolean);
@@ -440,10 +440,10 @@ export default class CharacterCreator extends HandlebarsApplicationMixin(Applica
           bonds
         }
       });
-      const mine = actor.items.filter(item => item.getFlag("project-anime", "creator")).map(item => item.id);
+      const mine = actor.items.filter(item => item.getFlag("paradigm-engine", "creator")).map(item => item.id);
       const stale = [...new Set([...this.#seededIds, ...mine])].filter(id => actor.items.has(id));
       if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale);
-      const flags = { "project-anime": { creator: true } };
+      const flags = { "paradigm-engine": { creator: true } };
       await actor.createEmbeddedDocuments("Item", [
         ...this.#traits.map(t => ({ name: t.name.trim(), type: "trait", system: { rank: 1, text: paragraphs(t.text) }, flags })),
         ...this.#techs.map(t => ({ name: t.name.trim(), type: "technique", system: { rank: 0, kind: t.kind, text: paragraphs(t.text) }, flags }))

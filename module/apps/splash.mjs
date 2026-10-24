@@ -7,7 +7,7 @@ const EXIT = 320;
 
 export function registerSplash() {
   Hooks.on("createChatMessage", message => {
-    const kind = message.getFlag("project-anime", "splash");
+    const kind = message.getFlag("paradigm-engine", "splash");
     if (!kind) return;
     const faces = message.rolls[0]?.dice.map(d => d.total) ?? [];
     let shown = false;
@@ -31,19 +31,19 @@ export function registerSplash() {
   /* A Luck replacement re-reads Combos and Fumbles; the changed splash flag
      arrives with the message update on every client. */
   Hooks.on("updateChatMessage", (message, changes) => {
-    const kind = foundry.utils.getProperty(changes, "flags.project-anime.splash");
+    const kind = foundry.utils.getProperty(changes, "flags.paradigm-engine.splash");
     if (kind !== "combo" && kind !== "fumble") return;
-    const faces = message.getFlag("project-anime", "card")?.faces
+    const faces = message.getFlag("paradigm-engine", "card")?.faces
       ?? message.rolls[0]?.dice.map(d => d.total) ?? [];
     showSplash(kind, faces, message.alias);
   });
 }
 
 export function showSplash(kind, faces, name) {
-  document.querySelector(".pa-splash")?.remove();
-  const word = game.i18n.localize(`PROJECTANIME.Splash.${kind === "combo" ? "Combo" : "Fumble"}`);
+  document.querySelector(".pe-splash")?.remove();
+  const word = game.i18n.localize(`PARADIGMENGINE.Splash.${kind === "combo" ? "Combo" : "Fumble"}`);
   const el = document.createElement("div");
-  el.className = `pa-splash ${kind}`;
+  el.className = `pe-splash ${kind}`;
   el.innerHTML = `
     <div class="dim"></div>
     <div class="lines"></div>

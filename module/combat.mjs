@@ -105,7 +105,7 @@ export function registerCombat() {
   /* Players cannot move the Spotlight themselves; TAKE asks the active
      Storyteller's client to place it, which also serializes racing
      claims. */
-  CONFIG.queries["project-anime.takeSpotlight"] = async ({ combatId, combatantId }, { user }) => {
+  CONFIG.queries["paradigm-engine.takeSpotlight"] = async ({ combatId, combatantId }, { user }) => {
     const combat = game.combats.get(combatId);
     const combatant = combat?.combatants.get(combatantId);
     if (!combat?.started || !combatant?.isParty) return;

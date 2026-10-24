@@ -1,11 +1,11 @@
-import ProjectAnimeSheet from "./mixin.mjs";
+import ParadigmEngineSheet from "./mixin.mjs";
 import { LADDER } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
 import { openItemArea } from "../apps/area.mjs";
 
 const { ItemSheetV2 } = foundry.applications.sheets;
 
-export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2) {
+export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["item"],
     position: { width: 520, height: "auto" },
@@ -20,8 +20,8 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
   };
 
   static PARTS = {
-    header: { template: "systems/project-anime/templates/item/header.hbs" },
-    body: { template: "systems/project-anime/templates/item/body.hbs" }
+    header: { template: "systems/paradigm-engine/templates/item/header.hbs" },
+    body: { template: "systems/paradigm-engine/templates/item/body.hbs" }
   };
 
   /* Whether the seal shows its die or bonus face. Display state only, never stored. */
@@ -33,8 +33,8 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
     button.type = "button";
     button.className = "postbtn";
     button.dataset.action = "postItem";
-    button.dataset.tooltip = "PROJECTANIME.Chat.Post";
-    button.ariaLabel = game.i18n.localize("PROJECTANIME.Chat.Post");
+    button.dataset.tooltip = "PARADIGMENGINE.Chat.Post";
+    button.ariaLabel = game.i18n.localize("PARADIGMENGINE.Chat.Post");
     button.innerHTML = '<i class="fa-solid fa-message"></i>';
     this.window.title.after(button);
     return frame;
@@ -58,12 +58,12 @@ export default class ProjectAnimeItemSheet extends ProjectAnimeSheet(ItemSheetV2
       size: this.#flipped ? (alt.length > 3 ? "17px" : "26px") : "38px"
     };
     if (isTechnique) {
-      context.kindLabel = game.i18n.localize(`PROJECTANIME.Technique.${system.kind}`);
-      context.costLabel = game.i18n.format("PROJECTANIME.Technique.Energy", { n: step.mod });
+      context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Technique.${system.kind}`);
+      context.costLabel = game.i18n.format("PARADIGMENGINE.Technique.Energy", { n: step.mod });
       context.activated = system.kind === "Activated";
       context.kindOptions = {
-        Activated: game.i18n.localize("PROJECTANIME.Technique.Activated"),
-        Triggered: game.i18n.localize("PROJECTANIME.Technique.Triggered")
+        Activated: game.i18n.localize("PARADIGMENGINE.Technique.Activated"),
+        Triggered: game.i18n.localize("PARADIGMENGINE.Technique.Triggered")
       };
     }
     context.showChips = isTechnique || context.editMode || system.area;

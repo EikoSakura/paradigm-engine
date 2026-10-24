@@ -4,10 +4,10 @@ const { HandlebarsApplicationMixin } = foundry.applications.api;
    Mode is per-user display state, never stored on the document.
    The always-open prose editor only fires "change" on an explicit save,
    so leaving edit mode or closing the window submits the form itself. */
-export default function ProjectAnimeSheet(Base) {
+export default function ParadigmEngineSheet(Base) {
   return class extends HandlebarsApplicationMixin(Base) {
     static DEFAULT_OPTIONS = {
-      classes: ["project-anime", "sheet"],
+      classes: ["paradigm-engine", "sheet"],
       window: { resizable: true },
       form: { submitOnChange: true, closeOnSubmit: false },
       actions: {
@@ -28,7 +28,7 @@ export default function ProjectAnimeSheet(Base) {
       if (this.isEditable && this.constructor.USES_MODE_TOGGLE) {
         const toggle = document.createElement("div");
         toggle.className = "modetoggle";
-        for (const [mode, key] of [["view", "PROJECTANIME.Mode.View"], ["edit", "PROJECTANIME.Mode.Edit"]]) {
+        for (const [mode, key] of [["view", "PARADIGMENGINE.Mode.View"], ["edit", "PARADIGMENGINE.Mode.Edit"]]) {
           const button = document.createElement("button");
           button.type = "button";
           button.dataset.action = "setMode";

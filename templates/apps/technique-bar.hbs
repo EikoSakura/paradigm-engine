@@ -1,7 +1,7 @@
 <div class="bar{{#unless actor}} empty{{/unless}}">
   {{#if actor}}
   <i class="tab"></i>
-  <span class="label">{{localize "PROJECTANIME.TechBar.Label"}}</span>
+  <span class="label">{{localize "PARADIGMENGINE.TechBar.Label"}}</span>
   <div class="slots">
     {{#each slots}}
     {{#if id}}
@@ -21,11 +21,11 @@
     {{/each}}
   </div>
   <div class="pager">
-    <button type="button" data-action="page" data-dir="-1" data-tooltip="PROJECTANIME.TechBar.PageUp"
-      aria-label="{{localize "PROJECTANIME.TechBar.PageUp"}}">&#9650;</button>
+    <button type="button" data-action="page" data-dir="-1" data-tooltip="PARADIGMENGINE.TechBar.PageUp"
+      aria-label="{{localize "PARADIGMENGINE.TechBar.PageUp"}}">&#9650;</button>
     <span class="pnum">{{page}}</span>
-    <button type="button" data-action="page" data-dir="1" data-tooltip="PROJECTANIME.TechBar.PageDown"
-      aria-label="{{localize "PROJECTANIME.TechBar.PageDown"}}">&#9660;</button>
+    <button type="button" data-action="page" data-dir="1" data-tooltip="PARADIGMENGINE.TechBar.PageDown"
+      aria-label="{{localize "PARADIGMENGINE.TechBar.PageDown"}}">&#9660;</button>
   </div>
   {{/if}}
 </div>

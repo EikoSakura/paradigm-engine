@@ -3,37 +3,37 @@
   <div class="obi-inner">
     {{#if editMode}}
     <img class="portrait editable" src="{{img}}" alt="{{name}}" data-edit="img" data-action="editImage"
-      data-tooltip="{{localize "PROJECTANIME.Header.EditPortrait"}}">
+      data-tooltip="{{localize "PARADIGMENGINE.Header.EditPortrait"}}">
     {{else}}
     <div class="portrait">
       {{#if portrait}}<img src="{{portrait}}" alt="{{name}}">{{else}}<span class="ph">{{initial}}</span>{{/if}}
     </div>
     {{/if}}
     <div class="idblock">
-      <div class="eyebrow">{{#if system.rival}}{{localize "PROJECTANIME.Adversary.Rival"}}{{else}}{{localize "TYPES.Actor.adversary"}}{{/if}}</div>
+      <div class="eyebrow">{{#if system.rival}}{{localize "PARADIGMENGINE.Adversary.Rival"}}{{else}}{{localize "TYPES.Actor.adversary"}}{{/if}}</div>
       {{#if editMode}}
       <input class="ed-input ed-cname" type="text" name="name" value="{{name}}"
-        placeholder="{{localize "PROJECTANIME.Header.Name"}}" aria-label="{{localize "PROJECTANIME.Header.Name"}}">
+        placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
       {{else}}
       <div class="cname">{{name}}</div>
       {{/if}}
     </div>
     <div class="sealwrap">
-      <div class="seal" style="--sealc: var({{rank.cssVar}})" aria-label="{{localize "PROJECTANIME.Header.Rank"}}">
-        <span class="lbl">{{localize "PROJECTANIME.Header.Rank"}}</span>
+      <div class="seal" style="--sealc: var({{rank.cssVar}})" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
+        <span class="lbl">{{localize "PARADIGMENGINE.Header.Rank"}}</span>
         <span class="g">{{rank.letter}}</span>
         <span class="num">{{rank.number}}</span>
       </div>
       {{#if editMode}}
       <div class="sealsteps">
         <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="-1"
-          aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}">−</button>
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
         <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="1"
-          aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}">＋</button>
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
       </div>
       {{/if}}
     </div>
   </div>
 </header>
-{{> "systems/project-anime/templates/actor/vitals.hbs"}}
+{{> "systems/paradigm-engine/templates/actor/vitals.hbs"}}
 </div>

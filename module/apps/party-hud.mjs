@@ -28,16 +28,16 @@ export function registerPartyHud() {
 /* The roster is an Actors folder flagged as the party: characters inside
    it are the party, wherever it sits and whatever it is renamed to. */
 function partyFolder() {
-  return game.actors.folders.find(f => f.getFlag("project-anime", "party")) ?? null;
+  return game.actors.folders.find(f => f.getFlag("paradigm-engine", "party")) ?? null;
 }
 
 /* One client creates the folder for a world that lacks it. */
 async function ensurePartyFolder() {
   if (partyFolder() || game.user !== game.users.activeGM) return;
   await Folder.implementation.create({
-    name: game.i18n.localize("PROJECTANIME.PartyHud.Folder"),
+    name: game.i18n.localize("PARADIGMENGINE.PartyHud.Folder"),
     type: "Actor",
-    flags: { "project-anime": { party: true } }
+    flags: { "paradigm-engine": { party: true } }
   });
 }
 
@@ -54,7 +54,7 @@ class PartyHud extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    cards: { template: "systems/project-anime/templates/apps/party-hud.hbs" }
+    cards: { template: "systems/paradigm-engine/templates/apps/party-hud.hbs" }
   };
 
   /* Which cards' plates currently show their die face. Display state only, never stored. */

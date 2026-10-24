@@ -11,8 +11,8 @@ export default class AdversarySheet extends BaseActorSheet {
   };
 
   static PARTS = {
-    header: { template: "systems/project-anime/templates/actor/adversary-header.hbs" },
-    main: { template: "systems/project-anime/templates/actor/adversary-main.hbs" }
+    header: { template: "systems/paradigm-engine/templates/actor/adversary-header.hbs" },
+    main: { template: "systems/paradigm-engine/templates/actor/adversary-main.hbs" }
   };
 
   /* The Adversary Builder button in the title bar, beside the mode
@@ -24,8 +24,8 @@ export default class AdversarySheet extends BaseActorSheet {
       button.type = "button";
       button.className = "creatorbtn";
       button.dataset.action = "openBuilder";
-      button.dataset.tooltip = "PROJECTANIME.Builder.Title";
-      button.setAttribute("aria-label", game.i18n.localize("PROJECTANIME.Builder.Title"));
+      button.dataset.tooltip = "PARADIGMENGINE.Builder.Title";
+      button.setAttribute("aria-label", game.i18n.localize("PARADIGMENGINE.Builder.Title"));
       const icon = document.createElement("i");
       icon.className = "fa-solid fa-skull";
       icon.inert = true;

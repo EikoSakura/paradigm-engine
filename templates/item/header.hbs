@@ -4,7 +4,7 @@
       <div class="eyebrow">{{typeLabel}}</div>
       {{#if editMode}}
       <input class="ed-input ed-iname" type="text" name="name" value="{{name}}"
-        placeholder="{{localize "PROJECTANIME.Header.Name"}}" aria-label="{{localize "PROJECTANIME.Header.Name"}}">
+        placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
       {{else}}
       <div class="iname">{{name}}</div>
       {{/if}}
@@ -12,7 +12,7 @@
       <div class="obichips">
         {{#if isTechnique}}
         {{#if editMode}}
-        <select class="kindsel" name="system.kind" aria-label="{{localize "PROJECTANIME.Item.Kind"}}">
+        <select class="kindsel" name="system.kind" aria-label="{{localize "PARADIGMENGINE.Item.Kind"}}">
           {{selectOptions kindOptions selected=system.kind}}
         </select>
         {{else}}
@@ -23,25 +23,25 @@
         {{#if editMode}}
         <label class="chip check">
           <input type="checkbox" name="system.area"{{#if system.area}} checked{{/if}}>
-          {{localize "PROJECTANIME.Item.Area"}}
+          {{localize "PARADIGMENGINE.Item.Area"}}
         </label>
         {{else if system.area}}
-        <button type="button" class="chip areachip" data-action="openArea">{{localize "PROJECTANIME.Item.Area"}}</button>
+        <button type="button" class="chip areachip" data-action="openArea">{{localize "PARADIGMENGINE.Item.Area"}}</button>
         {{/if}}
       </div>
       {{/if}}
     </div>
     <div class="sealwrap">
-      <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PROJECTANIME.Item.Rank"}}">
-        <span class="lbl">{{localize "PROJECTANIME.Item.Rank"}}</span>
+      <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PARADIGMENGINE.Item.Rank"}}">
+        <span class="lbl">{{localize "PARADIGMENGINE.Item.Rank"}}</span>
         <span class="g{{#if seal.flipped}} alt{{/if}}" style="font-size: {{seal.size}}">{{seal.text}}</span>
       </button>
       {{#if editMode}}
       <div class="sealsteps">
         <button type="button" class="smallbtn" data-action="stepRank" data-dir="-1"
-          aria-label="{{localize "PROJECTANIME.Edit.RankDown"}}">−</button>
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
         <button type="button" class="smallbtn" data-action="stepRank" data-dir="1"
-          aria-label="{{localize "PROJECTANIME.Edit.RankUp"}}">＋</button>
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
       </div>
       {{/if}}
     </div>

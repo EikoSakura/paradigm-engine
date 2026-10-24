@@ -14,7 +14,7 @@ let board = null;
 const BAND_FILL = { Critical: 2, Success: 1, Fumble: -1 };
 
 export function registerTracks() {
-  game.settings.register("project-anime", "tracks", {
+  game.settings.register("paradigm-engine", "tracks", {
     scope: "world",
     config: false,
     type: Array,
@@ -24,19 +24,19 @@ export function registerTracks() {
       refreshCards();
     }
   });
-  game.settings.register("project-anime", "tracksPosition", {
+  game.settings.register("paradigm-engine", "tracksPosition", {
     scope: "client",
     config: false,
     type: Object,
     default: {}
   });
-  game.settings.register("project-anime", "tracksCollapsed", {
+  game.settings.register("paradigm-engine", "tracksCollapsed", {
     scope: "client",
     config: false,
     type: Boolean,
     default: false
   });
-  game.settings.register("project-anime", "tracksHidden", {
+  game.settings.register("paradigm-engine", "tracksHidden", {
     scope: "client",
     config: false,
     type: Boolean,
@@ -44,7 +44,7 @@ export function registerTracks() {
   });
   /* Players cannot write world settings; a chip click on their client
      asks the active Storyteller's client to apply the fill. */
-  CONFIG.queries["project-anime.trackFill"] = ({ id, side, delta }) =>
+  CONFIG.queries["paradigm-engine.trackFill"] = ({ id, side, delta }) =>
     applyFillDelta(id, side, Math.trunc(Number(delta) || 0));
   Hooks.once("ready", () => {
     board = new TracksBoard();
@@ -55,7 +55,7 @@ export function registerTracks() {
 }
 
 function rawTracks() {
-  return game.settings.get("project-anime", "tracks") ?? [];
+  return game.settings.get("paradigm-engine", "tracks") ?? [];
 }
 
 function getTracks() {
@@ -85,7 +85,7 @@ async function setFill(id, side, value) {
   if (!state) return;
   state.fill = Math.clamp(value, 0, state.len);
   revealReached(track);
-  await game.settings.set("project-anime", "tracks", tracks);
+  await game.settings.set("paradigm-engine", "tracks", tracks);
 }
 
 async function applyFillDelta(id, side, delta) {
@@ -98,7 +98,7 @@ async function applyFillDelta(id, side, delta) {
   if (fill === state.fill) return;
   state.fill = fill;
   revealReached(track);
-  await game.settings.set("project-anime", "tracks", tracks);
+  await game.settings.set("paradigm-engine", "tracks", tracks);
 }
 
 async function toggleEscalation(id, at) {
@@ -109,27 +109,27 @@ async function toggleEscalation(id, at) {
   const i = track.escs.findIndex(e => e.at === at);
   if (i >= 0) track.escs.splice(i, 1);
   else track.escs.push({ at, revealed: track.fill >= at });
-  await game.settings.set("project-anime", "tracks", tracks);
+  await game.settings.set("paradigm-engine", "tracks", tracks);
 }
 
 /* One unfilled Track appended to the board; the New Track dialog and the
    Adversary Builder's Desire Track both create through here. */
 export async function createTrack(name, len) {
   const track = { id: foundry.utils.randomID(), kind: "track", name, len, fill: 0, escs: [] };
-  await game.settings.set("project-anime", "tracks", [...rawTracks(), track]);
+  await game.settings.set("paradigm-engine", "tracks", [...rawTracks(), track]);
 }
 
 async function removeTrack(id) {
   const track = getTracks().find(t => t.id === id);
   if (!track) return;
   const prompt = document.createElement("p");
-  prompt.textContent = game.i18n.format("PROJECTANIME.Tracks.DeletePrompt", { name: track.name });
+  prompt.textContent = game.i18n.format("PARADIGMENGINE.Tracks.DeletePrompt", { name: track.name });
   const confirmed = await foundry.applications.api.DialogV2.confirm({
-    window: { title: game.i18n.localize("PROJECTANIME.Tracks.Delete") },
+    window: { title: game.i18n.localize("PARADIGMENGINE.Tracks.Delete") },
     content: prompt.outerHTML
   });
   if (!confirmed) return;
-  await game.settings.set("project-anime", "tracks", rawTracks().filter(t => t.id !== id));
+  await game.settings.set("paradigm-engine", "tracks", rawTracks().filter(t => t.id !== id));
 }
 
 /* The board: every client renders it, only the Storyteller's clicks
@@ -149,7 +149,7 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    board: { template: "systems/project-anime/templates/apps/tracks-board.hbs" }
+    board: { template: "systems/paradigm-engine/templates/apps/tracks-board.hbs" }
   };
 
   /* The board stays open through play; hidden is display state. */
@@ -159,11 +159,11 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    const collapsed = game.settings.get("project-anime", "tracksCollapsed");
+    const collapsed = game.settings.get("paradigm-engine", "tracksCollapsed");
     context.gm = game.user.isGM;
     context.collapsed = collapsed;
     context.collapseIcon = collapsed ? "▼" : "▲";
-    context.collapseLabel = game.i18n.localize(collapsed ? "PROJECTANIME.Tracks.Expand" : "PROJECTANIME.Tracks.Collapse");
+    context.collapseLabel = game.i18n.localize(collapsed ? "PARADIGMENGINE.Tracks.Expand" : "PARADIGMENGINE.Tracks.Collapse");
     context.rows = getTracks().map(track => this.#row(track));
     return context;
   }
@@ -199,8 +199,8 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
     const el = this.element;
     el.classList.toggle("gm", game.user.isGM);
     el.classList.toggle("collapsed", context.collapsed);
-    el.style.display = game.settings.get("project-anime", "tracksHidden") ? "none" : "";
-    const position = game.settings.get("project-anime", "tracksPosition");
+    el.style.display = game.settings.get("paradigm-engine", "tracksHidden") ? "none" : "";
+    const position = game.settings.get("paradigm-engine", "tracksPosition");
     if (Number.isFinite(position?.left)) {
       el.style.left = `${Math.clamp(position.left, 0, window.innerWidth - 60)}px`;
       el.style.top = `${Math.clamp(position.top, 0, window.innerHeight - 34)}px`;
@@ -240,7 +240,7 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
       if (!drag) return;
       drag = null;
       const rect = el.getBoundingClientRect();
-      game.settings.set("project-anime", "tracksPosition", { left: rect.left, top: rect.top });
+      game.settings.set("paradigm-engine", "tracksPosition", { left: rect.left, top: rect.top });
     });
   }
 
@@ -249,13 +249,13 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static async #onCollapse() {
-    const collapsed = game.settings.get("project-anime", "tracksCollapsed");
-    await game.settings.set("project-anime", "tracksCollapsed", !collapsed);
+    const collapsed = game.settings.get("paradigm-engine", "tracksCollapsed");
+    await game.settings.set("paradigm-engine", "tracksCollapsed", !collapsed);
     this.render();
   }
 
   static async #onHide() {
-    await game.settings.set("project-anime", "tracksHidden", true);
+    await game.settings.set("paradigm-engine", "tracksHidden", true);
     this.render();
     ui.controls.render();
   }
@@ -279,7 +279,7 @@ class TracksBoard extends HandlebarsApplicationMixin(ApplicationV2) {
 class NewTrackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     id: "track-new",
-    classes: ["project-anime", "sheet", "track-new"],
+    classes: ["paradigm-engine", "sheet", "track-new"],
     tag: "form",
     position: { width: 320, height: "auto" },
     actions: {
@@ -293,7 +293,7 @@ class NewTrackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   };
 
   static PARTS = {
-    body: { template: "systems/project-anime/templates/apps/track-new.hbs" }
+    body: { template: "systems/paradigm-engine/templates/apps/track-new.hbs" }
   };
 
   static #instance = null;
@@ -305,7 +305,7 @@ class NewTrackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   get title() {
-    return game.i18n.localize("PROJECTANIME.Tracks.New");
+    return game.i18n.localize("PARADIGMENGINE.Tracks.New");
   }
 
   _onRender(context, options) {
@@ -334,7 +334,7 @@ class NewTrackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
     del.type = "button";
     del.className = "delside";
     del.dataset.action = "delSide";
-    del.setAttribute("aria-label", game.i18n.localize("PROJECTANIME.Tracks.RemoveSide"));
+    del.setAttribute("aria-label", game.i18n.localize("PARADIGMENGINE.Tracks.RemoveSide"));
     del.textContent = "✕";
     row.append(del);
     rows.append(row);
@@ -357,7 +357,7 @@ class NewTrackDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         .filter(side => side.name);
       if (sides.length < 2) return;
       const track = { id: foundry.utils.randomID(), kind: "contest", name, sides };
-      await game.settings.set("project-anime", "tracks", [...rawTracks(), track]);
+      await game.settings.set("paradigm-engine", "tracks", [...rawTracks(), track]);
     } else {
       await createTrack(name, clampLen(f.len));
     }
@@ -370,13 +370,13 @@ function addToggleTool(controls) {
   if (!tokens) return;
   tokens.tools.tracks = {
     name: "tracks",
-    title: "PROJECTANIME.Tracks.Title",
+    title: "PARADIGMENGINE.Tracks.Title",
     icon: "fa-solid fa-bars-progress",
     order: Object.values(tokens.tools).reduce((max, tool) => Math.max(max, tool.order ?? 0), 0) + 1,
     toggle: true,
-    active: !game.settings.get("project-anime", "tracksHidden"),
+    active: !game.settings.get("paradigm-engine", "tracksHidden"),
     onChange: async (event, active) => {
-      await game.settings.set("project-anime", "tracksHidden", !active);
+      await game.settings.set("paradigm-engine", "tracksHidden", !active);
       board?.render();
     }
   };
@@ -402,23 +402,23 @@ function chipTargets() {
    click applies the band once; the choice rides the message as a flag
    and the spent chip renders in its place. */
 function renderChips(message, html) {
-  const card = message.getFlag("project-anime", "card");
+  const card = message.getFlag("paradigm-engine", "card");
   const delta = BAND_FILL[card?.difficulty?.band] ?? 0;
   if (!delta) return;
   if (!game.user.isGM && !message.isAuthor) return;
-  const body = html.querySelector(".pa-card .cbody");
+  const body = html.querySelector(".pe-card .cbody");
   if (!body) return;
   body.querySelector(".trackrow")?.remove();
   const row = document.createElement("div");
   row.className = "trackrow";
-  const applied = message.getFlag("project-anime", "trackApplied");
+  const applied = message.getFlag("paradigm-engine", "trackApplied");
   if (applied) {
     const done = document.createElement("button");
     done.type = "button";
     done.className = "trchip done";
     done.disabled = true;
     done.textContent = game.i18n.format(
-      applied.action === "erase" ? "PROJECTANIME.Tracks.AppliedErase" : "PROJECTANIME.Tracks.AppliedFill",
+      applied.action === "erase" ? "PARADIGMENGINE.Tracks.AppliedErase" : "PARADIGMENGINE.Tracks.AppliedFill",
       { name: applied.label });
     row.append(done);
   } else {
@@ -428,7 +428,7 @@ function renderChips(message, html) {
       chip.className = delta < 0 ? "trchip erase" : "trchip";
       chip.disabled = delta > 0 ? target.fill >= target.len : target.fill <= 0;
       chip.textContent = game.i18n.format(
-        delta < 0 ? "PROJECTANIME.Tracks.ChipErase" : "PROJECTANIME.Tracks.ChipFill",
+        delta < 0 ? "PARADIGMENGINE.Tracks.ChipErase" : "PARADIGMENGINE.Tracks.ChipFill",
         { name: target.label, n: delta });
       chip.addEventListener("click", () => applyChip(message, target, delta));
       row.append(chip);
@@ -448,20 +448,20 @@ function refreshCards() {
 }
 
 async function applyChip(message, target, delta) {
-  if (message.getFlag("project-anime", "trackApplied")) return;
+  if (message.getFlag("paradigm-engine", "trackApplied")) return;
   const state = sideState(getTracks().find(t => t.id === target.id), target.side);
   if (!state) return;
   if (delta > 0 ? state.fill >= state.len : state.fill <= 0) return;
   if (!game.user.isGM && !game.users.activeGM) {
-    ui.notifications.warn(game.i18n.localize("PROJECTANIME.Tracks.NoStoryteller"));
+    ui.notifications.warn(game.i18n.localize("PARADIGMENGINE.Tracks.NoStoryteller"));
     return;
   }
-  await message.setFlag("project-anime", "trackApplied", {
+  await message.setFlag("paradigm-engine", "trackApplied", {
     id: target.id,
     side: target.side,
     label: target.label,
     action: delta < 0 ? "erase" : "fill"
   });
   if (game.user.isGM) await applyFillDelta(target.id, target.side, delta);
-  else await game.users.activeGM.query("project-anime.trackFill", { id: target.id, side: target.side, delta });
+  else await game.users.activeGM.query("paradigm-engine.trackFill", { id: target.id, side: target.side, delta });
 }

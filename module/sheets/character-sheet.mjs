@@ -15,18 +15,18 @@ export default class CharacterSheet extends BaseActorSheet {
   };
 
   static PARTS = {
-    header: { template: "systems/project-anime/templates/actor/header.hbs" },
+    header: { template: "systems/paradigm-engine/templates/actor/header.hbs" },
     tabs: { template: "templates/generic/tab-navigation.hbs" },
-    main: { template: "systems/project-anime/templates/actor/main.hbs" },
-    growth: { template: "systems/project-anime/templates/actor/growth.hbs" },
-    profile: { template: "systems/project-anime/templates/actor/profile.hbs" }
+    main: { template: "systems/paradigm-engine/templates/actor/main.hbs" },
+    growth: { template: "systems/paradigm-engine/templates/actor/growth.hbs" },
+    profile: { template: "systems/paradigm-engine/templates/actor/profile.hbs" }
   };
 
   static TABS = {
     primary: {
       tabs: [{ id: "main" }, { id: "growth" }, { id: "profile" }],
       initial: "main",
-      labelPrefix: "PROJECTANIME.Tab"
+      labelPrefix: "PARADIGMENGINE.Tab"
     }
   };
 
@@ -40,8 +40,8 @@ export default class CharacterSheet extends BaseActorSheet {
       button.type = "button";
       button.className = "creatorbtn";
       button.dataset.action = "openCreator";
-      button.dataset.tooltip = "PROJECTANIME.Creator.Title";
-      button.setAttribute("aria-label", game.i18n.localize("PROJECTANIME.Creator.Title"));
+      button.dataset.tooltip = "PARADIGMENGINE.Creator.Title";
+      button.setAttribute("aria-label", game.i18n.localize("PARADIGMENGINE.Creator.Title"));
       const icon = document.createElement("i");
       icon.className = "fa-solid fa-user-plus";
       icon.inert = true;
