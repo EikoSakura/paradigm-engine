@@ -1,13 +1,13 @@
-/* Ranks are indices 0..5 into the Ladder, E..S. mod is the Rank's Skill
-   Energy cost. difficulty is the number a roll against the Rank as a
-   Difficulty must reach. */
+/* Ranks are indices 0..5 into the Ladder, E..S. mod is the Rank's Technique
+   Energy cost: E and D 1, C and B 2, A and S 3. difficulty is the number a
+   roll against the Rank as a Difficulty must reach. */
 export const LADDER = [
   { rank: "E", die: "d4", mod: 1, difficulty: 5, cssVar: "--rk-e" },
-  { rank: "D", die: "d6", mod: 2, difficulty: 7, cssVar: "--rk-d" },
-  { rank: "C", die: "d8", mod: 3, difficulty: 9, cssVar: "--rk-c" },
-  { rank: "B", die: "d10", mod: 4, difficulty: 11, cssVar: "--rk-b" },
-  { rank: "A", die: "d12", mod: 5, difficulty: 13, cssVar: "--rk-a" },
-  { rank: "S", die: "d12+2", mod: 6, difficulty: 16, cssVar: "--rk-s" }
+  { rank: "D", die: "d6", mod: 1, difficulty: 7, cssVar: "--rk-d" },
+  { rank: "C", die: "d8", mod: 2, difficulty: 9, cssVar: "--rk-c" },
+  { rank: "B", die: "d10", mod: 2, difficulty: 11, cssVar: "--rk-b" },
+  { rank: "A", die: "d12", mod: 3, difficulty: 13, cssVar: "--rk-a" },
+  { rank: "S", die: "d12+2", mod: 3, difficulty: 16, cssVar: "--rk-s" }
 ];
 
 /* Difficulties: the Ladder plus the Difficulty-only SS. */
@@ -29,15 +29,39 @@ export const ATTRIBUTES = [
   { key: "charm", label: "PARADIGMENGINE.Attribute.Charm", desc: "PARADIGMENGINE.Attribute.CharmDesc" }
 ];
 
-export const STANDARD_ADVANCEMENTS = [
-  { key: "newSkill", label: "PARADIGMENGINE.Advancement.NewSkill" },
-  { key: "rankSkill", label: "PARADIGMENGINE.Advancement.RankSkill" },
-  { key: "newHeart", label: "PARADIGMENGINE.Advancement.NewHeart" },
-  { key: "newEnergy", label: "PARADIGMENGINE.Advancement.NewEnergy" }
+/* Growth Points by milestone. A Timeskip's award is the Storyteller's. */
+export const GROWTH_TIERS = { Episode: 1, Arc: 3, Season: 5 };
+
+/* The advancement options, each 1 GP. group is the card it sits on and the
+   access it needs; once locks it after one purchase in a milestone; pick
+   names the window that chooses what it touches. */
+export const GROWTH_OPTIONS = [
+  { key: "modifySkill", group: "general", pick: "modifySkill" },
+  { key: "newSkill", group: "general", pick: "newSkill" },
+  { key: "skillRankUp1", group: "general", pick: "skillRank" },
+  { key: "newBond", group: "general", pick: "newBond" },
+  { key: "bondRankUp1", group: "general", pick: "bondRank" },
+  { key: "heart", group: "arc", once: true },
+  { key: "energy", group: "arc", once: true },
+  { key: "stepLuck", group: "arc", once: true },
+  { key: "skillRankUp2", group: "season", once: true, pick: "skillRank" },
+  { key: "bondRankUp2", group: "season", once: true, pick: "bondRank" },
+  { key: "unlockLuck", group: "season", once: true },
+  { key: "charRank", group: "season", once: true },
+  { key: "attrRankUp", group: "season", once: true, pick: "attribute" }
 ];
 
-export const SPECIAL_ADVANCEMENTS = [
-  { key: "luck", label: "PARADIGMENGINE.Advancement.Luck" },
-  { key: "rank", label: "PARADIGMENGINE.Advancement.Rank" },
-  { key: "attribute", label: "PARADIGMENGINE.Advancement.Attribute" }
-];
+export const GROWTH_CAPS = { points: 12, luckDice: 5, luckDie: 12 };
+
+/* Skill kinds. A Technique spends its Rank's Energy cost when used; a
+   Talent is always on and costs nothing. */
+export const SKILL_KINDS = ["Technique", "Talent"];
+
+export function energyCost(system) {
+  return system.kind === "Talent" ? 0 : LADDER[system.rank].mod;
+}
+
+/* The cost chip's text, empty for a Talent so the chip is left out. */
+export function costLabel(system) {
+  return system.kind === "Talent" ? "" : game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: LADDER[system.rank].mod });
+}

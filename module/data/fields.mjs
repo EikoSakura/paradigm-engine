@@ -9,10 +9,6 @@ export function textField() {
   return new StringField({ required: true, initial: "" });
 }
 
-export function rulingsField() {
-  return new ArrayField(textField());
-}
-
 export function pointsField() {
   return new SchemaField({
     value: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 6 }),
@@ -30,22 +26,12 @@ export function attributesField() {
   });
 }
 
-/* The Skill hotbar: five pages of ten slots, each empty or the id of
-   one of the actor's Skills. */
-export function hotbarField() {
-  return new ArrayField(
-    new ArrayField(textField(), { required: true, initial: () => Array(10).fill("") }),
-    { required: true, initial: () => Array.from({ length: 5 }, () => Array(10).fill("")) }
-  );
-}
-
 export function luckField() {
   return new ArrayField(
     new SchemaField({
-      die: new NumberField({ required: true, nullable: false, integer: true, initial: 6, choices: [6, 8, 10, 12] }),
       value: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 0 }),
       spent: new BooleanField()
     }),
-    { required: true, initial: () => Array.from({ length: 3 }, () => ({ die: 6, value: 0, spent: false })) }
+    { required: true, initial: () => Array.from({ length: 3 }, () => ({ value: 0, spent: false })) }
   );
 }

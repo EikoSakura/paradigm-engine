@@ -1,70 +1,38 @@
 <section class="tab profile {{tab.cssClass}}" data-group="primary" data-tab="profile">
-  <div class="panel">
-    <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Background"}}</span></div>
-    <div class="panel-b">
-      {{#if editMode}}
-      <div class="pgrid">
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Header.Age"}}</div>
-          <input class="ed-input" type="text" name="system.age" value="{{system.age}}">
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Profile.Gender"}}</div>
-          <input class="ed-input" type="text" name="system.gender" value="{{system.gender}}">
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Profile.Pronouns"}}</div>
-          <input class="ed-input" type="text" name="system.pronouns" value="{{system.pronouns}}">
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Header.Player"}}</div>
-          <input class="ed-input" type="text" name="system.player" value="{{system.player}}">
-        </div>
+  {{#*inline "prosecard"}}
+  <div class="pcard ptext" style="--tc: var({{tc}})">
+    <span class="tag">{{label}}</span>
+    {{#if @root.editMode}}
+    <prose-mirror class="content-sized" name="system.{{key}}" value="{{raw}}"
+      data-document-uuid="{{@root.document.uuid}}">{{{html}}}</prose-mirror>
+    {{else}}
+    <div class="txt">{{{html}}}</div>
+    {{/if}}
+  </div>
+  {{/inline}}
+
+  <div class="pcard identity" style="--tc: var(--violet)">
+    <span class="tag">{{localize "PARADIGMENGINE.Profile.Identity"}}</span>
+    <div class="cells">
+      {{#each identity}}
+      <div class="cell">
+        <div class="cl">{{this.label}}</div>
+        {{#if @root.editMode}}
+        <input class="ed-input" type="text" name="system.{{this.key}}" value="{{this.value}}" aria-label="{{this.label}}">
+        {{else if this.value}}
+        <div class="cv">{{this.value}}</div>
+        {{else}}
+        <div class="cv empty">·</div>
+        {{/if}}
       </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.Personality"}}</div>
-        <textarea class="ed-area" name="system.personality">{{system.personality}}</textarea>
-      </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.History"}}</div>
-        <textarea class="ed-area" name="system.history">{{system.history}}</textarea>
-      </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.Notes"}}</div>
-        <textarea class="ed-area" name="system.notes">{{system.notes}}</textarea>
-      </div>
-      {{else}}
-      <div class="pgrid">
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Header.Age"}}</div>
-          <div class="fval">{{#if system.age}}{{system.age}}{{else}}<span class="empty">·</span>{{/if}}</div>
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Profile.Gender"}}</div>
-          <div class="fval">{{#if system.gender}}{{system.gender}}{{else}}<span class="empty">·</span>{{/if}}</div>
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Profile.Pronouns"}}</div>
-          <div class="fval">{{#if system.pronouns}}{{system.pronouns}}{{else}}<span class="empty">·</span>{{/if}}</div>
-        </div>
-        <div class="field">
-          <div class="flabel">{{localize "PARADIGMENGINE.Header.Player"}}</div>
-          <div class="fval">{{#if system.player}}{{system.player}}{{else}}<span class="empty">·</span>{{/if}}</div>
-        </div>
-      </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.Personality"}}</div>
-        <div class="fval long">{{#if system.personality}}{{system.personality}}{{else}}<span class="empty">·</span>{{/if}}</div>
-      </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.History"}}</div>
-        <div class="fval long">{{#if system.history}}{{system.history}}{{else}}<span class="empty">·</span>{{/if}}</div>
-      </div>
-      <div class="field">
-        <div class="flabel">{{localize "PARADIGMENGINE.Profile.Notes"}}</div>
-        <div class="fval long">{{#if system.notes}}{{system.notes}}{{else}}<span class="empty">·</span>{{/if}}</div>
-      </div>
-      {{/if}}
+      {{/each}}
     </div>
   </div>
+
+  <div class="two">
+    {{> prosecard profile.personality}}
+    {{> prosecard profile.history}}
+  </div>
+
+  {{> prosecard profile.notes}}
 </section>

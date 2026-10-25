@@ -1,0 +1,32 @@
+<div class="treewrap">
+<div class="tree{{#if canEdit}} editing{{/if}}" style="width: {{width}}px; height: {{height}}px;">
+  <svg class="edges" width="{{width}}" height="{{height}}" aria-hidden="true">
+    {{#each edges}}
+    <path class="{{#unless this.solid}}dashed{{/unless}}"
+      d="M{{this.x1}} {{this.y1}} C {{this.cx}} {{this.y1}}, {{this.cx}} {{this.y2}}, {{this.x2}} {{this.y2}}"/>
+    {{/each}}
+  </svg>
+  {{#if empty}}{{#if canEdit}}
+  <div class="ghost" style="left: {{ghost.x}}px; top: {{ghost.y}}px;"></div>
+  {{/if}}{{/if}}
+  {{#each nodes}}
+  <div class="node{{#if this.state}} {{this.state}}{{/if}}{{#if this.selected}} selected{{/if}}" style="left: {{this.x}}px; top: {{this.y}}px; --rk: var({{this.cssVar}})"
+    data-uuid="{{this.uuid}}" data-item-id="{{this.id}}"{{#if @root.canEdit}} draggable="true"{{/if}}>
+    <button type="button" class="nmain" data-action="selectNode" data-uuid="{{this.uuid}}" aria-pressed="{{#if this.selected}}true{{else}}false{{/if}}">
+      <span class="rchip">{{this.rank}}</span>
+      <span class="nbody">
+        <span class="nname">{{this.name}}</span>
+        {{#if this.stateLabel}}<span class="nstate">{{this.stateLabel}}</span>{{/if}}
+      </span>
+    </button>
+    {{#if this.takeable}}
+    <button type="button" class="ntake" data-action="takeNode" data-uuid="{{this.uuid}}"
+      data-tooltip="PARADIGMENGINE.Tree.Take" aria-label="{{localize "PARADIGMENGINE.Tree.Take"}}">＋</button>
+    {{/if}}
+    {{#if @root.canEdit}}
+    <button type="button" class="nx" data-action="removeNode" aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+    {{/if}}
+  </div>
+  {{/each}}
+</div>
+</div>

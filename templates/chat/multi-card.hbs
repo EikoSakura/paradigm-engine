@@ -1,0 +1,56 @@
+<div class="pe-card multi-card{{#if group}} group{{else}} opposed{{/if}}">
+  <span class="ctag"><span>{{title}}</span></span>
+  <div class="chead">
+    {{#if group}}
+    <span class="cname">{{leader.name}}</span>
+    <span class="dtag" style="--gc: var({{difficulty.cssVar}})"><b>{{difficulty.rank}}</b><small>{{difficulty.number}}</small></span>
+    {{else}}
+    <span class="cname">{{chip}}</span>
+    {{/if}}
+  </div>
+  <div class="cbody">
+    {{#if group}}
+    {{#each supporters}}
+    {{> "systems/paradigm-engine/templates/chat/multi-row.hbs" this rollLabel=@root.rollLabel}}
+    {{/each}}
+    <div class="mleader{{#if @root.canShift}} shifting{{/if}}" data-row="{{leader.index}}">
+      <div class="row">
+        <img class="pf" src="{{leader.img}}" alt="">
+        <span class="rname">{{leader.name}}</span>
+        <span class="chip ink">{{localize "PARADIGMENGINE.Check.Leader"}}</span>
+        <span class="chip gold">{{shifts}}</span>
+        {{#unless leader.card}}
+        <button type="button" class="cbtn o mroll" data-row="{{leader.index}}" data-uuid="{{leader.uuid}}">{{rollLabel}}</button>
+        {{/unless}}
+      </div>
+      {{#if leader.card}}
+      {{#with leader.card}}
+      <div class="dicerow">
+        {{#each faces}}
+        <span class="facewrap">
+          <span class="face{{#if this.lucky}} lucky{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
+          {{#if @root.canShift}}{{#if this.shiftable}}
+          <button type="button" class="shiftbtn" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Check.ShiftUp"}}">&#9650;</button>
+          {{/if}}{{/if}}
+        </span>
+        {{/each}}
+        <div class="rtotal">
+          <span class="tlab">{{localize "PARADIGMENGINE.Roll.Total"}}</span>
+          <span class="tnum">{{total}}</span>
+        </div>
+      </div>
+      {{#each luck}}<div class="rline luck"><i class="rmark"></i><span>{{this}}</span></div>{{/each}}
+      <div class="dband">
+        <span class="dtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>
+        <span class="bword {{#if band.combo}}combo{{else if band.fumble}}fumble{{else if band.success}}success{{else}}failure{{/if}}">{{band.word}}</span>
+      </div>
+      {{/with}}
+      {{/if}}
+    </div>
+    {{else}}
+    {{#each rows}}
+    {{> "systems/paradigm-engine/templates/chat/multi-row.hbs" this rollLabel=@root.rollLabel}}
+    {{/each}}
+    {{/if}}
+  </div>
+</div>

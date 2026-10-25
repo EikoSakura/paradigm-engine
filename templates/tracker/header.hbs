@@ -1,0 +1,17 @@
+<header class="pe-tracker-head">
+  {{#if user.isGM}}
+  <nav class="encounters" aria-label="{{localize "COMBAT.NavLabel"}}">
+    <button type="button" class="inline-control icon fa-solid fa-plus" data-action="createCombat"
+      data-tooltip aria-label="{{localize "PARADIGMENGINE.Tracker.Create"}}"></button>
+    {{#each combats}}
+    <button type="button" class="inline-control{{#if active}} active{{/if}}" data-action="cycleCombat"
+      data-combat-id="{{id}}" {{#if name}}data-tooltip aria-label="{{name}}"{{/if}}>{{label}}</button>
+    {{/each}}
+    <span class="spacer"></span>
+    <button type="button" class="inline-control icon fa-solid fa-gear" data-action="trackerSettings"
+      data-tooltip aria-label="{{localize "COMBAT.Settings"}}"></button>
+    <button type="button" class="encounter-context-menu inline-control icon fa-solid fa-ellipsis-vertical"
+      {{#unless hasCombat}}disabled{{/unless}} aria-label="{{localize "PARADIGMENGINE.Tracker.More"}}"></button>
+  </nav>
+  {{/if}}
+</header>

@@ -1,0 +1,15 @@
+<div class="detail{{#unless detail}} empty{{/unless}}"{{#if detail}} style="--rk: var({{detail.cssVar}})"{{/if}}>
+  {{#if detail}}
+  <span class="rchip">{{detail.rank}}</span>
+  <div class="dbody">
+    <div class="dtop">
+      <span class="dname">{{detail.name}}</span>
+      <span class="pill{{#if detail.technique}} kind{{/if}}">{{detail.kindLabel}}</span>
+      {{#if detail.costLabel}}<span class="pill cost">{{detail.costLabel}}</span>{{/if}}
+      {{#if detail.stateLabel}}<span class="pill">{{detail.stateLabel}}</span>{{/if}}
+    </div>
+    <div class="dtext">{{{detail.text}}}</div>
+  </div>
+  <button type="button" class="dopen" data-action="openNode" data-uuid="{{detail.uuid}}" data-item-id="{{detail.id}}">{{localize "PARADIGMENGINE.Tree.Open"}}</button>
+  {{/if}}
+</div>

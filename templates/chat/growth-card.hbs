@@ -1,0 +1,15 @@
+<div class="pe-card growth">
+  <span class="ctag"><span>{{localize "PARADIGMENGINE.Tab.growth"}}</span><small>{{tier}}</small></span>
+  <div class="chead">
+    <span class="cname">{{name}}</span>
+  </div>
+  <div class="cbody">
+    {{#each items}}
+    <div class="rline">
+      <i class="rmark"></i>
+      <span class="grow">{{this.label}}{{#if this.name}} · {{this.name}}{{/if}}</span>
+      {{#if this.rank}}<span class="rk sm" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>{{/if}}
+    </div>
+    {{/each}}
+  </div>
+</div>

@@ -1,0 +1,15 @@
+      <div class="pcard checks" style="--tc: var(--violet)">
+        <span class="tag">{{localize "PARADIGMENGINE.Check.Title"}}</span>
+        <button type="button" class="chk" data-action="groupAction">
+          <i class="fa-solid fa-users" inert></i>
+          <span class="cl">{{localize "PARADIGMENGINE.Check.Group"}}</span>
+        </button>
+        <button type="button" class="chk" data-action="opposedAction">
+          <i class="fa-solid fa-right-left" inert></i>
+          <span class="cl">{{localize "PARADIGMENGINE.Check.Opposed"}}</span>
+        </button>
+        <button type="button" class="chk clash{{#if clash}} live{{/if}}" data-action="clashCheck"{{#unless clash}} disabled{{/unless}}>
+          <i class="fa-solid fa-swords" inert></i>
+          <span class="cl">{{localize "PARADIGMENGINE.Check.Clash"}}{{#if clash}}<small>{{clash.name}} · {{clash.marks}} / {{clash.target}}</small>{{/if}}</span>
+        </button>
+      </div>

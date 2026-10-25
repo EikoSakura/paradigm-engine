@@ -1,0 +1,19 @@
+  <div class="pcard attrs">
+    {{#each attributes}}
+    <div class="attr" style="--rk: var({{this.badge.cssVar}})">
+      {{#if @root.editMode}}
+      <span class="n">{{this.name}}</span>
+      <div class="steps">
+        <button type="button" class="rkbtn" data-action="stepRank" data-kind="attribute" data-key="{{this.key}}"
+          data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
+        <button type="button" class="rkbtn" data-action="stepRank" data-kind="attribute" data-key="{{this.key}}"
+          data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
+      </div>
+      {{else}}
+      <button type="button" class="n nroll" data-action="openRoll" data-first="attribute" data-key="{{this.key}}">{{this.name}}</button>
+      {{/if}}
+      <button type="button" class="rchip{{#if this.badge.flipped}} flipped{{/if}}" data-action="flipBadge"
+        data-key="{{this.badge.key}}">{{this.badge.text}}</button>
+    </div>
+    {{/each}}
+  </div>

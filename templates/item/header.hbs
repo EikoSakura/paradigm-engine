@@ -1,37 +1,59 @@
-<header class="obi">
-  <div class="obi-inner">
-    <div class="idblock">
-      <div class="eyebrow">{{typeLabel}}</div>
+<header class="ihead">
+  <div class="icon">
+    {{#if editMode}}
+    <img class="art editable" src="{{img}}" alt="{{name}}" data-edit="img" data-action="editImage"
+      data-tooltip="{{localize "PARADIGMENGINE.Item.EditIcon"}}">
+    {{else}}
+    <img class="art" src="{{img}}" alt="{{name}}">
+    {{/if}}
+  </div>
+
+  <div class="idblock">
+    <div class="eyebrow">{{typeLabel}}</div>
+    {{#if editMode}}
+    <input class="ed-input ed-cname" type="text" name="name" value="{{name}}"
+      placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
+    {{else}}
+    <div class="cname">{{name}}</div>
+    {{/if}}
+    <div class="meta2">
       {{#if editMode}}
-      <input class="ed-input ed-iname" type="text" name="name" value="{{name}}"
-        placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
-      {{else}}
-      <div class="iname">{{name}}</div>
-      {{/if}}
-      <div class="obichips">
-        {{#if editMode}}
-        <select class="kindsel" name="system.kind" aria-label="{{localize "PARADIGMENGINE.Item.Kind"}}">
-          {{selectOptions kindOptions selected=system.kind}}
-        </select>
-        {{else}}
-        <span class="chip {{#if activated}}pap{{else}}inv{{/if}}">{{kindLabel}}</span>
-        {{/if}}
-        <span class="chip gold">{{costLabel}}</span>
+      <div class="kinds" role="group" aria-label="{{localize "PARADIGMENGINE.Item.Kind"}}">
+        {{#each kinds}}
+        <button type="button" class="pill{{#if this.on}} kind{{/if}}" data-action="setKind" data-kind="{{this.key}}"
+          aria-pressed="{{#if this.on}}true{{else}}false{{/if}}">{{this.label}}</button>
+        {{/each}}
       </div>
+      {{else}}
+      <span class="pill{{#if technique}} kind{{/if}}">{{kindLabel}}</span>
+      {{/if}}
+      {{#if costLabel}}<span class="pill cost">{{costLabel}}</span>{{/if}}
     </div>
-    <div class="sealwrap">
-      <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PARADIGMENGINE.Item.Rank"}}">
-        <span class="lbl">{{localize "PARADIGMENGINE.Item.Rank"}}</span>
-        <span class="g{{#if seal.flipped}} alt{{/if}}" style="font-size: {{seal.size}}">{{seal.text}}</span>
+    {{#if prerequisite}}
+    <div class="preq">
+      <span class="plbl">{{localize "PARADIGMENGINE.Item.Prerequisite"}}</span>
+      <span class="preq-slot filled{{#if prerequisite.missing}} missing{{/if}}">
+        <span class="rchip" style="--rk: var({{prerequisite.cssVar}})">{{prerequisite.rank}}</span>{{prerequisite.name}}
+      </span>
+    </div>
+    {{/if}}
+  </div>
+
+  <div class="side">
+    <div class="rankwrap">
+      <button type="button" class="rankbox" data-action="flipBadge" style="--rk: var({{badge.cssVar}})"
+        aria-label="{{localize "PARADIGMENGINE.Item.Rank"}}">
+        <span class="l">{{localize "PARADIGMENGINE.Item.Rank"}}</span>
+        <span class="r{{#if badge.flipped}} flipped{{/if}}">{{badge.text}}</span>
       </button>
-      {{#if editMode}}
-      <div class="sealsteps">
-        <button type="button" class="smallbtn" data-action="stepRank" data-dir="-1"
+      {{#if editMode}}{{#unless rankLocked}}
+      <div class="steps">
+        <button type="button" class="rkbtn" data-action="stepRank" data-dir="-1"
           aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
-        <button type="button" class="smallbtn" data-action="stepRank" data-dir="1"
+        <button type="button" class="rkbtn" data-action="stepRank" data-dir="1"
           aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
       </div>
-      {{/if}}
+      {{/unless}}{{/if}}
     </div>
   </div>
 </header>

@@ -1,62 +1,123 @@
-<div class="rolldlg">
-<div class="dbody">
-  <div class="dhead">
-    <span class="cname">{{first.name}}</span>
+<div class="pop">
+  <header class="phead">
+    <span class="ptitle">{{title}}</span>
+    {{#if tag}}<span class="pill tagpill">{{tag}}</span>{{/if}}
+    {{#unless difficultyOnly}}
+    <span class="pname">{{first.name}}</span>
+    {{#if first.costLabel}}<span class="pill">{{first.costLabel}}</span>{{/if}}
     <span class="stepgrp">
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="-1"
               aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if first.downDisabled}} disabled{{/if}}>&#9660;</button>
-      <span class="chip pap {{first.stepClass}}">{{first.die}}</span>
+      <span class="dtile">{{first.die}}</span>
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="1"
               aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if first.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
-    {{#if first.isSkill}}
-    <span class="chip gold">{{first.costLabel}}</span>
-    {{/if}}
-  </div>
-  <div class="slab">{{localize "PARADIGMENGINE.Roll.SecondDie"}}</div>
-  <div class="dierow">
-    <select class="dsel" name="second" aria-label="{{localize "PARADIGMENGINE.Roll.SecondDie"}}">
-      {{#each seconds}}
-      <option value="{{this.value}}"{{#if this.selected}} selected{{/if}}>{{this.label}}</option>
-      {{/each}}
-    </select>
-    <span class="stepgrp">
-      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="-1"
-              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if secondDie.downDisabled}} disabled{{/if}}>&#9660;</button>
-      <span class="diebadge {{secondDie.stepClass}}">{{secondDie.die}}</span>
-      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="1"
-              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if secondDie.upDisabled}} disabled{{/if}}>&#9650;</button>
-    </span>
-  </div>
-  <div class="tworow">
-    <div>
-      <div class="slab">{{localize "PARADIGMENGINE.Roll.Bonus"}}</div>
-      <input type="number" class="dnum" name="bonus" value="{{bonus}}" step="1" aria-label="{{localize "PARADIGMENGINE.Roll.Bonus"}}">
-    </div>
-  </div>
-  <div class="slab">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
-  <div class="diffs">
-    {{#each difficulties}}
-    <button type="button" class="gbtn{{#if this.selected}} sel{{/if}}" data-action="difficulty" data-index="{{this.index}}"
-            style="--gc: var({{this.cssVar}})"><b>{{this.rank}}</b><small>{{this.number}}</small></button>
+    {{/unless}}
+  </header>
+
+  {{#unless difficultyOnly}}
+  {{#if firstPick}}
+  <div class="sec">{{localize "PARADIGMENGINE.Roll.FirstAttribute"}}</div>
+  <div class="firstpick">
+    {{#each firstPick}}
+    <button type="button" class="fp{{#if selected}} sel{{/if}}" data-action="pickFirst" data-key="{{key}}" role="radio" aria-checked="{{selected}}">
+      <span class="lbl">{{name}}</span><span class="dtile">{{die}}</span>
+    </button>
     {{/each}}
   </div>
-  <div class="slab">{{localize "PARADIGMENGINE.Roll.LimitBreak"}}</div>
-  <div class="lbrow{{#unless hasDifficulty}} off{{/unless}}">
+  {{/if}}
+
+  <div class="sec">{{localize "PARADIGMENGINE.Roll.SecondAttribute"}}</div>
+  {{#each attributes}}
+  <div class="prow{{#if selected}} sel{{/if}}" data-action="pick" data-value="{{value}}" role="radio" aria-checked="{{selected}}" tabindex="0">
+    <span class="cb">{{#if selected}}&#10003;{{/if}}</span>
+    <span class="lbl">{{name}}</span>
+    <span class="mid"></span>
+    {{#if stepper}}
     <span class="stepgrp">
-      <button type="button" class="stepbtn" data-action="limit" data-delta="-1"
-              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if lbDownDisabled}} disabled{{/if}}>&minus;</button>
-      <span class="diebadge">{{limitBreak}}</span>
-      <button type="button" class="stepbtn" data-action="limit" data-delta="1"
-              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if lbUpDisabled}} disabled{{/if}}>+</button>
+      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="-1"
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if stepper.downDisabled}} disabled{{/if}}>&#9660;</button>
+      <span class="dtile">{{stepper.die}}</span>
+      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="1"
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if stepper.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
-    {{#if effective}}
-    <span class="eff">&#9656; <span class="gtag" style="--gc: var({{effective.cssVar}})"><b>{{effective.rank}}</b><small>{{effective.number}}</small></span></span>
+    {{else}}
+    <span class="dx"><span class="dtile">{{die}}</span></span>
     {{/if}}
   </div>
-</div>
-<div class="dfoot">
-  <span class="formula">{{formula}}</span>
-  <button type="button" class="rollbtn" data-action="roll">{{localize "PARADIGMENGINE.Roll.Roll"}}</button>
-</div>
+  {{/each}}
+
+  {{#if skills.length}}
+  <div class="sec">{{localize "PARADIGMENGINE.Roll.SecondSkill"}}</div>
+  {{#each skills}}
+  {{#if off}}
+  <div class="prow off" data-tooltip="{{localize "PARADIGMENGINE.Roll.NoEnergy"}}" aria-disabled="true">
+    <span class="cb"></span>
+    <span class="lbl">{{name}}</span>
+    <span class="mid"><span class="pill">{{costLabel}}</span></span>
+    <span class="dx"><span class="dtile">{{die}}</span></span>
+  </div>
+  {{else}}
+  <div class="prow{{#if selected}} sel{{/if}}" data-action="pick" data-value="{{value}}" role="radio" aria-checked="{{selected}}" tabindex="0">
+    <span class="cb">{{#if selected}}&#10003;{{/if}}</span>
+    <span class="lbl">{{name}}</span>
+    <span class="mid">{{#if costLabel}}<span class="pill">{{costLabel}}</span>{{/if}}</span>
+    {{#if stepper}}
+    <span class="stepgrp">
+      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="-1"
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepDown"}}"{{#if stepper.downDisabled}} disabled{{/if}}>&#9660;</button>
+      <span class="dtile">{{stepper.die}}</span>
+      <button type="button" class="stepbtn" data-action="step" data-die="1" data-delta="1"
+              aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if stepper.upDisabled}} disabled{{/if}}>&#9650;</button>
+    </span>
+    {{else}}
+    <span class="dx"><span class="dtile">{{die}}</span></span>
+    {{/if}}
+  </div>
+  {{/if}}
+  {{/each}}
+  {{/if}}
+  {{/unless}}
+
+  {{#if showDifficulty}}
+  <div class="sec">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
+  <div class="diffs">
+    {{#each difficulties}}
+    <button type="button" class="dtag{{#if selected}} sel{{/if}}" data-action="difficulty" data-index="{{index}}"
+            style="--gc: var({{cssVar}})"><b>{{rank}}</b><small>{{number}}</small></button>
+    {{/each}}
+  </div>
+  {{/if}}
+
+  {{#if locked}}
+  <div class="sec">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
+  <div class="diffs">
+    <span class="dtag sel" style="--gc: var({{locked.cssVar}})"><b>{{locked.rank}}</b><small>{{locked.number}}</small></span>
+  </div>
+  {{/if}}
+
+  {{#unless difficultyOnly}}
+  {{#if showDifficulty}}
+  <div class="lbhead{{#unless hasDifficulty}} off{{/unless}}">
+    <span class="lbl">{{localize "PARADIGMENGINE.Roll.LimitBreak"}}</span>
+    {{#if effective}}
+    <span class="shift">{{base.rank}} {{base.number}} &#8594; <b style="--gc: var({{effective.cssVar}})">{{effective.rank}} {{effective.number}}</b></span>
+    {{/if}}
+  </div>
+  {{#if segments.length}}
+  <div class="meter{{#if full}} full{{/if}}">
+    {{#each segments}}
+    <button type="button" class="seg{{#if on}} on{{/if}}{{#if last}} last{{/if}}" data-action="limit" data-n="{{n}}"
+            aria-label="{{localize "PARADIGMENGINE.Roll.LimitBreakTag" n=n}}"></button>
+    {{/each}}
+    <span class="meterlbl">{{localize "PARADIGMENGINE.Roll.MeterLabel"}}</span>
+  </div>
+  {{/if}}
+  {{/if}}
+  {{/unless}}
+
+  <footer class="pfoot">
+    <span class="formula">{{formula}}{{#if versus}} <span class="vs">{{versus}}</span>{{/if}}</span>
+    <button type="button" class="rollbtn" data-action="roll"{{#unless canRoll}} disabled{{/unless}}><i class="fa-solid fa-dice"></i>{{rollLabel}}</button>
+  </footer>
 </div>

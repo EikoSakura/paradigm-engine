@@ -1,30 +1,22 @@
 {
   "TYPES": {
     "Actor": {
-      "character": "Character",
-      "adversary": "Adversary"
+      "pc": "PC",
+      "npc": "NPC",
+      "party": "Party"
     },
     "Item": {
       "skill": "Skill"
-    },
-    "Combatant": {
-      "participant": "Participant"
     }
   },
   "PARADIGMENGINE": {
     "Sheet": {
-      "Character": "Character File",
-      "Adversary": "Adversary File",
-      "Item": "Item File",
-      "Combatant": "Combatant File"
-    },
-    "Adversary": {
-      "Desire": "Desire",
-      "Fear": "Fear",
-      "Rival": "Rival"
+      "PC": "PC File",
+      "NPC": "NPC File",
+      "Party": "Party File",
+      "Item": "Item File"
     },
     "Mode": {
-      "View": "View",
       "Edit": "Edit"
     },
     "Tab": {
@@ -33,7 +25,7 @@
       "profile": "Profile"
     },
     "Header": {
-      "Character": "Character",
+      "PC": "PC",
       "Rank": "Rank",
       "Age": "Age",
       "Player": "Player",
@@ -51,12 +43,7 @@
       "Attributes": "Attributes",
       "Ranks": "Ranks",
       "Skills": "Skills",
-      "Bonds": "Bonds",
-      "Advancements": "Advancements",
-      "Standard": "Standard",
-      "Special": "Special",
-      "Background": "Background",
-      "DesireFear": "Desire & Fear"
+      "Bonds": "Bonds"
     },
     "Ladder": {
       "Rank": "Rank",
@@ -79,17 +66,77 @@
       "Rank": "Rank",
       "Kind": "Kind",
       "Description": "Description",
-      "Rulings": "Rulings"
+      "EditIcon": "Edit Icon",
+      "Prerequisite": "Prerequisite"
+    },
+    "Tree": {
+      "Title": "Skill Tree",
+      "Known": "Known",
+      "Available": "Available",
+      "Locked": "Locked",
+      "Take": "Take",
+      "Open": "Open Sheet"
+    },
+    "Clash": {
+      "Title": "Clash",
+      "Target": "Target",
+      "TargetUp": "Raise Target",
+      "TargetDown": "Lower Target",
+      "Show": "Show",
+      "AddSelected": "Add Selected",
+      "Begin": "Begin",
+      "End": "End Clash",
+      "Wins": "Wins",
+      "HeartLoss": "−1 Heart",
+      "HeartsLoss": "−{n} Hearts",
+      "TargetChip": "Target {n}",
+      "Open": "Open Clash"
+    },
+    "Check": {
+      "Title": "Checks",
+      "Group": "Group Action",
+      "Opposed": "Opposed Action",
+      "Clash": "Clash Check",
+      "Begin": "Begin",
+      "Leader": "Leader",
+      "Shifts": "Shifts {n}",
+      "ShiftUp": "Shift Up",
+      "Rolled": "{n} / {total} Rolled",
+      "Wins": "{name} Wins",
+      "Tie": "Tie",
+      "HeartLoss": "−1 Heart",
+      "NeedTargets": "Target the other participants first.",
+      "NotInClash": "This character is not in the running Clash.",
+      "NoStoryteller": "No Storyteller is connected."
     },
     "Skill": {
-      "Activated": "Activated",
-      "Triggered": "Triggered",
+      "Technique": "Technique",
+      "Talent": "Talent",
       "Energy": "{n} Energy"
     },
-    "RuledInPlay": "Ruled in play:",
     "Chat": {
       "Post": "Post",
-      "NoEnergy": "Not Enough Energy · {left} Left"
+      "NoEnergy": "Not Enough Energy · {left} Left",
+      "Invoke": "{name} Invokes · {benefit}",
+      "BorrowDie": "{die} in Place of an Attribute Die",
+      "LuckNow": "Luck Dice · {values}",
+      "SyncEnergy": "1 Energy · Acts After Their Combo Chain or Limit Break"
+    },
+    "Bond": {
+      "Title": "Bond",
+      "Invoke": "Invoke",
+      "Invoked": "Invoked",
+      "ClearInvoked": "Clear Invoked",
+      "Popup": "Invoke Bond",
+      "BorrowStrength": "Borrow Strength",
+      "BorrowStrengthLine": "Rank Die in Place of an Attribute Die",
+      "TwistOfFate": "Twist of Fate",
+      "TwistOfFateLine": "Replenish or Reroll Luck Dice",
+      "Sync": "Sync",
+      "SyncLine": "Act After Their Combo Chain or Limit Break",
+      "Reroll": "Reroll",
+      "Replenish": "Replenish",
+      "Done": "Done"
     },
     "Splash": {
       "Combo": "COMBO!!",
@@ -100,8 +147,11 @@
     },
     "Roll": {
       "Title": "Action Roll",
-      "SecondDie": "Second Die",
-      "Bonus": "Bonus",
+      "FirstAttribute": "First Die · Attribute",
+      "SecondAttribute": "Second Die · Attribute",
+      "SecondSkill": "Second Die · Skill",
+      "NoEnergy": "Not Enough Energy",
+      "Versus": "vs {n}",
       "StepUp": "Step Up",
       "StepDown": "Step Down",
       "Roll": "Roll",
@@ -109,71 +159,83 @@
       "Luck": "Luck · {name}",
       "Difficulty": "Difficulty",
       "LimitBreak": "Limit Break",
-      "LimitBreakTag": "Limit Break {n}"
+      "LimitBreakTag": "Limit Break {n}",
+      "MeterLabel": "Limit"
     },
     "Band": {
-      "Critical": "Critical Success",
+      "Combo": "Combo",
       "Success": "Success",
       "Failure": "Failure",
       "Fumble": "Fumble"
     },
     "Rider": {
-      "Spotlight": "The Spotlight passes.",
       "Luck": "Luck Dice cannot alter this roll."
     },
-    "Encounter": {
-      "Label": "Encounter",
-      "Spotlight": "Spotlight",
-      "Open": "Open",
-      "HintStoryteller": "Open. Tap a hand to place it.",
-      "HintPlayer": "Open. TAKE claims it for your character.",
-      "UpNext": "Up Next",
-      "Party": "Party",
-      "Storyteller": "Storyteller",
-      "Overwhelmed": "Overwhelmed",
-      "Defeated": "Defeated",
-      "Hide": "Hide",
-      "Reveal": "Reveal",
-      "Give": "Give the Spotlight",
+    "Growth": {
+      "Milestone": "Milestone",
+      "GP": "Growth Points",
+      "SpendOnAward": "Spend On Award",
+      "ToSpend": "{tier} · {n} To Spend",
+      "Episode": "Episode",
+      "Arc": "Arc",
+      "Season": "Season",
+      "Timeskip": "Timeskip",
+      "Award": "Award",
+      "AwardGo": "Award",
+      "Access": "Access",
+      "Fewer": "Fewer",
+      "More": "More",
+      "Cancel": "Cancel",
+      "End": "End",
       "Take": "Take",
-      "Next": "Next",
-      "NextN": "Next · {n}",
-      "Return": "Return",
-      "Begin": "Begin the Encounter",
-      "End": "End the Encounter",
-      "None": "No encounter.",
-      "RankTitle": "Rank {rank} · Difficulty {number}"
-    },
-    "SkillBar": {
-      "Label": "Skills",
-      "PageUp": "Page Up",
-      "PageDown": "Page Down",
-      "Slot1": "Use Slot 1",
-      "Slot2": "Use Slot 2",
-      "Slot3": "Use Slot 3",
-      "Slot4": "Use Slot 4",
-      "Slot5": "Use Slot 5",
-      "Slot6": "Use Slot 6",
-      "Slot7": "Use Slot 7",
-      "Slot8": "Use Slot 8",
-      "Slot9": "Use Slot 9",
-      "Slot10": "Use Slot 10"
-    },
-    "Advancement": {
-      "Unspent": "Unspent",
-      "Spend": "Spend",
-      "Gain": "Gain",
-      "StandardTail": "Cost 1 · Clear Each Season",
-      "SpecialTail": "Cost 2 · Never Clear",
-      "NewSkill": "New Skill",
-      "RankSkill": "Rank Up Skill",
-      "NewHeart": "New Heart",
-      "NewEnergy": "New Energy",
-      "Luck": "Rank Up Luck Dice",
-      "Rank": "Rank Up Rank",
-      "Attribute": "Rank Up Attribute"
+      "Taken": "Taken",
+      "Log": "Growth Log",
+      "Group": {
+        "general": "General",
+        "arc": "Arc",
+        "season": "Season"
+      },
+      "GroupTail": {
+        "general": "Any Milestone",
+        "arc": "Arc · Season · Once",
+        "season": "Season · Once"
+      },
+      "Option": {
+        "modifySkill": "Modify Skill",
+        "newSkill": "New Skill",
+        "skillRankUp1": "Skill Rank Up I",
+        "newBond": "New Bond",
+        "bondRankUp1": "Bond Rank Up I",
+        "heart": "+1 Heart",
+        "energy": "+1 Energy",
+        "stepLuck": "Step Up Luck Dice",
+        "skillRankUp2": "Skill Rank Up II",
+        "bondRankUp2": "Bond Rank Up II",
+        "unlockLuck": "Unlock Luck Die",
+        "charRank": "Rank Up Character Rank",
+        "attrRankUp": "Rank Up Attribute"
+      },
+      "ToRank": "To Rank {rank}",
+      "AtRank": "Rank {rank}",
+      "Of": "{n} / {max}",
+      "Step": "{from} → {to}",
+      "Cost": "{group} · 1 GP",
+      "CostOnce": "{group} · 1 GP · Once",
+      "CharacterRank": "Character Rank",
+      "Name": "Name",
+      "Create": "Create",
+      "RankUp": "Rank Up",
+      "Modify": "Modify",
+      "Bond": "Bond",
+      "Bonded": "Bonded",
+      "Party": "Party",
+      "NPCs": "NPCs",
+      "DropSkill": "Drop Skill",
+      "DropCharacter": "Drop Character",
+      "OpenTree": "Open Skill Tree"
     },
     "Profile": {
+      "Identity": "Identity",
       "Gender": "Gender",
       "Pronouns": "Pronouns",
       "Personality": "Personality",
@@ -183,23 +245,28 @@
     "Edit": {
       "RankUp": "Rank Up",
       "RankDown": "Rank Down",
-      "AddRuling": "+ Ruling",
       "Remove": "Remove",
       "RaiseMax": "Raise Max",
       "LowerMax": "Lower Max",
+      "ZoomIn": "Zoom In",
+      "ZoomOut": "Zoom Out",
       "LuckValue": "Recorded Value",
+      "LuckUp": "Raise Luck Die",
+      "LuckDown": "Lower Luck Die",
+      "RollLuck": "Roll Luck Die",
+      "RollAll": "Roll All",
       "AddSkill": "+ New Skill",
+      "Reorder": "Drag to Reorder",
       "AddBond": "+ New Bond",
       "BondRank": "Bond Rank"
     },
     "Placeholder": {
-      "Ruling": "Ruling",
       "BondName": "Bond Name"
     },
     "Creator": {
-      "Title": "Character Creator",
-      "New": "New Character",
-      "Create": "Create Character",
+      "Title": "PC Creator",
+      "New": "New PC",
+      "Create": "Create PC",
       "Bond": "Bond",
       "Finishing": "Finishing Touches",
       "StepUps": "Step Ups",
@@ -213,12 +280,47 @@
       "Position": "Step {n} of {total}"
     },
     "Builder": {
-      "Title": "Adversary Builder",
-      "New": "New Adversary",
-      "Create": "Create Adversary",
+      "Title": "NPC Builder",
+      "New": "New NPC",
+      "Create": "Create NPC",
       "Stats": "Stats",
       "StatsSide": "Storyteller-Set",
       "AddSkill": "Add Skill"
+    },
+    "Party": {
+      "Tab": {
+        "members": "Members",
+        "notes": "Notes"
+      },
+      "Open": "Open",
+      "Lead": "Group",
+      "NewScene": "New Scene",
+      "EditEmblem": "Edit Emblem"
+    },
+    "Tracker": {
+      "Encounter": "Encounter",
+      "Round": "Round {n}",
+      "NotStarted": "Not Started",
+      "None": "No Encounter",
+      "Acting": "Acting",
+      "HandUp": "Hand Up",
+      "RaiseHand": "Raise Hand",
+      "LowerHand": "Lower Hand",
+      "Previous": "Previous",
+      "Next": "Next",
+      "Begin": "Begin",
+      "End": "End",
+      "EndTurn": "End Turn",
+      "Create": "New Encounter",
+      "More": "More"
+    },
+    "Settings": {
+      "Theme": {
+        "Name": "Theme",
+        "Light": "Light",
+        "Dark": "Dark",
+        "Foundry": "Match Foundry"
+      }
     }
   }
 }

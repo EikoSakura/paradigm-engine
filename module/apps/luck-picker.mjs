@@ -1,4 +1,4 @@
-import { applyLuckSwap, readSplash } from "../chat.mjs";
+import { cardOp, readSplash } from "../chat.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -15,15 +15,15 @@ function luckHolders() {
     }));
 }
 
-/* The Spend Luck picker, opened from a die face on a roll card. Picking a
-   die marks it spent on its owner (the spender's own actor), then the swap
-   applies directly when this user may update the message, or through the
-   active GM over the system socket. */
+/* The Spend Luck picker, opened from a die face on a roll card, or on a
+   row of a shared card. Picking a die marks it spent on its owner (the
+   spender's own actor), then the swap goes through the card relay. */
 export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2) {
-  constructor({ message, dieIndex, ...options } = {}) {
+  constructor({ message, dieIndex, row = null, ...options } = {}) {
     super(options);
     this.#message = message;
     this.#dieIndex = dieIndex;
+    this.#row = row;
   }
 
   static DEFAULT_OPTIONS = {
@@ -44,9 +44,11 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
 
   #dieIndex;
 
-  static open(message, dieIndex) {
+  #row;
+
+  static open(message, dieIndex, row = null) {
     this.#instance?.close();
-    this.#instance = new this({ message, dieIndex });
+    this.#instance = new this({ message, dieIndex, row });
     this.#instance.render(true);
   }
 
@@ -60,6 +62,12 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
     return context;
   }
 
+  /* A frameless popup has no window to shrink, so the closing animation
+     core awaits would only run out its timeout; close at once. */
+  close(options = {}) {
+    return super.close({ animate: false, ...options });
+  }
+
   _onClose(options) {
     super._onClose(options);
     if (LuckPicker.#instance === this) LuckPicker.#instance = null;
@@ -71,38 +79,28 @@ export default class LuckPicker extends HandlebarsApplicationMixin(ApplicationV2
     const die = actor?.system.luck[index];
     if (!die || die.spent || !die.value) return this.close();
     const message = this.#message;
-    const direct = message.canUserModify(game.user, "update");
-    if (!direct && !game.users.activeGM) return this.close();
+    if (!message.canUserModify(game.user, "update") && !game.users.activeGM) return this.close();
     const luck = actor.system.luck.map(d => ({ ...d }));
     luck[index] = { ...luck[index], spent: true };
     await actor.update({ "system.luck": luck });
-    if (direct) await applyLuckSwap(message, this.#dieIndex, die.value, actor.name);
-    else game.socket.emit("system.paradigm-engine", {
-      type: "luckSwap",
-      messageId: message.id,
-      dieIndex: this.#dieIndex,
-      value: die.value,
-      name: actor.name
-    });
+    await cardOp(message, { type: "luckSwap", dieIndex: this.#dieIndex, value: die.value, name: actor.name, row: this.#row });
     this.close();
   }
 }
 
-/* Face clicks on roll cards, and the GM side of the swap relay. */
+/* Face clicks on roll cards and on the rows of shared cards. */
 export function registerLuck() {
   Hooks.on("renderChatMessageHTML", (message, html) => {
-    const card = message.getFlag("paradigm-engine", "card");
-    if (!card || readSplash(card.faces) === "fumble") return;
+    const flags = message.flags["paradigm-engine"];
+    if (!flags?.card && !flags?.multi) return;
     if (!luckHolders().length) return;
     for (const face of html.querySelectorAll(".dicerow .face")) {
+      const rowEl = face.closest("[data-row]");
+      const row = rowEl ? Number(rowEl.dataset.row) : null;
+      const card = row === null ? flags.card : flags.multi?.rows[row]?.card;
+      if (!card || readSplash(card.faces) === "fumble") continue;
       face.classList.add("spendable");
-      face.addEventListener("click", () => LuckPicker.open(message, Number(face.dataset.index)));
+      face.addEventListener("click", () => LuckPicker.open(message, Number(face.dataset.index), row));
     }
-  });
-  game.socket.on("system.paradigm-engine", async data => {
-    if (data?.type !== "luckSwap") return;
-    if (game.users.activeGM?.isSelf !== true) return;
-    const message = game.messages.get(data.messageId);
-    if (message) await applyLuckSwap(message, data.dieIndex, data.value, data.name);
   });
 }

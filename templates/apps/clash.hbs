@@ -1,0 +1,85 @@
+<div class="clash-body">
+<div class="bar">
+  <div class="target">
+    <span class="tlabel">{{localize "PARADIGMENGINE.Clash.Target"}}</span>
+    {{#if canSetup}}
+    <button type="button" class="step" data-action="targetDown" {{#if targetMin}}disabled{{/if}} aria-label="{{localize "PARADIGMENGINE.Clash.TargetDown"}}">−</button>
+    {{/if}}
+    <span class="tnum">{{target}}</span>
+    {{#if canSetup}}
+    <button type="button" class="step" data-action="targetUp" {{#if targetMax}}disabled{{/if}} aria-label="{{localize "PARADIGMENGINE.Clash.TargetUp"}}">+</button>
+    {{/if}}
+  </div>
+  {{#if canEdit}}
+  <button type="button" class="go alt" data-action="show">{{localize "PARADIGMENGINE.Clash.Show"}}</button>
+  {{/if}}
+  {{#if canSetup}}
+  <button type="button" class="go alt" data-action="addSelected">{{localize "PARADIGMENGINE.Clash.AddSelected"}}</button>
+  <button type="button" class="go" data-action="begin" {{#unless ready}}disabled{{/unless}}>{{localize "PARADIGMENGINE.Clash.Begin"}}</button>
+  {{/if}}
+  {{#if canEnd}}
+  <button type="button" class="go end" data-action="end">{{localize "PARADIGMENGINE.Clash.End"}}</button>
+  {{/if}}
+</div>
+
+<div class="arena{{#if empty}} empty{{/if}}{{#if canSetup}} setup{{/if}}{{#if canMark}} marking{{/if}}">
+  <svg viewBox="0 0 {{size}} {{size}}" aria-label="{{localize "PARADIGMENGINE.Clash.Title"}}">
+    <defs>
+      <clipPath id="clash-portrait"><rect x="-{{portrait}}" y="-{{portrait}}" width="{{portraitSize}}" height="{{portraitSize}}" rx="8"/></clipPath>
+      <clipPath id="clash-portrait-sm"><rect x="-{{portraitSmall}}" y="-{{portraitSmall}}" width="{{portraitSmallSize}}" height="{{portraitSmallSize}}" rx="6"/></clipPath>
+    </defs>
+    <rect class="core" x="{{core.x}}" y="{{core.y}}" width="{{core.size}}" height="{{core.size}}" transform="{{core.rotate}}"/>
+    {{#each arms}}
+    {{#each this.boxes}}
+    <rect class="bx{{#if this.on}} on{{/if}}" data-action="mark" data-side="{{this.side}}" data-box="{{this.index}}"
+      x="{{this.x}}" y="{{this.y}}" width="{{this.size}}" height="{{this.size}}" rx="3"/>
+    {{/each}}
+    <g class="pf{{#if this.won}} won{{/if}}{{#if this.lost}} lost{{/if}}" data-side="{{this.side}}" transform="translate({{this.px}} {{this.py}})">
+      <rect class="hit" x="-34" y="-34" width="68" height="68" rx="12"/>
+      {{#each this.portraits}}
+      <g transform="translate({{this.x}} {{this.y}})">
+        <rect class="pfbg" x="-{{this.half}}" y="-{{this.half}}" width="{{this.size}}" height="{{this.size}}" rx="{{#if this.small}}6{{else}}8{{/if}}"/>
+        <image href="{{this.img}}" x="-{{this.half}}" y="-{{this.half}}" width="{{this.size}}" height="{{this.size}}" preserveAspectRatio="xMidYMid slice" clip-path="url(#clash-portrait{{#if this.small}}-sm{{/if}})"/>
+        <rect class="pfring" x="-{{this.half}}" y="-{{this.half}}" width="{{this.size}}" height="{{this.size}}" rx="{{#if this.small}}6{{else}}8{{/if}}"/>
+      </g>
+      {{/each}}
+      {{#if this.badge}}
+      <g class="badge" transform="translate({{this.badge.x}} {{this.badge.y}})">
+        <circle r="10"/>
+        <text y="3.5" text-anchor="middle">{{this.badge.text}}</text>
+      </g>
+      {{/if}}
+    </g>
+    {{/each}}
+  </svg>
+  {{#if winner}}
+  <div class="banner">{{winner.name}} <span>{{localize "PARADIGMENGINE.Clash.Wins"}}</span></div>
+  {{/if}}
+</div>
+
+{{#if sides.length}}
+<div class="sides">
+  {{#each sides}}
+  <div class="side{{#if this.won}} won{{/if}}{{#if this.lost}} lost{{/if}}" data-side="{{this.index}}"{{#if @root.canSetup}} draggable="true"{{/if}} data-tooltip="{{this.roster}}">
+    <span class="spfs{{#if this.grouped}} grouped{{/if}}">
+      {{#each this.portraits}}<img class="spf" src="{{this}}" alt="">{{/each}}
+      {{#if this.extra}}<span class="sextra">+{{this.extra}}</span>{{/if}}
+    </span>
+    {{#if @root.canSetup}}
+    <button type="button" class="sname" data-action="rename" data-side="{{this.index}}">{{this.name}}</button>
+    {{else}}
+    <span class="sname">{{this.name}}</span>
+    {{/if}}
+    {{#if this.result}}
+    <span class="sres">{{this.result}}</span>
+    {{else}}
+    <span class="smarks">{{this.marks}}</span>
+    {{/if}}
+    {{#if @root.canSetup}}
+    <button type="button" class="sx" data-action="removeSide" data-side="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+    {{/if}}
+  </div>
+  {{/each}}
+</div>
+{{/if}}
+</div>

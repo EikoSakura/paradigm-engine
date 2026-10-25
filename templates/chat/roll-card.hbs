@@ -1,33 +1,37 @@
-<div class="pe-card">
+<div class="pe-card roll">
+  <span class="ctag"><span>{{localize "PARADIGMENGINE.Roll.Title"}}</span>{{#if clash}}<small>{{localize "PARADIGMENGINE.Clash.Title"}} · {{clash.name}}</small>{{/if}}</span>
   <div class="chead">
     <span class="cname">{{title}}</span>
   </div>
   <div class="cbody">
     <div class="dicerow">
       {{#each faces}}
-      <span class="face{{#if this.lucky}} lucky{{/if}}" data-index="{{@index}}">{{this.value}}</span>
+      <span class="face{{#if this.lucky}} lucky{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
       {{/each}}
       <div class="rtotal">
         <span class="tlab">{{localize "PARADIGMENGINE.Roll.Total"}}</span>
         <span class="tnum">{{total}}</span>
       </div>
     </div>
-    {{#if bonus}}
-    <div class="rline"><span class="rmark">◆</span><span>{{localize "PARADIGMENGINE.Roll.Bonus"}} {{bonus}}</span></div>
-    {{/if}}
     {{#each luck}}
-    <div class="rline luck"><span class="rmark">◆</span><span>{{this}}</span></div>
+    <div class="rline luck"><i class="rmark"></i><span>{{this}}</span></div>
     {{/each}}
     {{#if band}}
     <div class="dband">
-      <span class="gtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>
-      <span class="bword{{#if band.fumble}} fumble{{/if}}">{{band.word}}</span>
-      {{#if band.limitBreak}}<span class="lbtag">{{band.limitBreak}}</span>{{/if}}
+      <span class="dtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>
+      <span class="bword {{#if band.combo}}combo{{else if band.fumble}}fumble{{else if band.success}}success{{else}}failure{{/if}}">{{band.word}}</span>
     </div>
+    {{#if band.limitBreak}}<div class="lbline"><span class="lbtag">{{band.limitBreak}}</span></div>{{/if}}
     {{/if}}
     {{#if band.riders.length}}
     <div class="riders">
       {{#each band.riders}}<div data-rider="{{this.key}}">{{this.text}}</div>{{/each}}
+    </div>
+    {{/if}}
+    {{#if clash}}
+    <div class="cfoot clashfoot">
+      <span class="sidename">{{clash.name}}</span>
+      <span class="boxes">{{#each clash.boxes}}<i class="{{#if this.fresh}}fresh{{else if this.on}}on{{/if}}"></i>{{/each}}</span>
     </div>
     {{/if}}
   </div>

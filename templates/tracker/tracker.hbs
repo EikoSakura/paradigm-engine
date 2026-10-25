@@ -1,0 +1,40 @@
+<div class="pe-tracker-wrap">
+<div class="pe-card pe-tracker-card{{#unless hasCombat}} none{{/unless}}">
+  <span class="ctag"><span>{{localize "PARADIGMENGINE.Tracker.Encounter"}}</span><small>{{roundLabel}}</small></span>
+  {{#if combat.name}}<h2 class="ename">{{combat.name}}</h2>{{/if}}
+  <ol class="combat-tracker plain">
+    {{#each turns}}
+    <li class="combatant {{css}}" data-combatant-id="{{id}}" data-action="activateCombatant">
+      <img class="pic" src="{{img}}" alt="" loading="lazy">
+      <div class="who">
+        <span class="nm">{{name}}</span>
+        <span class="sub">{{kind}}</span>
+      </div>
+      <div class="tail">
+        {{#if active}}
+        <span class="state acting">{{localize "PARADIGMENGINE.Tracker.Acting"}}</span>
+        {{else if hand}}
+        <span class="state hand"><i class="fa-solid fa-hand" inert></i>{{localize "PARADIGMENGINE.Tracker.HandUp"}}</span>
+        {{/if}}
+        {{#if canRaise}}
+        <button type="button" class="hb{{#if hand}} on{{/if}}" data-action="raiseHand" data-tooltip
+          aria-label="{{localize (ifThen hand "PARADIGMENGINE.Tracker.LowerHand" "PARADIGMENGINE.Tracker.RaiseHand")}}"><i class="fa-solid fa-hand" inert></i></button>
+        {{/if}}
+        {{#if @root.user.isGM}}
+        <button type="button" class="cb{{#if hidden}} on{{/if}}" data-action="toggleHidden" data-tooltip
+          aria-label="{{localize (ifThen hidden "COMBATANT.Show" "COMBATANT.Hide")}}"><i class="fa-solid fa-eye-slash" inert></i></button>
+        <button type="button" class="cb{{#if isDefeated}} on{{/if}}" data-action="toggleDefeated" data-tooltip
+          aria-label="{{localize (ifThen isDefeated "COMBATANT.UnmarkDefeated" "COMBATANT.MarkDefeated")}}"><i class="fa-solid fa-skull" inert></i></button>
+        {{else}}
+        {{#if isDefeated}}<i class="fa-solid fa-skull down" inert></i>{{/if}}
+        {{#if canPing}}
+        <button type="button" class="cb" data-action="pingCombatant" data-tooltip
+          aria-label="{{localize "COMBATANT.Ping"}}"><i class="fa-solid fa-bullseye-arrow" inert></i></button>
+        {{/if}}
+        {{/if}}
+      </div>
+    </li>
+    {{/each}}
+  </ol>
+</div>
+</div>

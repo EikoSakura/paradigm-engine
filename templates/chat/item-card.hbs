@@ -1,18 +1,11 @@
-<div class="pe-card">
+<div class="pe-card skill">
+  <span class="ctag"><span>{{kindLabel}}</span></span>
   <div class="chead">
-    <div class="ctitle">
-      <span class="dia" style="--rkc: var({{cssVar}})"><i></i><b>{{rank}}</b></span>
-      <span class="cname">{{name}}</span>
-    </div>
-    <div class="cmeta">
-      <span class="chip{{#if activated}} pap{{else}} inv{{/if}}">{{kindLabel}}</span>
-      <span class="chip gold">{{costLabel}}</span>
-    </div>
+    <span class="rk" style="--rk: var({{cssVar}})">{{rank}}</span>
+    <span class="cname">{{name}}</span>
+    {{#if costLabel}}<span class="chip gold">{{costLabel}}</span>{{/if}}
   </div>
-  <div class="cbody">
+  <div class="cbody prose">
     {{{enrichedText}}}
-    {{#each rulings}}
-    <div class="ruled"><span class="rmark">◆</span><span>{{this}}</span></div>
-    {{/each}}
   </div>
 </div>

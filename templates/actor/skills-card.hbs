@@ -1,0 +1,42 @@
+    <div class="pcard" style="--tc: var(--pink)">
+      <div class="taghead">
+        <span class="tag">{{localize "PARADIGMENGINE.Panel.Skills"}}<span class="tail">{{skills.length}}</span></span>
+        <button type="button" class="treebtn" data-action="openTree" data-tooltip="PARADIGMENGINE.Tree.Title"
+          aria-label="{{localize "PARADIGMENGINE.Tree.Title"}}"><i class="fa-solid fa-sitemap"></i></button>
+      </div>
+      <div class="srows">
+      {{#each skills}}
+      <div class="srow draggable{{#if @root.editMode}} editing{{/if}}{{#if this.locked}} locked{{/if}}" data-item-id="{{this.id}}" style="--rk: var({{this.badge.cssVar}})">
+        {{#if @root.editMode}}
+        <span class="grip" data-tooltip="PARADIGMENGINE.Edit.Reorder" aria-label="{{localize "PARADIGMENGINE.Edit.Reorder"}}"><i class="fa-solid fa-grip-vertical"></i></span>
+        {{/if}}
+        <button type="button" class="rchip{{#if this.badge.flipped}} flipped{{/if}}" data-action="flipBadge"
+          data-key="{{this.badge.key}}">{{this.badge.text}}</button>
+        <div class="body">
+          <div class="top">
+            {{#if @root.editMode}}
+            <button type="button" class="nm" data-action="openItem" data-item-id="{{this.id}}">{{this.name}}</button>
+            {{else}}
+            <button type="button" class="nm" data-action="openRoll" data-first="skill" data-item-id="{{this.id}}">{{this.name}}</button>
+            {{/if}}
+            <button type="button" class="postbtn" data-action="postItem" data-item-id="{{this.id}}"
+              data-tooltip="PARADIGMENGINE.Chat.Post" aria-label="{{localize "PARADIGMENGINE.Chat.Post"}}"><i class="fa-solid fa-message"></i></button>
+            {{#if @root.editMode}}
+            <button type="button" class="delbtn" data-action="deleteItem" data-item-id="{{this.id}}"
+              aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+            {{/if}}
+          </div>
+          <div class="meta2">
+            <span class="pill{{#if this.technique}} kind{{/if}}">{{this.kindLabel}}</span>
+            {{#if this.costLabel}}<span class="pill cost">{{this.costLabel}}</span>{{/if}}
+            {{#if this.foundation}}<span class="pill found">{{this.foundation}}</span>{{/if}}
+          </div>
+          <div class="txt">{{{this.enrichedText}}}</div>
+        </div>
+      </div>
+      {{/each}}
+      </div>
+      {{#if editMode}}
+      <button type="button" class="addbtn" data-action="createItem" data-type="skill">{{localize "PARADIGMENGINE.Edit.AddSkill"}}</button>
+      {{/if}}
+    </div>

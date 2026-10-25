@@ -17,8 +17,12 @@
     "verified": "14.369"
   },
   "socket": true,
-  "esmodules": ["module/paradigm-engine.mjs"],
-  "styles": ["styles/paradigm-engine.css"],
+  "esmodules": [
+    "module/paradigm-engine.mjs"
+  ],
+  "styles": [
+    "styles/paradigm-engine.css"
+  ],
   "languages": [
     {
       "lang": "en",
@@ -28,14 +32,12 @@
   ],
   "documentTypes": {
     "Actor": {
-      "character": {},
-      "adversary": {}
+      "pc": {},
+      "npc": {},
+      "party": {}
     },
     "Item": {
       "skill": {}
-    },
-    "Combatant": {
-      "participant": {}
     }
   }
 }

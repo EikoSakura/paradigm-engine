@@ -1,0 +1,110 @@
+<div class="gpick {{kind}}">
+  <div class="eyebrow">{{eyebrow}}</div>
+  <div class="gname">
+    <span>{{title}}</span>
+    {{#if cap}}<span class="cap">{{localize "PARADIGMENGINE.Growth.CharacterRank"}} <span class="rk" style="--rk: var({{cap.cssVar}})">{{cap.rank}}</span></span>{{/if}}
+    {{#if newRank}}<span class="rk big" style="--rk: var({{newRank.cssVar}})">{{newRank.rank}}</span>{{/if}}
+  </div>
+
+  {{#if isNewSkill}}
+  <div class="crow">
+    <input type="text" name="name" placeholder="{{localize "PARADIGMENGINE.Growth.Name"}}" aria-label="{{localize "PARADIGMENGINE.Growth.Name"}}" autocomplete="off">
+    <span class="kind">
+      {{#each kinds}}
+      <button type="button" class="{{#if this.on}}on{{/if}}" data-action="setKind" data-kind="{{this.kind}}" aria-pressed="{{this.on}}">{{this.label}}</button>
+      {{/each}}
+    </span>
+    <button type="button" class="go" data-action="growthCreate">{{localize "PARADIGMENGINE.Growth.Create"}}</button>
+  </div>
+  {{#if available.length}}
+  <div class="sec">{{localize "PARADIGMENGINE.Tree.Title"}}</div>
+  {{#each available}}
+  <div class="it">
+    <span class="n">{{this.name}}</span>
+    {{#if this.foundation}}<span class="m">{{this.foundation}}</span>{{/if}}
+    <span class="pill{{#if this.technique}} kind{{/if}}">{{this.kindLabel}}</span>
+    {{#if this.costLabel}}<span class="pill cost">{{this.costLabel}}</span>{{/if}}
+    <span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>
+    <button type="button" class="take" data-action="pickSkill" data-uuid="{{this.uuid}}">{{localize "PARADIGMENGINE.Growth.Take"}}</button>
+  </div>
+  {{/each}}
+  {{/if}}
+  <div class="drop">{{localize "PARADIGMENGINE.Growth.DropSkill"}}</div>
+  <div class="foot">
+    <span></span>
+    <button type="button" class="link" data-action="openTree">{{localize "PARADIGMENGINE.Growth.OpenTree"}}</button>
+  </div>
+  {{/if}}
+
+  {{#if isNewBond}}
+  <div class="crow">
+    <input type="text" name="name" placeholder="{{localize "PARADIGMENGINE.Growth.Name"}}" aria-label="{{localize "PARADIGMENGINE.Growth.Name"}}" autocomplete="off">
+    <button type="button" class="go" data-action="growthCreate">{{localize "PARADIGMENGINE.Growth.Create"}}</button>
+  </div>
+  {{#if party.length}}
+  <div class="sec">{{localize "PARADIGMENGINE.Growth.Party"}}</div>
+  {{#each party}}{{> growthBondRow this}}{{/each}}
+  {{/if}}
+  {{#if npcs.length}}
+  <div class="sec">{{localize "PARADIGMENGINE.Growth.NPCs"}}</div>
+  {{#each npcs}}{{> growthBondRow this}}{{/each}}
+  {{/if}}
+  <div class="drop">{{localize "PARADIGMENGINE.Growth.DropCharacter"}}</div>
+  {{/if}}
+
+  {{#if isModifySkill}}
+  {{#each rows}}
+  <div class="it">
+    <span class="n">{{this.name}}</span>
+    {{#if this.foundation}}<span class="m">{{this.foundation}}</span>{{else}}<span class="pill{{#if this.technique}} kind{{/if}}">{{this.kindLabel}}</span>{{/if}}
+    {{#if this.costLabel}}<span class="pill cost">{{this.costLabel}}</span>{{/if}}
+    <span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>
+    <button type="button" class="take" data-action="pickItem" data-item-id="{{this.id}}">{{localize "PARADIGMENGINE.Growth.Modify"}}</button>
+  </div>
+  {{/each}}
+  {{/if}}
+
+  {{#if isSkillRank}}
+  {{#each rows}}
+  <div class="it{{#unless this.can}} off{{/unless}}">
+    <span class="n">{{this.name}}</span>
+    {{#if this.foundation}}<span class="m">{{this.foundation}}</span>{{else}}<span class="pill{{#if this.technique}} kind{{/if}}">{{this.kindLabel}}</span>{{/if}}
+    <span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>
+    {{#if this.can}}
+    <span class="arrow">→</span>
+    <span class="rk" style="--rk: var({{this.nextCssVar}})">{{this.nextRank}}</span>
+    <button type="button" class="take" data-action="pickItem" data-item-id="{{this.id}}">{{localize "PARADIGMENGINE.Growth.RankUp"}}</button>
+    {{/if}}
+  </div>
+  {{/each}}
+  {{/if}}
+
+  {{#if isBondRank}}
+  {{#each rows}}
+  <div class="it{{#unless this.can}} off{{/unless}}">
+    <span class="n">{{this.name}}</span>
+    <span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>
+    {{#if this.can}}
+    <span class="arrow">→</span>
+    <span class="rk" style="--rk: var({{this.nextCssVar}})">{{this.nextRank}}</span>
+    <button type="button" class="take" data-action="pickBond" data-index="{{this.index}}">{{localize "PARADIGMENGINE.Growth.RankUp"}}</button>
+    {{/if}}
+  </div>
+  {{/each}}
+  {{/if}}
+
+  {{#if isAttribute}}
+  {{#each rows}}
+  <div class="it{{#unless this.can}} off{{/unless}}">
+    <span class="n">{{this.name}}</span>
+    <span class="die">{{this.die}}</span>
+    <span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>
+    {{#if this.can}}
+    <span class="arrow">→</span>
+    <span class="rk" style="--rk: var({{this.nextCssVar}})">{{this.nextRank}}</span>
+    <button type="button" class="take" data-action="pickAttribute" data-key="{{this.key}}">{{localize "PARADIGMENGINE.Growth.RankUp"}}</button>
+    {{/if}}
+  </div>
+  {{/each}}
+  {{/if}}
+</div>

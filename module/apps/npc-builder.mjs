@@ -1,0 +1,315 @@
+import { ATTRIBUTES, LADDER, SKILL_KINDS, costLabel } from "../config.mjs";
+import { paragraphs } from "./pc-creator.mjs";
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+const STEP_LABELS = [
+  "TYPES.Actor.npc",
+  "PARADIGMENGINE.Builder.Stats",
+  "PARADIGMENGINE.Panel.Skills"
+];
+
+/* The NPC Builder wizard, opened by the Storyteller from an
+   NPC sheet's title bar. Three steps hold display state only;
+   Create NPC writes the actor and its Skill Items on the
+   existing schemas. One builder per actor. */
+export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2) {
+  constructor({ actor, ...options } = {}) {
+    super(options);
+    this.#actor = actor;
+  }
+
+  static DEFAULT_OPTIONS = {
+    classes: ["paradigm-engine", "sheet", "npc-builder"],
+    position: { width: 880, height: "auto" },
+    actions: {
+      goto: this.#onGoto,
+      back: this.#onBack,
+      next: this.#onNext,
+      flipSeal: this.#onFlipSeal,
+      stepSeal: this.#onStepSeal,
+      stepAttr: this.#onStepAttr,
+      flipBadge: this.#onFlipBadge,
+      stepPool: this.#onStepPool,
+      addRow: this.#onAddRow,
+      removeRow: this.#onRemoveRow,
+      stepRank: this.#onStepRank,
+      setKind: this.#onSetKind,
+      create: this.#onCreate
+    }
+  };
+
+  static PARTS = {
+    body: { template: "systems/paradigm-engine/templates/apps/npc-builder.hbs" }
+  };
+
+  static #instances = new Map();
+
+  #actor;
+
+  #step = 0;
+
+  #name = "";
+
+  #rank = 0;
+
+  #sealFlip = false;
+
+  #attrs = { might: 0, agility: 0, mind: 0, spirit: 0, charm: 0 };
+
+  #hearts = 6;
+
+  #energy = 6;
+
+  #skills = [];
+
+
+  /* Which attribute badges currently show their die face. Card badges
+     keep their flip on the row so removes stay aligned. Display state only. */
+  #flipped = new Set();
+
+  #creating = false;
+
+  static open(actor) {
+    if (!game.user.isGM) return;
+    const existing = this.#instances.get(actor.uuid);
+    if (existing) return existing.bringToFront();
+    const builder = new this({ actor });
+    this.#instances.set(actor.uuid, builder);
+    builder.render(true);
+  }
+
+  get title() {
+    return game.system.title;
+  }
+
+  async _renderFrame(options) {
+    const frame = await super._renderFrame(options);
+    const dots = document.createElement("div");
+    dots.className = "dots";
+    for (let i = 0; i < 3; i++) dots.append(document.createElement("span"));
+    this.window.title.before(dots);
+    const sheetname = document.createElement("span");
+    sheetname.className = "sheetname";
+    sheetname.textContent = game.i18n.localize("PARADIGMENGINE.Builder.Title");
+    this.window.title.after(sheetname);
+    return frame;
+  }
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const checks = this.#checks();
+    const rankStep = LADDER[this.#rank];
+
+    context.obiName = this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Builder.New");
+    context.steps = STEP_LABELS.map((label, index) => ({
+      index,
+      n: index + 1,
+      label: game.i18n.localize(label),
+      active: index === this.#step,
+      done: checks[index]
+    }));
+    context.active = STEP_LABELS.map((_, index) => index === this.#step);
+
+    context.name = this.#name;
+
+    context.seal = this.#sealFlip
+      ? { text: String(rankStep.difficulty), label: game.i18n.localize("PARADIGMENGINE.Ladder.Difficulty") }
+      : { text: rankStep.rank, label: game.i18n.localize("PARADIGMENGINE.Header.Rank") };
+    context.sealDownDisabled = this.#rank <= 0;
+    context.sealUpDisabled = this.#rank >= 5;
+    context.attributes = ATTRIBUTES.map(a => {
+      const rank = this.#attrs[a.key];
+      const key = `attributes.${a.key}`;
+      return {
+        key: a.key,
+        name: game.i18n.localize(a.label),
+        badge: this.#badge(key, rank, this.#flipped.has(key)),
+        downDisabled: rank <= 0,
+        upDisabled: rank >= 5
+      };
+    });
+    context.hearts = {
+      value: this.#hearts,
+      pips: Array(this.#hearts).fill(true),
+      downDisabled: this.#hearts <= 1,
+      upDisabled: this.#hearts >= 12
+    };
+    context.energy = {
+      value: this.#energy,
+      pips: Array(this.#energy).fill(true),
+      downDisabled: this.#energy <= 0,
+      upDisabled: this.#energy >= 12
+    };
+
+    context.skills = this.#skills.map((t, i) => ({
+      i,
+      ...t,
+      technique: t.kind === "Technique",
+      badge: this.#badge(`skill.${i}`, t.rank, t.flip),
+      downDisabled: t.rank <= 0,
+      upDisabled: t.rank >= 5,
+      costLabel: costLabel(t)
+    }));
+
+
+    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 3 });
+    context.first = this.#step === 0;
+    context.last = this.#step === 2;
+    context.canCreate = checks.every(Boolean);
+    return context;
+  }
+
+  _onFirstRender(context, options) {
+    super._onFirstRender(context, options);
+    this.element.addEventListener("input", this.#onInput.bind(this));
+  }
+
+  _onClose(options) {
+    super._onClose(options);
+    if (NpcBuilder.#instances.get(this.#actor.uuid) === this) NpcBuilder.#instances.delete(this.#actor.uuid);
+  }
+
+  #checks() {
+    return [
+      this.#name.trim().length > 0,
+      true,
+      this.#skills.every(t => t.name.trim().length > 0)
+    ];
+  }
+
+  #badge(key, rankIndex, flipped) {
+    const step = LADDER[rankIndex];
+    const text = flipped ? step.die : step.rank;
+    return { key, text, flipped, small: flipped && text.length > 3, cssVar: step.cssVar };
+  }
+
+  /* Text fields write straight into state; a render here would drop focus
+     from the input being typed in, so the obi name, rail checks, and the
+     Create button sync in place instead. */
+  #onInput(event) {
+    const el = event.target;
+    if (!el.name) return;
+    const [group, i, key] = el.name.split(".");
+    if (group === "name") this.#name = el.value;
+    else if (group === "skill") {
+      const row = this.#skills[Number(i)];
+      if (row && (key === "name" || key === "text")) row[key] = el.value;
+    } else return;
+    this.#syncLive();
+  }
+
+  #syncLive() {
+    const checks = this.#checks();
+    this.element.querySelector(".obi .cname").textContent =
+      this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Builder.New");
+    this.element.querySelectorAll(".crail button").forEach((b, i) => b.classList.toggle("done", checks[i]));
+    const create = this.element.querySelector('[data-action="create"]');
+    if (create) create.disabled = !checks.every(Boolean);
+  }
+
+  #goto(step) {
+    this.#step = Math.clamp(step, 0, 3);
+    this.render();
+  }
+
+  static #onGoto(event, target) {
+    this.#goto(Number(target.dataset.step));
+  }
+
+  static #onBack() {
+    this.#goto(this.#step - 1);
+  }
+
+  static #onNext() {
+    this.#goto(this.#step + 1);
+  }
+
+  static #onFlipSeal() {
+    this.#sealFlip = !this.#sealFlip;
+    this.render();
+  }
+
+  static #onStepSeal(event, target) {
+    this.#rank = Math.clamp(this.#rank + Number(target.dataset.dir), 0, 5);
+    this.render();
+  }
+
+  static #onStepAttr(event, target) {
+    const key = target.dataset.key;
+    if (this.#attrs[key] === undefined) return;
+    this.#attrs[key] = Math.clamp(this.#attrs[key] + Number(target.dataset.dir), 0, 5);
+    this.render();
+  }
+
+  static #onFlipBadge(event, target) {
+    const key = target.dataset.key;
+    const [group, i] = key.split(".");
+    if (group === "skill") {
+      const row = this.#skills[Number(i)];
+      if (row) row.flip = !row.flip;
+    } else if (this.#flipped.has(key)) this.#flipped.delete(key);
+    else this.#flipped.add(key);
+    this.render();
+  }
+
+  static #onStepPool(event, target) {
+    const dir = Number(target.dataset.dir);
+    if (target.dataset.kind === "hearts") this.#hearts = Math.clamp(this.#hearts + dir, 1, 12);
+    else if (target.dataset.kind === "energy") this.#energy = Math.clamp(this.#energy + dir, 0, 12);
+    else return;
+    this.render();
+  }
+
+  static #onAddRow(event, target) {
+    if (target.dataset.group !== "skill") return;
+    this.#skills.push({ name: "", kind: "Technique", rank: 0, text: "", flip: false });
+    this.render();
+  }
+
+  static #onRemoveRow(event, target) {
+    if (target.dataset.group !== "skill") return;
+    this.#skills.splice(Number(target.dataset.i), 1);
+    this.render();
+  }
+
+  static #onStepRank(event, target) {
+    const row = target.dataset.group === "skill" ? this.#skills[Number(target.dataset.i)] : null;
+    if (!row) return;
+    row.rank = Math.clamp(row.rank + Number(target.dataset.dir), 0, 5);
+    this.render();
+  }
+
+  static #onSetKind(event, target) {
+    const row = this.#skills[Number(target.dataset.i)];
+    if (!row) return;
+    row.kind = target.dataset.kind === "Talent" ? "Talent" : "Technique";
+    this.render();
+  }
+
+  static async #onCreate() {
+    if (this.#creating || !this.#checks().every(Boolean)) return;
+    this.#creating = true;
+    try {
+      const actor = this.#actor;
+      const name = this.#name.trim();
+      const system = {
+        rank: this.#rank,
+        attributes: { ...this.#attrs },
+        hearts: { value: this.#hearts, max: this.#hearts },
+        energy: { value: this.#energy, max: this.#energy }
+      };
+      await actor.update({ name, system });
+      const items = this.#skills.map(t => ({
+        name: t.name.trim(),
+        type: "skill",
+        system: { rank: t.rank, kind: t.kind, text: paragraphs(t.text) }
+      }));
+      if (items.length) await actor.createEmbeddedDocuments("Item", items);
+      await this.close();
+      actor.sheet.render(true);
+    } finally {
+      this.#creating = false;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+<div class="pe-card clash-card">
+  <span class="ctag"><span>{{localize "PARADIGMENGINE.Clash.Title"}}</span><small>{{target}}</small></span>
+  {{#if winnerLine}}
+  <div class="chead">
+    <span class="cname">{{winnerLine}}</span>
+  </div>
+  {{/if}}
+  <div class="cbody">
+    {{#each sides}}
+    <div class="clside{{#if this.won}} won{{/if}}">
+      <div class="row">
+        <span class="sidename">{{this.name}}</span>
+        <span class="boxes">{{#each this.boxes}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
+        {{#if this.result}}<span class="mband{{#if this.won}} ok{{else}} no{{/if}}">{{this.result}}</span>{{/if}}
+      </div>
+      {{#each this.members}}
+      <div class="row mem">
+        <img class="pf" src="{{this.img}}" alt="">
+        <span class="rname">{{this.name}}</span>
+        {{#if @root.running}}
+        <button type="button" class="cbtn o clroll" data-uuid="{{this.uuid}}" data-side="{{../index}}">{{localize "PARADIGMENGINE.Roll.Roll"}}</button>
+        {{else if this.result}}
+        <span class="mband{{#if ../won}} ok{{else}} no{{/if}}">{{this.result}}</span>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+    {{/each}}
+    {{#if running}}
+    <div class="cfoot">
+      <button type="button" class="cbtn openclash">{{localize "PARADIGMENGINE.Clash.Open"}}</button>
+    </div>
+    {{/if}}
+  </div>
+</div>

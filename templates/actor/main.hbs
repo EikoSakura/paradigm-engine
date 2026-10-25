@@ -1,37 +1,65 @@
 <section class="tab main {{tab.cssClass}}" data-group="primary" data-tab="main">
-  <div class="maingrid">
-    {{> "systems/paradigm-engine/templates/actor/rail.hbs"}}
-    <div>
-      {{> "systems/paradigm-engine/templates/actor/skills-panel.hbs"}}
-      <div class="panel">
-        <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Panel.Bonds"}}</span>
-          <span class="tail">{{bonds.length}} / 6</span>
-        </div>
-        <div class="panel-b">
-          {{#each bonds}}
-          <div class="card">
-            <div class="card-h">
-              {{#if @root.editMode}}
-              <select class="kindsel" name="system.bonds.{{@index}}.rank" data-dtype="Number"
-                aria-label="{{localize "PARADIGMENGINE.Edit.BondRank"}}">
-                {{selectOptions @root.bondRanks selected=this.rank}}
-              </select>
-              <span class="ttl"><input class="ed-input ed-name" type="text" name="system.bonds.{{@index}}.name"
-                value="{{this.name}}" placeholder="{{localize "PARADIGMENGINE.Placeholder.BondName"}}"></span>
-              <button type="button" class="delbtn" data-action="deleteBond" data-i="{{@index}}"
-                aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
-              {{else}}
-              {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
-              <span class="ttl"><b>{{this.name}}</b></span>
-              {{/if}}
-            </div>
+  <div class="cols">
+    {{> "systems/paradigm-engine/templates/actor/attributes-card.hbs"}}
+
+    {{> "systems/paradigm-engine/templates/actor/skills-card.hbs"}}
+
+    <div class="stack">
+      {{> "systems/paradigm-engine/templates/actor/checks-card.hbs"}}
+
+      <div class="pcard bonds" style="--tc: var(--yellow)">
+        <span class="tag">{{localize "PARADIGMENGINE.Panel.Bonds"}}<span class="tail">{{bonds.length}}</span></span>
+        {{#each bonds}}
+        <div class="brow" style="--rk: var({{this.badge.cssVar}})" data-i="{{@index}}">
+          {{#if @root.editMode}}
+          <select class="kindsel" name="system.bonds.{{@index}}.rank" data-dtype="Number"
+            aria-label="{{localize "PARADIGMENGINE.Edit.BondRank"}}">
+            {{selectOptions @root.bondRanks selected=this.rank}}
+          </select>
+          <input class="ed-input ed-name" type="text" name="system.bonds.{{@index}}.name"
+            value="{{this.name}}" placeholder="{{localize "PARADIGMENGINE.Placeholder.BondName"}}">
+          {{#if this.invoked}}
+          <button type="button" class="invoked clear" data-action="clearInvoked" data-i="{{@index}}"
+            data-tooltip="{{localize "PARADIGMENGINE.Bond.ClearInvoked"}}">{{localize "PARADIGMENGINE.Bond.Invoked"}} ✕</button>
+          {{/if}}
+          <button type="button" class="delbtn" data-action="deleteBond" data-i="{{@index}}"
+            aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+          {{else}}
+          <button type="button" class="rchip{{#if this.badge.flipped}} flipped{{/if}}" data-action="flipBadge"
+            data-key="{{this.badge.key}}">{{this.badge.text}}</button>
+          <b>{{this.name}}</b>
+          {{#if this.invoked}}
+          <span class="invoked">{{localize "PARADIGMENGINE.Bond.Invoked"}}</span>
+          {{else if this.canInvoke}}
+          <button type="button" class="invk{{#if this.open}} sel{{/if}}" data-action="invoke" data-i="{{@index}}"
+            aria-expanded="{{this.open}}">{{localize "PARADIGMENGINE.Bond.Invoke"}}</button>
+          {{/if}}
+          {{/if}}
+        {{#if this.open}}
+        <div class="bpop">
+          <div class="bhead">
+            <span class="btitle">{{localize "PARADIGMENGINE.Bond.Popup"}}</span>
+            <span class="bname">{{this.name}}</span>
           </div>
-          {{/each}}
-          {{#if editMode}}{{#if canAddBond}}
-          <button type="button" class="addbtn" data-action="addBond">{{localize "PARADIGMENGINE.Edit.AddBond"}}</button>
-          {{/if}}{{/if}}
+          <button type="button" class="ben" data-action="benefit" data-benefit="BorrowStrength" data-i="{{@index}}">
+            <span class="n">{{localize "PARADIGMENGINE.Bond.BorrowStrength"}}<small>{{localize "PARADIGMENGINE.Bond.BorrowStrengthLine"}}</small></span>
+            <span class="dt die">{{this.die}}</span>
+          </button>
+          <button type="button" class="ben" data-action="benefit" data-benefit="TwistOfFate" data-i="{{@index}}">
+            <span class="n">{{localize "PARADIGMENGINE.Bond.TwistOfFate"}}<small>{{localize "PARADIGMENGINE.Bond.TwistOfFateLine"}}</small></span>
+            <span class="dt"><i class="fa-solid fa-dice-d6" inert></i></span>
+          </button>
+          <button type="button" class="ben" data-action="benefit" data-benefit="Sync" data-i="{{@index}}"{{#unless @root.canSync}} disabled{{/unless}}>
+            <span class="n">{{localize "PARADIGMENGINE.Bond.Sync"}}<small>{{localize "PARADIGMENGINE.Bond.SyncLine"}}</small></span>
+            <span class="dt">1 <i class="fa-solid fa-bolt" inert></i></span>
+          </button>
         </div>
+        {{/if}}
+        </div>
+        {{/each}}
+        {{#if editMode}}
+        <button type="button" class="addbtn" data-action="addBond">{{localize "PARADIGMENGINE.Edit.AddBond"}}</button>
+        {{/if}}
       </div>
     </div>
   </div>

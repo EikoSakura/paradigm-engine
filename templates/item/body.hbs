@@ -1,37 +1,11 @@
-<main class="sheetbody">
-  <div class="panel">
-    <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Item.Description"}}</span></div>
-    <div class="panel-b">
-      {{#if editMode}}
-      <prose-mirror name="system.text" value="{{system.text}}" data-document-uuid="{{document.uuid}}"></prose-mirror>
-      {{else}}
-      {{{enrichedText}}}
-      {{/if}}
-    </div>
+<main class="ibody">
+  <div class="pcard" style="--tc: var(--blue)">
+    <span class="tag">{{localize "PARADIGMENGINE.Item.Description"}}</span>
+    {{#if editMode}}
+    <prose-mirror class="content-sized" name="system.text" toggled value="{{system.text}}"
+      data-document-uuid="{{document.uuid}}">{{{enrichedText}}}</prose-mirror>
+    {{else}}
+    <div class="txt">{{{enrichedText}}}</div>
+    {{/if}}
   </div>
-  {{#if showRulings}}
-  <div class="panel">
-    <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Item.Rulings"}}</span></div>
-    <div class="panel-b">
-      {{#if editMode}}
-      {{#each system.rulings}}
-      <div class="rulerow">
-        <span class="rmark">◆</span>
-        <input class="ed-input" type="text" name="system.rulings.{{@index}}" value="{{this}}"
-          placeholder="{{localize "PARADIGMENGINE.Placeholder.Ruling"}}">
-        <button type="button" class="delbtn" data-action="deleteRuling" data-j="{{@index}}"
-          aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
-      </div>
-      {{/each}}
-      <div class="addrule">
-        <button type="button" class="smallbtn" data-action="addRuling">{{localize "PARADIGMENGINE.Edit.AddRuling"}}</button>
-      </div>
-      {{else}}
-      {{#each system.rulings}}
-      <div class="ruled"><span class="rmark">◆</span><span>{{this}}</span></div>
-      {{/each}}
-      {{/if}}
-    </div>
-  </div>
-  {{/if}}
 </main>

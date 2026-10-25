@@ -1,44 +1,133 @@
-<div class="sheet-head">
-<header class="obi">
-  <div class="obi-inner">
+<header class="chead">
+  <div class="figure">
     {{#if editMode}}
-    <img class="portrait editable" src="{{img}}" alt="{{name}}" data-edit="img" data-action="editImage"
-      data-tooltip="{{localize "PARADIGMENGINE.Header.EditPortrait"}}">
+    {{#if portrait}}
+    <img class="art framing" src="{{portrait}}" alt="{{name}}" style="{{frameStyle}}" draggable="false">
+    <div class="frametools">
+      <button type="button" data-action="stepZoom" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.ZoomOut"}}">−</button>
+      <button type="button" data-action="stepZoom" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.ZoomIn"}}">＋</button>
+      <button type="button" class="pick" data-action="editImage" aria-label="{{localize "PARADIGMENGINE.Header.EditPortrait"}}"
+        data-tooltip="{{localize "PARADIGMENGINE.Header.EditPortrait"}}"><i class="fa-solid fa-image" inert></i></button>
+    </div>
     {{else}}
-    <div class="portrait">
-      {{#if portrait}}<img src="{{portrait}}" alt="{{name}}">{{else}}<span class="ph">{{initial}}</span>{{/if}}
+    <button type="button" class="art ph editable" data-action="editImage"
+      data-tooltip="{{localize "PARADIGMENGINE.Header.EditPortrait"}}">{{initial}}</button>
+    {{/if}}
+    {{else}}
+    {{#if portrait}}<img class="art" src="{{portrait}}" alt="{{name}}" style="{{frameStyle}}">{{else}}<span class="art ph">{{initial}}</span>{{/if}}
+    {{/if}}
+  </div>
+
+  <div class="idblock">
+    {{#if eyebrow}}
+    <div class="eyebrow">{{eyebrow}}</div>
+    {{/if}}
+    {{#if editMode}}
+    <input class="ed-input ed-cname" type="text" name="name" value="{{name}}"
+      placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
+    {{else}}
+    <div class="cname">{{name}}</div>
+    {{/if}}
+    {{#if meta}}
+    <div class="meta">
+      {{#each meta}}
+      <span><i class="l">{{this.label}}</i><b>{{this.value}}</b></span>
+      {{/each}}
     </div>
     {{/if}}
-    <div class="idblock">
-      <div class="eyebrow">{{localize "PARADIGMENGINE.Header.Character"}}</div>
-      {{#if editMode}}
-      <input class="ed-input ed-cname" type="text" name="name" value="{{name}}"
-        placeholder="{{localize "PARADIGMENGINE.Header.Name"}}" aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
-      {{else}}
-      <div class="cname">{{name}}</div>
-      {{/if}}
-      <div class="cmeta">
-        <span>{{localize "PARADIGMENGINE.Header.Age"}} <b>{{system.age}}</b></span>
-        <span><b>{{system.pronouns}}</b></span>
-        <span>{{localize "PARADIGMENGINE.Header.Player"}} <b>{{system.player}}</b></span>
+
+    <div class="gauges">
+      <div class="g">
+        <div class="gl">
+          <span>{{localize "PARADIGMENGINE.Vitals.Hearts"}}</span>
+          {{#if editMode}}
+          <span class="stepper">
+            <button type="button" data-action="stepMax" data-kind="hearts" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}">−</button>
+            <button type="button" data-action="stepMax" data-kind="hearts" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}">＋</button>
+          </span>
+          {{/if}}
+        </div>
+        <div class="pips">
+          {{#each hearts.pips}}
+          <button type="button" class="pip{{#if this}} on{{/if}}" data-action="setPip" data-kind="hearts" data-i="{{@index}}"
+            aria-label="{{localize "PARADIGMENGINE.Vitals.Hearts"}}">
+            <svg viewBox="0 0 24 22" aria-hidden="true"><path class="shape heart" d="M12 21 2.6 11.8C.5 9.7.5 6.2 2.6 4.1a5.3 5.3 0 0 1 7.5 0L12 6l1.9-1.9a5.3 5.3 0 0 1 7.5 0c2.1 2.1 2.1 5.6 0 7.7L12 21z"/></svg>
+          </button>
+          {{/each}}
+        </div>
+      </div>
+      <div class="g">
+        <div class="gl">
+          <span>{{localize "PARADIGMENGINE.Vitals.Energy"}}</span>
+          {{#if editMode}}
+          <span class="stepper">
+            <button type="button" data-action="stepMax" data-kind="energy" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}">−</button>
+            <button type="button" data-action="stepMax" data-kind="energy" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}">＋</button>
+          </span>
+          {{/if}}
+        </div>
+        <div class="pips">
+          {{#each energy.pips}}
+          <button type="button" class="pip bolt{{#if this}} on{{/if}}" data-action="setPip" data-kind="energy" data-i="{{@index}}"
+            aria-label="{{localize "PARADIGMENGINE.Vitals.Energy"}}">
+            <svg viewBox="0 0 20 24" aria-hidden="true"><path class="shape bolt" d="M12.5 1 3 13.5h6l-1.5 9.5 9.5-12.5h-6L12.5 1z"/></svg>
+          </button>
+          {{/each}}
+        </div>
       </div>
     </div>
-    <div class="sealwrap">
-      <div class="seal" style="--sealc: var({{rank.cssVar}})" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
-        <span class="lbl">{{localize "PARADIGMENGINE.Header.Rank"}}</span>
-        <span class="g">{{rank.letter}}</span>
-        <span class="num">{{rank.number}}</span>
-      </div>
+  </div>
+
+  <div class="side">
+    <div class="rankwrap">
+      <button type="button" class="rankbox" data-action="flipBadge" data-key="{{rankBadge.key}}"
+        style="--rk: var({{rankBadge.cssVar}})" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
+        <span class="l">{{localize "PARADIGMENGINE.Header.Rank"}}</span>
+        <span class="r{{#if rankBadge.flipped}} flipped{{/if}}">{{rankBadge.text}}</span>
+      </button>
       {{#if editMode}}
-      <div class="sealsteps">
-        <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="-1"
+      <div class="steps">
+        <button type="button" class="rkbtn" data-action="stepRank" data-kind="rank" data-dir="-1"
           aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}">−</button>
-        <button type="button" class="smallbtn" data-action="stepRank" data-kind="rank" data-dir="1"
+        <button type="button" class="rkbtn" data-action="stepRank" data-kind="rank" data-dir="1"
           aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}">＋</button>
       </div>
       {{/if}}
     </div>
+    {{#if showLuck}}
+    <div class="luck">
+      <div class="ll">
+        <span>{{localize "PARADIGMENGINE.Vitals.LuckDice"}}</span>
+        {{#if editMode}}
+        <button type="button" class="rkbtn sm" data-action="stepLuckDie" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.LuckDown"}}">−</button>
+        {{/if}}
+        <b>d{{luckDie}}</b>
+        {{#if editMode}}
+        <button type="button" class="rkbtn sm" data-action="stepLuckDie" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.LuckUp"}}">＋</button>
+        {{/if}}
+      </div>
+      <div class="slots">
+        {{#each luck}}
+        <div class="luckslot{{#if this.spent}} spent{{/if}}{{#if @root.luckPick}} pick{{/if}}">
+          {{#if @root.luckPick}}
+          <button type="button" class="face" data-action="luckPick" data-i="{{@index}}" data-tooltip="{{this.pickLabel}}">{{#unless this.spent}}{{this.value}}{{/unless}}</button>
+          <span class="hint">{{this.pickLabel}}</span>
+          {{else if @root.editMode}}
+          <span class="face in"><input type="number" name="system.luck.{{@index}}.value" data-dtype="Number" min="1" max="{{@root.luckDie}}"
+            value="{{this.value}}" aria-label="{{localize "PARADIGMENGINE.Edit.LuckValue"}}"></span>
+          <button type="button" class="rollb" data-action="rollLuck" data-i="{{@index}}" aria-label="{{localize "PARADIGMENGINE.Edit.RollLuck"}}"><i class="fa-solid fa-dice-d6" inert></i></button>
+          {{else}}
+          <button type="button" class="face" data-action="toggleLuck" data-i="{{@index}}" data-tooltip="{{this.stateLabel}}">{{this.value}}</button>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{#if luckPick}}
+      <button type="button" class="rollall done" data-action="luckDone">{{localize "PARADIGMENGINE.Bond.Done"}}</button>
+      {{else if editMode}}
+      <button type="button" class="rollall" data-action="rollLuckAll">{{localize "PARADIGMENGINE.Edit.RollAll"}}</button>
+      {{/if}}
+    </div>
+    {{/if}}
   </div>
 </header>
-{{> "systems/paradigm-engine/templates/actor/vitals.hbs"}}
-</div>

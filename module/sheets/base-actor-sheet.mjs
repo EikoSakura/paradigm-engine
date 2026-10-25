@@ -1,7 +1,12 @@
 import ParadigmEngineSheet from "./mixin.mjs";
-import { LADDER, ATTRIBUTES } from "../config.mjs";
+import { LADDER, ATTRIBUTES, costLabel } from "../config.mjs";
 import { postItemCard } from "../chat.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
+import SkillTree from "../apps/skill-tree.mjs";
+import { foundationName, foundationOf, takeSkill } from "../skills.mjs";
+import { clashSideOf } from "../apps/clash.mjs";
+import { startClashRoll, startGroup, startOpposed } from "../checks.mjs";
+import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, frameOf, frameStyle, portraitOf, wireFrameDrag } from "../portrait.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 
@@ -13,20 +18,28 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       flipBadge: this.#onFlipBadge,
       setPip: this.#onSetPip,
       toggleLuck: this.#onToggleLuck,
+      stepLuckDie: this.#onStepLuckDie,
+      rollLuck: this.#onRollLuck,
+      rollLuckAll: this.#onRollLuckAll,
       stepRank: this.#onStepRank,
       stepMax: this.#onStepMax,
+      stepZoom: this.#onStepZoom,
       createItem: this.#onCreateItem,
       openItem: this.#onOpenItem,
       deleteItem: this.#onDeleteItem,
       postItem: this.#onPostItem,
-      openRoll: this.#onOpenRoll
+      openRoll: this.#onOpenRoll,
+      openTree: this.#onOpenTree,
+      groupAction: this.#onGroupAction,
+      opposedAction: this.#onOpposedAction,
+      clashCheck: this.#onClashCheck
     }
   };
 
   static FORM_ARRAYS = ["luck"];
 
   /* Stepper bounds for the pool maxes: free range, floor 0. The 3..8
-     creation trade lives in the Character Creator alone. */
+     creation trade lives in the PC Creator alone. */
   static BOUNDS = { points: { min: 0, max: Infinity } };
 
   /* Which rank badges currently show their die face. Display state only, never stored. */
@@ -35,32 +48,31 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const system = this.document.system;
-    const rank = LADDER[system.rank];
 
     context.system = system;
     context.editMode = this.isEditMode;
     context.name = this.document.name;
     context.img = this.document.img;
-    context.portrait = this.document.img === foundry.documents.BaseActor.DEFAULT_ICON ? "" : this.document.img;
+    context.portrait = portraitOf(this.document);
+    context.frameStyle = frameStyle(frameOf(this.document));
     context.initial = (this.document.name || "?").trim().charAt(0).toUpperCase() || "?";
-    context.rank = { letter: rank.rank, number: rank.difficulty, cssVar: rank.cssVar };
+    context.rankBadge = this._badge("rank", system.rank, "difficulty");
     context.hearts = { ...system.hearts, pips: BaseActorSheet.#pips(system.hearts) };
     context.energy = { ...system.energy, pips: BaseActorSheet.#pips(system.energy) };
-    context.luck = system.luck.map(slot => ({
+    context.luck = (system.luck ?? []).map(slot => ({
       ...slot,
       stateLabel: game.i18n.localize(slot.spent ? "PARADIGMENGINE.Vitals.Spent" : "PARADIGMENGINE.Vitals.Ready")
     }));
     context.showLuck = true;
-    context.showRivalToggle = false;
+    context.luckDie = system.luckDie ?? 6;
     context.attributes = ATTRIBUTES.map(a => ({
       key: a.key,
       name: game.i18n.localize(a.label),
       desc: game.i18n.localize(a.desc),
       badge: this._badge(`attributes.${a.key}`, system.attributes[a.key])
     }));
-    context.ladder = LADDER;
     context.skills = await this.#prepareItems();
-    context.dieOptions = { 6: "d6", 8: "d8", 10: "d10", 12: "d12" };
+    context.clash = clashSideOf(this.document);
     return context;
   }
 
@@ -88,15 +100,15 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
   async #prepareItems() {
     const items = [...this.document.itemTypes.skill].sort((a, b) => a.sort - b.sort);
     return Promise.all(items.map(async item => {
-      const step = LADDER[item.system.rank];
       return {
         id: item.id,
         name: item.name,
-        rulings: item.system.rulings,
         badge: this._badge(`skill.${item.id}`, item.system.rank),
         kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${item.system.kind}`),
-        costLabel: game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
-        activated: item.system.kind === "Activated",
+        costLabel: costLabel(item.system),
+        technique: item.system.kind === "Technique",
+        foundation: item.system.prerequisite ? foundationName(item) : "",
+        locked: !!item.system.prerequisite && !foundationOf(item),
         enrichedText: await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.text, {
           relativeTo: item,
           secrets: this.document.isOwner
@@ -109,10 +121,11 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     return Array.from({ length: max }, (_, i) => i < value);
   }
 
-  _badge(key, rankIndex) {
+  /* A flipped badge shows the Rank's die, or its Difficulty when alt is "difficulty". */
+  _badge(key, rankIndex, alt = "die") {
     const step = LADDER[rankIndex];
     const flipped = this.#flipped.has(key);
-    const text = flipped ? step.die : step.rank;
+    const text = flipped ? (alt === "difficulty" ? String(step.difficulty) : step.die) : step.rank;
     return { key, text, flipped, small: flipped && text.length > 3, cssVar: step.cssVar };
   }
 
@@ -120,7 +133,7 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     const key = target.dataset.key;
     if (this.#flipped.has(key)) this.#flipped.delete(key);
     else this.#flipped.add(key);
-    this.render({ parts: ["main"] });
+    this.render({ parts: ["header", "main"] });
   }
 
   static async #onSetPip(event, target) {
@@ -141,6 +154,44 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     await this.document.update({ "system.luck": luck });
   }
 
+  /* One Luck Die size for all three dice, d6 to d12; values above the new
+     size clamp to it. */
+  static async #onStepLuckDie(event, target) {
+    if (!this.isEditable || this.document.type !== "pc") return;
+    const sizes = [6, 8, 10, 12];
+    const i = sizes.indexOf(this.document.system.luckDie) + Number(target.dataset.dir);
+    if (!(i in sizes)) return;
+    const die = sizes[i];
+    const luck = this.document.system.toObject().luck.map(slot => ({ ...slot, value: Math.min(slot.value, die) }));
+    await this.document.update({ "system.luckDie": die, "system.luck": luck });
+  }
+
+  /* Roll one Luck Die, or all three: the results are recorded unspent and
+     the roll goes to chat. */
+  static async #onRollLuck(event, target) {
+    await this.#rollLuck([Number(target.dataset.i)]);
+  }
+
+  static async #onRollLuckAll() {
+    await this.#rollLuck(this.document.system.luck.map((_, i) => i));
+  }
+
+  async #rollLuck(indices) {
+    if (!this.isEditable || this.document.type !== "pc" || !indices.length) return;
+    const die = this.document.system.luckDie;
+    const roll = await new foundry.dice.Roll(`${indices.length}d${die}`).evaluate();
+    const luck = this.document.system.toObject().luck;
+    roll.dice[0].results.forEach((r, n) => {
+      const slot = luck[indices[n]];
+      if (slot) Object.assign(slot, { value: r.result, spent: false });
+    });
+    await this.document.update({ "system.luck": luck });
+    await roll.toMessage({
+      speaker: ChatMessage.implementation.getSpeaker({ actor: this.document }),
+      flavor: game.i18n.localize("PARADIGMENGINE.Vitals.LuckDice")
+    });
+  }
+
   static async #onStepRank(event, target) {
     if (!this.isEditable) return;
     const dir = Number(target.dataset.dir);
@@ -151,6 +202,22 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     } else if (kind === "attribute" && key in this.document.system.attributes) {
       await this.document.update({ [`system.attributes.${key}`]: step(this.document.system.attributes[key]) });
     }
+  }
+
+  /* The portrait's zoom, from the frame tools in Edit. */
+  static async #onStepZoom(event, target) {
+    if (!this.isEditable) return;
+    const frame = frameOf(this.document);
+    const zoom = Math.clamp(Math.round((frame.zoom + Number(target.dataset.dir) * ZOOM_STEP) * 10) / 10, ZOOM_MIN, ZOOM_MAX);
+    if (zoom === frame.zoom) return;
+    await this.document.setFlag("paradigm-engine", "frame", { ...frame, zoom });
+  }
+
+  /* In Edit the portrait drags inside its frame to set the focus. */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    const img = this.element.querySelector(".figure img.art.framing");
+    if (img) wireFrameDrag(img, frameOf(this.document), frame => this.document.setFlag("paradigm-engine", "frame", frame));
   }
 
   static async #onStepMax(event, target) {
@@ -190,10 +257,36 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     if (item) await postItemCard(item);
   }
 
+  /* A Skill from outside this actor lands as a copy stamped with its world
+     UUID, so the chain and the tree can tell which node it is. A Skill from
+     this actor sorts as usual. */
+  async _onDropItem(event, item) {
+    if (item.type !== "skill" || item.parent?.uuid === this.actor.uuid) return super._onDropItem(event, item);
+    if (!this.actor.isOwner) return null;
+    return takeSkill(this.actor, item);
+  }
+
+  /* A PC opens its own tree; an NPC opens the world tree. */
+  static #onOpenTree() {
+    SkillTree.open(this.document.type === "pc" ? this.document : null);
+  }
+
   static #onOpenRoll(event, target) {
     const first = target.dataset.first === "skill"
       ? { kind: "skill", id: target.dataset.itemId }
       : { kind: "attribute", key: target.dataset.key };
-    RollDialog.open(this.document, first);
+    RollDialog.open(this.document, first, target);
+  }
+
+  static #onGroupAction(event, target) {
+    startGroup(this.document, target);
+  }
+
+  static async #onOpposedAction() {
+    await startOpposed(this.document);
+  }
+
+  static #onClashCheck(event, target) {
+    startClashRoll(this.document, target);
   }
 }

@@ -32,6 +32,9 @@ export function registerMigrations() {
       await removeHuds();
       await removeMove();
       await removeAreas();
+      await renameActorTypes();
+      await removeEncounters();
+      await removeSkillBar();
     }
     await game.settings.set("paradigm-engine", SETTING, game.system.version);
   });
@@ -112,8 +115,7 @@ async function removeTracks() {
 /* 0.4.0 removed Traits and renamed Techniques to Skills. Both old types
    fail to load, so their Items sit in the invalid set with their source
    intact: Trait Items are deleted, Technique Items change type to skill
-   with their data carried whole, and hotbar slots that pointed at a
-   Trait clear. The Trait advancement boxes go and the Technique ones
+   with their data carried whole. The Trait advancement boxes go and the Technique ones
    move to the Skill keys, by writing the migrated model back whole.
    World Items, actor Items, and unlinked token actors alike. */
 async function skillsReplaceTraits() {
@@ -140,15 +142,22 @@ async function skillsReplaceTraits() {
     if (techniques.length) await actor.updateEmbeddedDocuments("Item", techniques);
     if (traits.length) await actor.deleteEmbeddedDocuments("Item", traits);
     const update = {};
-    const hotbar = actor.system.hotbar;
-    if (Array.isArray(hotbar)) {
-      const cleaned = hotbar.map(page => page.map(id => (id && actor.items.has(id) ? id : "")));
-      if (!foundry.utils.objectsEqual(cleaned, hotbar)) update["system.hotbar"] = cleaned;
-    }
-    if (actor.type === "character") {
+    if (actor.type === "pc") {
       update["system.advancements.standard"] = ForcedReplacement.create(actor.system.advancements.standard.toObject());
     }
     if (!foundry.utils.isEmpty(update)) await actor.update(update);
+  }
+}
+
+/* 0.4.0 removed the Skill bar. The stored slots on world actors go with
+   the whole-system write-back above; unlinked token deltas drop theirs
+   here. */
+async function removeSkillBar() {
+  for (const scene of game.scenes) {
+    const updates = scene.tokens
+      .filter(token => token.delta?._source?.system?.hotbar !== undefined)
+      .map(token => ({ _id: token.id, "delta.system.hotbar": del() }));
+    if (updates.length) await scene.updateEmbeddedDocuments("Token", updates);
   }
 }
 
@@ -161,9 +170,12 @@ async function removeHuds() {
   if (updates.length) await Folder.implementation.updateDocuments(updates);
 }
 
-/* 0.4.0 removed Move. The models no longer hold the field, so a loaded
-   actor's source has already dropped it: the system is written back whole
-   to clear the stored value, and the +1 Move advancement box with it.
+/* 0.4.0 removed Move, and Desire and Fear from adversaries, and moved the
+   Luck Die size off the slots onto the PC. The models no longer hold the
+   old fields, so a loaded actor's source has already dropped them and
+   carries luckDie: the system is written back whole to clear the stored
+   values, and the +1 Move advancement box with them; the whole
+   advancements block followed when Growth Points replaced the boxes.
    Unlinked token deltas and saved creator drafts keep raw source, so
    their Move keys delete directly. */
 async function removeMove() {
@@ -189,10 +201,12 @@ async function removeMove() {
   }
 }
 
-/* 0.4.0 removed Areas. The Skill model no longer holds the area flag, so
-   each Skill's system is written back whole to clear the stored value:
-   world Items, actor Items, and unlinked token actors alike. Placed
-   bursts were ordinary Drawings and stay with their scenes. */
+/* 0.4.0 removed Areas and Rulings and renamed the Skill kinds. The Skill
+   model no longer holds the area flag or the rulings list and reads
+   Activated as Technique and Triggered as Talent, so each Skill's system is written back whole to
+   store the current shape: world Items, actor Items, and unlinked token
+   actors alike. Placed bursts were ordinary Drawings and stay with their
+   scenes. */
 async function removeAreas() {
   const { ForcedReplacement } = foundry.data.operators;
   const rewrite = items => items
@@ -287,4 +301,46 @@ async function removeZones() {
       .map(t => ({ _id: t.id, [`flags.${game.system.id}.zone`]: del() }));
     if (updates.length) await scene.updateEmbeddedDocuments("Token", updates);
   }
+}
+
+/* 0.4.0 renamed the actor types: character is pc, adversary is npc, and
+   Rivals are gone, so an NPC's stored rival flag and Luck Dice drop with
+   the whole-system write-back. Unlinked token deltas that pinned a type
+   take the new name; roll cards carry their NPC flag under the new key. */
+async function renameActorTypes() {
+  const { ForcedReplacement } = foundry.data.operators;
+  const TYPES = { character: "pc", adversary: "npc" };
+  const updates = game.actors
+    .filter(actor => actor._source.type in TYPES)
+    .map(actor => ({
+      _id: actor.id,
+      type: TYPES[actor._source.type],
+      system: ForcedReplacement.create(actor.system.toObject())
+    }));
+  if (updates.length) await Actor.implementation.updateDocuments(updates);
+  for (const scene of game.scenes) {
+    const tokens = scene.tokens
+      .filter(token => token.delta?._source?.type in TYPES)
+      .map(token => ({ _id: token.id, "delta.type": TYPES[token.delta._source.type] }));
+    if (tokens.length) await scene.updateEmbeddedDocuments("Token", tokens);
+  }
+  const messages = game.messages
+    .filter(m => m._source.flags?.[game.system.id]?.card?.difficulty?.adversary !== undefined)
+    .map(m => {
+      const difficulty = foundry.utils.deepClone(m._source.flags[game.system.id].card.difficulty);
+      difficulty.npc = difficulty.adversary;
+      delete difficulty.adversary;
+      return { _id: m.id, [`flags.${game.system.id}.card.difficulty`]: ForcedReplacement.create(difficulty) };
+    });
+  if (messages.length) await ChatMessage.implementation.updateDocuments(messages);
+}
+
+/* 0.4.0 removed the Encounter Tracker and its participant combatant type.
+   A combatant stored with that type no longer validates, so encounters
+   holding one are deleted; the native tracker starts fresh. */
+async function removeEncounters() {
+  const ids = game.combats
+    .filter(c => (c._source.combatants ?? []).some(x => x.type === "participant"))
+    .map(c => c.id);
+  if (ids.length) await Combat.implementation.deleteDocuments(ids);
 }

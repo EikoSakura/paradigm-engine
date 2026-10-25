@@ -1,0 +1,23 @@
+<div class="pcard menu tabs" data-group="primary">
+  {{#if editMode}}
+  <button type="button" class="emblem editable" data-action="editImage"
+    data-tooltip="{{localize "PARADIGMENGINE.Party.EditEmblem"}}" aria-label="{{localize "PARADIGMENGINE.Party.EditEmblem"}}">
+    {{#if emblem}}<img src="{{emblem}}" alt="">{{else}}<span class="ph">{{initial}}</span>{{/if}}
+  </button>
+  {{else}}
+  <div class="emblem">{{#if emblem}}<img src="{{emblem}}" alt="">{{else}}<span class="ph">{{initial}}</span>{{/if}}</div>
+  {{/if}}
+  {{#each tabs}}
+  <button type="button" class="mi {{this.cssClass}}" data-action="tab" data-group="{{this.group}}" data-tab="{{this.id}}">
+    <i class="fa-solid {{#if (eq this.id "notes")}}fa-note-sticky{{else}}fa-users{{/if}}" inert></i>{{localize this.label}}
+  </button>
+  {{/each}}
+  <button type="button" class="mi" data-action="openClash">
+    <i class="fa-solid fa-swords" inert></i>{{localize "PARADIGMENGINE.Clash.Title"}}
+  </button>
+  {{#if isGM}}
+  <button type="button" class="mi" data-action="newScene">
+    <i class="fa-solid fa-clapperboard" inert></i>{{localize "PARADIGMENGINE.Party.NewScene"}}
+  </button>
+  {{/if}}
+</div>

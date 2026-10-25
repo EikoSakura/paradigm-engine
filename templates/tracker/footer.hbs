@@ -1,0 +1,15 @@
+<nav class="pe-tracker-foot" data-tooltip-direction="UP">
+  {{#if hasCombat}}
+  {{#if user.isGM}}
+  {{#if combat.round}}
+  <button type="button" class="tb combat-control" data-action="previousTurn">{{localize "PARADIGMENGINE.Tracker.Previous"}}</button>
+  <button type="button" class="tb end combat-control" data-action="endCombat">{{localize "PARADIGMENGINE.Tracker.End"}}</button>
+  <button type="button" class="tb pink combat-control" data-action="nextTurn">{{localize "PARADIGMENGINE.Tracker.Next"}}</button>
+  {{else}}
+  <button type="button" class="tb pink wide combat-control" data-action="startCombat">{{localize "PARADIGMENGINE.Tracker.Begin"}}</button>
+  {{/if}}
+  {{else if control}}
+  <button type="button" class="tb pink wide combat-control" data-action="nextTurn">{{localize "PARADIGMENGINE.Tracker.EndTurn"}}</button>
+  {{/if}}
+  {{/if}}
+</nav>

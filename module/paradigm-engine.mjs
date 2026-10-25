@@ -1,41 +1,57 @@
-import CharacterData from "./data/character.mjs";
-import AdversaryData from "./data/adversary.mjs";
+import PcData from "./data/pc.mjs";
+import NpcData from "./data/npc.mjs";
 import SkillData from "./data/skill.mjs";
-import CharacterSheet from "./sheets/character-sheet.mjs";
-import AdversarySheet from "./sheets/adversary-sheet.mjs";
+import PartyData from "./data/party.mjs";
+import PcSheet from "./sheets/pc-sheet.mjs";
+import NpcSheet from "./sheets/npc-sheet.mjs";
+import PartySheet from "./sheets/party-sheet.mjs";
+import { registerParty } from "./party.mjs";
 import ParadigmEngineItemSheet from "./sheets/item-sheet.mjs";
 import { registerSplash } from "./apps/splash.mjs";
 import { registerLuck } from "./apps/luck-picker.mjs";
-import { registerSkillBar } from "./apps/skill-bar.mjs";
 import { registerSidebarToggle } from "./apps/sidebar-toggle.mjs";
-import { registerCombat } from "./combat.mjs";
 import { registerTokenDefaults } from "./tokens.mjs";
-import { registerEncounterTracker } from "./apps/encounter-tracker.mjs";
 import { registerMigrations } from "./migrations.mjs";
+import { registerSkillTree } from "./apps/skill-tree.mjs";
+import { registerTheme } from "./theme.mjs";
+import { registerClash } from "./apps/clash.mjs";
+import { registerChecks } from "./checks.mjs";
+import { registerChat } from "./chat.mjs";
+import { registerTracker } from "./tracker.mjs";
 
 Hooks.once("init", () => {
   registerSplash();
   registerLuck();
-  registerSkillBar();
   registerSidebarToggle();
-  registerCombat();
   registerTokenDefaults();
-  registerEncounterTracker();
   registerMigrations();
+  registerSkillTree();
+  registerTheme();
+  registerClash();
+  registerChecks();
+  registerChat();
+  registerParty();
+  registerTracker();
 
-  CONFIG.Actor.dataModels.character = CharacterData;
-  CONFIG.Actor.dataModels.adversary = AdversaryData;
+  CONFIG.Actor.dataModels.pc = PcData;
+  CONFIG.Actor.dataModels.npc = NpcData;
+  CONFIG.Actor.dataModels.party = PartyData;
   CONFIG.Item.dataModels.skill = SkillData;
 
-  foundry.documents.collections.Actors.registerSheet("paradigm-engine", CharacterSheet, {
-    types: ["character"],
+  foundry.documents.collections.Actors.registerSheet("paradigm-engine", PcSheet, {
+    types: ["pc"],
     makeDefault: true,
-    label: "PARADIGMENGINE.Sheet.Character"
+    label: "PARADIGMENGINE.Sheet.PC"
   });
-  foundry.documents.collections.Actors.registerSheet("paradigm-engine", AdversarySheet, {
-    types: ["adversary"],
+  foundry.documents.collections.Actors.registerSheet("paradigm-engine", NpcSheet, {
+    types: ["npc"],
     makeDefault: true,
-    label: "PARADIGMENGINE.Sheet.Adversary"
+    label: "PARADIGMENGINE.Sheet.NPC"
+  });
+  foundry.documents.collections.Actors.registerSheet("paradigm-engine", PartySheet, {
+    types: ["party"],
+    makeDefault: true,
+    label: "PARADIGMENGINE.Sheet.Party"
   });
   foundry.documents.collections.Items.registerSheet("paradigm-engine", ParadigmEngineItemSheet, {
     types: ["skill"],
@@ -45,9 +61,12 @@ Hooks.once("init", () => {
 
   foundry.applications.handlebars.loadTemplates([
     "systems/paradigm-engine/templates/actor/badge.hbs",
-    "systems/paradigm-engine/templates/actor/vitals.hbs",
-    "systems/paradigm-engine/templates/actor/rail.hbs",
-    "systems/paradigm-engine/templates/actor/skills-panel.hbs",
-    "systems/paradigm-engine/templates/apps/encounter-row.hbs"
+    "systems/paradigm-engine/templates/actor/attributes-card.hbs",
+    "systems/paradigm-engine/templates/actor/skills-card.hbs",
+    "systems/paradigm-engine/templates/actor/checks-card.hbs",
+    "systems/paradigm-engine/templates/chat/multi-row.hbs"
   ]);
+  foundry.applications.handlebars.loadTemplates({
+    growthBondRow: "systems/paradigm-engine/templates/apps/growth-bond-row.hbs"
+  });
 });

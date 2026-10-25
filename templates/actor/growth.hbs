@@ -1,57 +1,70 @@
 <section class="tab growth {{tab.cssClass}}" data-group="primary" data-tab="growth">
-  <div class="growgrid">
-    <div class="panel">
-      <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Advancements"}}</span></div>
-      <div class="panel-b centered">
-        <div class="bignum">{{advancements.unspent}}</div>
-        <div class="vlabel">{{localize "PARADIGMENGINE.Advancement.Unspent"}}</div>
-        <div class="stepper">
-          <button type="button" data-action="stepUnspent" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Advancement.Spend"}}">−</button>
-          <button type="button" data-action="stepUnspent" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Advancement.Gain"}}">＋</button>
+  <div class="pcard mcard" style="--tc: var(--pink)">
+    <span class="tag">{{localize "PARADIGMENGINE.Growth.Milestone"}}<span class="tail">{{milestone.tail}}</span></span>
+    <div class="mrow">
+      <div class="tiers">
+        {{#each milestone.tiers}}
+        <button type="button" class="tier{{#if this.on}} on{{/if}}" data-action="growthStart" data-tier="{{this.tier}}"
+          {{#unless this.can}}disabled{{/unless}}><b>{{this.label}}</b>{{#if this.gp}}<span>{{this.gp}} GP</span>{{/if}}</button>
+        {{/each}}
+      </div>
+      <div class="gp">
+        <div class="gpnum">{{milestone.gp}}</div>
+        <div>
+          <div class="gpips">
+            {{#each milestone.pips}}<span class="gpip{{#if this}} on{{/if}}"></span>{{/each}}
+          </div>
+          <div class="lbl">{{localize "PARADIGMENGINE.Growth.GP"}}</div>
         </div>
+        {{#if milestone.open}}
+        <button type="button" class="take" data-action="growthCancel">{{milestone.cancelLabel}}</button>
+        {{/if}}
       </div>
     </div>
-    <div>
-      <div class="panel">
-        <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Panel.Standard"}}</span>
-          <span class="tail">{{localize "PARADIGMENGINE.Advancement.StandardTail"}}</span>
-        </div>
-        <div class="panel-b">
-          {{#each advancements.standard}}
-          <div class="advrow">
-            <span class="nm">{{this.name}}</span>
-            <span class="boxes">
-              {{#each this.boxes}}
-              <button type="button" class="abox{{#if this}} on{{/if}}" data-action="toggleBox"
-                data-group="standard" data-key="{{../key}}" data-j="{{@index}}"
-                aria-label="{{../name}}">{{#if this}}✓{{/if}}</button>
-              {{/each}}
-            </span>
-          </div>
-          {{/each}}
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Panel.Special"}}</span>
-          <span class="tail">{{localize "PARADIGMENGINE.Advancement.SpecialTail"}}</span>
-        </div>
-        <div class="panel-b">
-          {{#each advancements.special}}
-          <div class="advrow">
-            <span class="nm">{{this.name}}</span>
-            <span class="boxes">
-              {{#each this.boxes}}
-              <button type="button" class="abox sp{{#if this}} on{{/if}}" data-action="toggleBox"
-                data-group="special" data-key="{{../key}}" data-j="{{@index}}"
-                aria-label="{{../name}}">{{#if this}}✓{{/if}}</button>
-              {{/each}}
-            </span>
-          </div>
-          {{/each}}
-        </div>
-      </div>
+    {{#if timeskip}}
+    <div class="ts">
+      <span class="lbl">{{localize "PARADIGMENGINE.Growth.Award"}}</span>
+      <span class="stepper">
+        <button type="button" data-action="growthTsStep" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Growth.Fewer"}}">−</button>
+        <b>{{timeskip.gp}}</b>
+        <button type="button" data-action="growthTsStep" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Growth.More"}}">＋</button>
+      </span>
+      <span class="lbl">{{localize "PARADIGMENGINE.Growth.Access"}}</span>
+      {{#each timeskip.access}}
+      <button type="button" class="acc{{#if this.on}} on{{/if}}" data-action="growthTsAccess" data-group="{{this.group}}"
+        aria-pressed="{{this.on}}">{{this.label}}</button>
+      {{/each}}
+      <button type="button" class="take go" data-action="growthTsAward">{{localize "PARADIGMENGINE.Growth.AwardGo"}}</button>
     </div>
+    {{/if}}
+  </div>
+
+  <div class="gopts">
+    {{#each cards}}
+    <div class="pcard gcard {{this.group}}{{#if this.off}} off{{/if}}">
+      <span class="tag">{{this.label}}<span class="tail">{{this.tail}}</span></span>
+      {{#each this.options}}
+      <div class="gopt">
+        <span class="nm">{{this.label}}{{#if this.sub}}<span class="sub">{{this.sub}}</span>{{/if}}</span>
+        <button type="button" class="take{{#if this.taken}} done{{/if}}" data-action="growthTake" data-key="{{this.key}}"
+          {{#unless this.can}}disabled{{/unless}}>{{#if this.taken}}{{localize "PARADIGMENGINE.Growth.Taken"}}{{else}}{{localize "PARADIGMENGINE.Growth.Take"}}{{/if}}</button>
+      </div>
+      {{/each}}
+    </div>
+    {{/each}}
+  </div>
+
+  <div class="pcard glog" style="--tc: var(--green)">
+    <span class="tag">{{localize "PARADIGMENGINE.Growth.Log"}}</span>
+    {{#each log}}
+    <div class="lrow">
+      <span class="ltag {{this.tier}}">{{this.label}}</span>
+      <span class="lchips">
+        {{#each this.items}}
+        <span class="chip">{{this.label}}{{#if this.name}} · {{this.name}}{{/if}}{{#if this.rank}}<span class="rk" style="--rk: var({{this.cssVar}})">{{this.rank}}</span>{{/if}}</span>
+        {{/each}}
+      </span>
+    </div>
+    {{/each}}
   </div>
 </section>

@@ -1,0 +1,11 @@
+<div class="it{{#if bonded}} off{{/if}}">
+  {{#if img}}<img class="av" src="{{img}}" alt="">{{else}}<span class="av">{{initial}}</span>{{/if}}
+  <span class="n">{{name}}</span>
+  {{#if player}}<span class="m">{{player}}</span>{{/if}}
+  {{#if bonded}}
+  <span class="m">{{localize "PARADIGMENGINE.Growth.Bonded"}}</span>
+  <span class="rk" style="--rk: var({{cssVar}})">{{rank}}</span>
+  {{else}}
+  <button type="button" class="take" data-action="pickActor" data-uuid="{{uuid}}">{{localize "PARADIGMENGINE.Growth.Bond"}}</button>
+  {{/if}}
+</div>
