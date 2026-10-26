@@ -146,8 +146,31 @@ export async function showRoll(roll) {
   if (game.dice3d) await game.dice3d.showForRoll(roll, game.user, true);
 }
 
-/* Template context from a roll card's stored state. */
-export function rollCardContext(card) {
+/* The Limit Break line of a banded card: the raise, then what it did.
+   A Success marks one more box per Rank raised in a Clash, or costs the
+   target one more Heart elsewhere; a Failure is a setback of 1 Heart plus
+   one per Rank raised. */
+function limitBreakLine(d, clash) {
+  const n = d.limitBreak;
+  if (!(n > 0)) return null;
+  const tag = game.i18n.format("PARADIGMENGINE.Roll.LimitBreakTag", { n });
+  let outcome;
+  if (!isSuccess(d.band)) outcome = game.i18n.format("PARADIGMENGINE.Roll.LimitSetback", { n: n + 1 });
+  else if (clash) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitBox" : "PARADIGMENGINE.Roll.LimitBoxes", { n });
+  else outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitHeart" : "PARADIGMENGINE.Roll.LimitHearts", { n });
+  return `${tag} · ${outcome}`;
+}
+
+/* Boxes a Clash roll marks: one for a Success, plus one per Limit Break
+   Rank. */
+export function clashBoxes(card) {
+  const d = card?.difficulty;
+  return isSuccess(d?.band) ? 1 + (d.limitBreak ?? 0) : 0;
+}
+
+/* Template context from a roll card's stored state; clash says the card
+   stands in a Clash. */
+export function rollCardContext(card, clash = false) {
   let band = null;
   if (card.difficulty) {
     const d = card.difficulty;
@@ -161,7 +184,7 @@ export function rollCardContext(card) {
       fumble: d.band === "Fumble",
       combo: d.band === "Combo",
       success: isSuccess(d.band),
-      limitBreak: d.limitBreak > 0 ? game.i18n.format("PARADIGMENGINE.Roll.LimitBreakTag", { n: d.limitBreak }) : null,
+      limitBreak: limitBreakLine(d, clash),
       riders: riders(d.band, d.npc)
     };
   }
@@ -178,14 +201,15 @@ export function rollCardContext(card) {
 }
 
 /* The single roll card, from its system flags: the card, and for a Clash
-   roll the side's boxes as the flag recorded them, the one this roll
+   roll the side's boxes as the flag recorded them, the ones this roll
    filled marked new. */
 export async function renderRollCard(flags) {
-  const context = rollCardContext(flags.card);
+  const context = rollCardContext(flags.card, !!flags.clash);
   if (flags.clash) {
     const c = flags.clash;
     const marks = c.marks ?? 0;
-    const boxes = Array.fromRange(c.target ?? 0).map(i => ({ on: i < marks, fresh: c.marked && i === marks - 1 }));
+    const fresh = c.boxes ?? (c.marked ? 1 : 0);
+    const boxes = Array.fromRange(c.target ?? 0).map(i => ({ on: i < marks, fresh: i >= marks - fresh && i < marks }));
     context.clash = { name: c.name, boxes };
   }
   return renderTemplate(`${TEMPLATES}/roll-card.hbs`, context);

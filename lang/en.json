@@ -166,6 +166,11 @@
       "Difficulty": "Difficulty",
       "LimitBreak": "Limit Break",
       "LimitBreakTag": "Limit Break {n}",
+      "LimitBox": "+1 Box",
+      "LimitBoxes": "+{n} Boxes",
+      "LimitHeart": "Target −1 Heart",
+      "LimitHearts": "Target −{n} Hearts",
+      "LimitSetback": "Setback −{n} Hearts",
       "MeterLabel": "Limit"
     },
     "Band": {

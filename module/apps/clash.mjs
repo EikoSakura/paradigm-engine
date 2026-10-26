@@ -11,7 +11,7 @@
    end: every mark shows on it, each member rolls from it, and it turns
    into the result when a side wins. */
 
-import { isSuccess, renderRollCard } from "../chat.mjs";
+import { clashBoxes, isSuccess, renderRollCard } from "../chat.mjs";
 import { letterCopies } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -557,24 +557,25 @@ export async function syncClashCard(state, live = true) {
   await message.update({ content: await renderClashCard(state, live) });
 }
 
-/* A Clash roll's Success marks one box on its side, once. Runs on the
-   Storyteller's client when the card arrives, and again when a Luck swap,
-   a trade, or a flip re-renders it, in case that made the Success — or
-   unmade it: a marked roll that is no longer a Success gives its box
-   back. The card's flag keeps the side's marks as they stand after
-   this roll. */
+/* A Clash roll's Success marks one box on its side, plus one per Limit
+   Break Rank, once. Runs on the Storyteller's client when the card
+   arrives, and again when a Luck swap, a trade, or a flip re-renders it,
+   in case that made the Success — or unmade it: a marked roll that is no
+   longer a Success gives its boxes back. The card's flag keeps the boxes
+   this roll holds and the side's marks as they stand after it. */
 export async function applyClashMark(message) {
   if (!game.user.isGM) return;
   const flags = message.flags["paradigm-engine"] ?? {};
   const clash = flags.clash;
-  const success = isSuccess(flags.card?.difficulty?.band);
-  if (!clash || clash.marked === success) return;
+  const want = clashBoxes(flags.card);
+  const have = clash?.boxes ?? (clash?.marked ? 1 : 0);
+  if (!clash || want === have) return;
   const state = readClash();
   if (!state.started || clashWinner(state) >= 0) return;
   const side = state.sides[clash.side];
   if (!side) return;
-  side.marks = success ? Math.min(side.marks + 1, state.target) : Math.max(side.marks - 1, 0);
-  const marked = { ...clash, marked: success, marks: side.marks, target: state.target };
+  side.marks = Math.clamp(side.marks - have + want, 0, state.target);
+  const marked = { ...clash, marked: want > 0, boxes: want, marks: side.marks, target: state.target };
   await message.update({
     content: await renderRollCard({ ...flags, clash: marked }),
     flags: { "paradigm-engine": { clash: marked } }
