@@ -7,7 +7,7 @@ export const LADDER = [
   { rank: "C", die: "d8", mod: 2, difficulty: 9, cssVar: "--rk-c" },
   { rank: "B", die: "d10", mod: 2, difficulty: 11, cssVar: "--rk-b" },
   { rank: "A", die: "d12", mod: 3, difficulty: 13, cssVar: "--rk-a" },
-  { rank: "S", die: "d12+2", mod: 3, difficulty: 16, cssVar: "--rk-s" }
+  { rank: "S", die: "d12+1", mod: 3, difficulty: 15, cssVar: "--rk-s" }
 ];
 
 /* Difficulties: the Ladder plus the Difficulty-only SS. */
@@ -17,8 +17,8 @@ export const DIFFICULTY = [
   { rank: "C", number: 9, cssVar: "--rk-c" },
   { rank: "B", number: 11, cssVar: "--rk-b" },
   { rank: "A", number: 13, cssVar: "--rk-a" },
-  { rank: "S", number: 16, cssVar: "--rk-s" },
-  { rank: "SS", number: 19, cssVar: "--beni" }
+  { rank: "S", number: 15, cssVar: "--rk-s" },
+  { rank: "SS", number: 17, cssVar: "--beni" }
 ];
 
 /* Copies of one character told apart by letter: items sharing a uuid read

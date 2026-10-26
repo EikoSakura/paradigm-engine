@@ -94,7 +94,7 @@ function riders(band, npc) {
   return [{ key: "Luck", text: game.i18n.localize("PARADIGMENGINE.Rider.Luck") }];
 }
 
-/* The die size behind a Ladder step: the d12 of d12+2. */
+/* The die size behind a Ladder step: the d12 of d12+1. */
 function dieMax(rank) {
   return Number(LADDER[rank].die.match(/\d+/)[0]);
 }
@@ -112,7 +112,7 @@ export function rebandCard(card) {
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
    with any die steps already applied. The card keeps the faces, so Luck
    replacements and Shifts re-total; its bonus holds the flat part of the
-   formula, the +2 of an S die, which counts in the total and shows no
+   formula, the +1 of an S die, which counts in the total and shows no
    line of its own. */
 export async function rollDice(first, second, bonus = 0) {
   let formula = [first, second].map(d => `1${LADDER[d.rank].die}`).join(" + ");
