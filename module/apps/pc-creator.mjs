@@ -13,9 +13,9 @@ const CARDS = [
   { key: "finishing", label: "PARADIGMENGINE.Creator.Finishing" }
 ];
 
-/* Attributes: five points, each from E up to A. */
+/* Attributes: five points, each from E up to C. */
 const ATTR_POINTS = 5;
-const ATTR_CAP = 4;
+const ATTR_CAP = 2;
 
 /* Finishing Touches: eight points between Hearts and Energy. */
 const POOL_POINTS = 8;
@@ -111,7 +111,7 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
 
   #name = "";
 
-  /* Attribute Ranks double as spent points: all start at E (0), cap A (4). */
+  /* Attribute Ranks double as spent points: all start at E (0), cap C (2). */
   #attrs = { might: 0, agility: 0, mind: 0, spirit: 0, charm: 0 };
 
   #skills = [emptyPick(), emptyPick()];
