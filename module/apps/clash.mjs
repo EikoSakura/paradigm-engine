@@ -528,10 +528,10 @@ export async function syncClashCard(state, live = true) {
 }
 
 /* A Clash roll's Success marks one box on its side, once. Runs on the
-   Storyteller's client when the card arrives, and again when a Luck swap
-   or a trade re-renders it, in case that made the Success — or, for a
-   trade, unmade it: a marked roll that is no longer a Success gives its
-   box back. The card's flag keeps the side's marks as they stand after
+   Storyteller's client when the card arrives, and again when a Luck swap,
+   a trade, or a flip re-renders it, in case that made the Success — or
+   unmade it: a marked roll that is no longer a Success gives its box
+   back. The card's flag keeps the side's marks as they stand after
    this roll. */
 export async function applyClashMark(message) {
   if (!game.user.isGM) return;

@@ -160,6 +160,8 @@
       "Roll": "Roll",
       "Total": "Total",
       "Luck": "Luck · {name}",
+      "Flip": "Flip",
+      "FlipLine": "Flipped {from} to {to} · {name}",
       "Difficulty": "Difficulty",
       "LimitBreak": "Limit Break",
       "LimitBreakTag": "Limit Break {n}",

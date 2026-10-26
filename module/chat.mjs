@@ -168,10 +168,12 @@ export function rollCardContext(card) {
   return {
     band,
     title: card.title,
-    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], traded: card.traded?.[i], index: i })),
+    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], traded: card.traded?.[i], flipped: card.flipped?.[i], index: i })),
     total: cardTotal(card),
     luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name })),
-    trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t))
+    trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t)),
+    flips: (card.flips ?? []).map(f => game.i18n.format("PARADIGMENGINE.Roll.FlipLine", f)),
+    canFlip: canFlip(card)
   };
 }
 
@@ -331,6 +333,39 @@ export async function applyShift(message, dieIndex) {
   await writeMulti(message, multi);
 }
 
+/* A die flips while its card stands on neither a Combo nor a Fumble and
+   the card knows its dice sizes. */
+export function canFlip(card) {
+  return !!card?.maxes && readSplash(card.faces) === null;
+}
+
+/* Anyone flips one die of any roll to its other side, the face the die's
+   size plus one minus the face it shows: a 2 on a d6 becomes a 5. The
+   die shows blue with a line naming who flipped it, and the band is read
+   again. row names a shared card's row, or null for a single roll card.
+   A card standing on a Combo or a Fumble is refused. */
+export async function applyFlip(message, dieIndex, name, row = null) {
+  const stored = message.flags["paradigm-engine"] ?? {};
+  const flip = card => {
+    if (!card || !(dieIndex in card.faces) || !canFlip(card)) return false;
+    const from = card.faces[dieIndex];
+    const to = card.maxes[dieIndex] + 1 - from;
+    card.faces[dieIndex] = to;
+    card.flipped = card.faces.map((_, i) => !!card.flipped?.[i] || i === dieIndex);
+    (card.flips ??= []).push({ name, from, to });
+    rebandCard(card);
+    return true;
+  };
+  if (row !== null) {
+    const multi = foundry.utils.deepClone(stored.multi);
+    if (!flip(multi?.rows[row]?.card)) return;
+    return writeMulti(message, multi);
+  }
+  const card = foundry.utils.deepClone(stored.card);
+  if (!flip(card)) return;
+  await writeRollCard(message, stored, card);
+}
+
 /* Replace one die of a roll card with a spent Luck Die's recorded number and
    re-render. row names a shared card's row, or null for a single roll card.
    Runs on a client allowed to update the message; a spend that lands on a
@@ -356,28 +391,32 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
   card.lucky[dieIndex] = true;
   card.luck.push(spenderName);
   rebandCard(card);
+  await writeRollCard(message, stored, card);
+}
+
+/* Write a single roll card back: the card re-rendered over its stored
+   flags, and the splash flag moved when the Combo or Fumble state changed,
+   so every client plays the splash from the update. */
+async function writeRollCard(message, stored, card) {
   const splash = readSplash(card.faces);
-  const prior = stored.splash ?? null;
   const flags = { "paradigm-engine": { card } };
-  if (splash !== prior) {
-    if (splash) flags["paradigm-engine"].splash = splash;
-    else flags["paradigm-engine"].splash = new foundry.data.operators.ForcedDeletion();
+  if (splash !== (stored.splash ?? null)) {
+    flags["paradigm-engine"].splash = splash ?? new foundry.data.operators.ForcedDeletion();
   }
-  const content = await renderRollCard({ ...stored, card });
-  await message.update({ content, flags });
+  await message.update({ content: await renderRollCard({ ...stored, card }), flags });
 }
 
 /* A Clash trade: one die of this roll swaps with one die of another roll
    of the same Clash, any side. Both cards re-band and re-render; the
    Clash marks follow on the Storyteller's client through the update hook.
-   A Fumble on either card stands. */
+   A Combo or a Fumble on either card stands. */
 export async function applyTrade(message, dieIndex, otherId, otherIndex) {
   const other = game.messages.get(otherId);
   if (!other || other.id === message.id) return;
   const mine = foundry.utils.deepClone(message.flags["paradigm-engine"]?.card);
   const theirs = foundry.utils.deepClone(other.flags["paradigm-engine"]?.card);
   if (!mine || !theirs || !(dieIndex in mine.faces) || !(otherIndex in theirs.faces)) return;
-  if (readSplash(mine.faces) === "fumble" || readSplash(theirs.faces) === "fumble") return;
+  if (readSplash(mine.faces) || readSplash(theirs.faces)) return;
   const myName = message.speaker?.alias || message.author?.name || "";
   const theirName = other.speaker?.alias || other.author?.name || "";
   const a = mine.faces[dieIndex];
@@ -391,13 +430,7 @@ export async function applyTrade(message, dieIndex, otherId, otherIndex) {
   rebandCard(mine);
   rebandCard(theirs);
   for (const [msg, card] of [[message, mine], [other, theirs]]) {
-    const stored = msg.flags["paradigm-engine"] ?? {};
-    const splash = readSplash(card.faces);
-    const flags = { "paradigm-engine": { card } };
-    if (splash !== (stored.splash ?? null)) {
-      flags["paradigm-engine"].splash = splash ?? new foundry.data.operators.ForcedDeletion();
-    }
-    await msg.update({ content: await renderRollCard({ ...stored, card }), flags });
+    await writeRollCard(msg, msg.flags["paradigm-engine"] ?? {}, card);
   }
 }
 
@@ -414,6 +447,7 @@ export async function applyCardOp(message, op) {
     case "shift": return applyShift(message, op.dieIndex);
     case "addRow": return applyAddRow(message, op.row);
     case "trade": return applyTrade(message, op.dieIndex, op.otherId, op.otherIndex);
+    case "flip": return applyFlip(message, op.dieIndex, op.name, op.row ?? null);
   }
 }
 

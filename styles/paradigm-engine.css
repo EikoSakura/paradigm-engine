@@ -1939,9 +1939,27 @@
   padding-top: 8px;
   border-top: 1.5px solid var(--line);
 }
-.pe-card .cfoot .openclash,
-.pe-card .cfoot .tradebtn {
+.pe-card .cfoot .cbtn {
   margin-left: auto;
+}
+.pe-card .cfoot .cbtn ~ .cbtn {
+  margin-left: 0;
+}
+.pe-card .cbtn.o.on {
+  background: var(--ink);
+  color: #fff;
+}
+.pe-card .face.flipped {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.pe-card .face.lucky.flipped {
+  color: var(--ink);
+}
+.pe-card.flipping .face {
+  border-color: var(--pink);
+  color: var(--pink);
+  cursor: pointer;
 }
 .pe-card .face.traded {
   border-color: #b98500;
@@ -2058,7 +2076,12 @@
   align-items: center;
   gap: 2px;
 }
-.pe-card .shiftbtn {
+.pe-card .glyphs {
+  display: flex;
+  gap: 2px;
+}
+.pe-card .shiftbtn,
+.pe-card .flipglyph {
   width: 14px;
   height: 14px;
   margin: 0;
@@ -2073,8 +2096,14 @@
   line-height: 1;
   cursor: pointer;
 }
-.pe-card .shiftbtn:hover {
+.pe-card .shiftbtn:hover,
+.pe-card .flipglyph:hover {
   background: var(--ink);
+}
+.pe-card .flipglyph.sm {
+  width: 12px;
+  height: 12px;
+  font-size: 8px;
 }
 
 /* Clash sides and boxes */
@@ -6475,14 +6504,16 @@ body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .cbtn.o {
   background: var(--paper);
   color: var(--ink);
 }
-body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .cbtn.o:hover {
+body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .cbtn.o:hover,
+body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .cbtn.o.on {
   background: var(--ink);
   color: var(--paper);
 }
 body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .mleader {
   box-shadow: inset 0 0 0 2px var(--ink-2);
 }
-body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .shiftbtn:hover {
+body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .shiftbtn:hover,
+body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-card .flipglyph:hover {
   background: var(--pink);
 }
 

@@ -3,7 +3,7 @@
   <span class="rname">{{name}}</span>
   {{#if card}}
   <span class="mfaces dicerow">
-    {{#each card.faces}}<span class="face sm{{#if this.lucky}} lucky{{/if}}" data-index="{{this.index}}">{{this.value}}</span>{{/each}}
+    {{#each card.faces}}<span class="facewrap"><span class="face sm{{#if this.lucky}} lucky{{/if}}{{#if this.flipped}} flipped{{/if}}" data-index="{{this.index}}">{{this.value}}</span>{{#if ../card.canFlip}}<button type="button" class="flipglyph sm" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Roll.Flip"}}">&#8645;</button>{{/if}}</span>{{/each}}
   </span>
   <span class="mtotal">{{card.total}}</span>
   {{#if card.band}}<span class="mband{{#if card.band.combo}} cb{{else if card.band.success}} ok{{else if card.band.fumble}} no{{/if}}">{{card.band.word}}</span>{{/if}}

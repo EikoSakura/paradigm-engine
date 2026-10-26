@@ -54,7 +54,7 @@ export default class TradePicker extends HandlebarsApplicationMixin(ApplicationV
         return {
           id: m.id,
           name: m.speaker?.alias || m.author?.name || "",
-          fumble: readSplash(other.faces) === "fumble",
+          off: readSplash(other.faces) !== null,
           dice: other.faces.map((value, index) => ({ value, index }))
         };
       });

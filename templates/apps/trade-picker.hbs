@@ -9,12 +9,12 @@
     </span>
   </div>
   {{#each others}}
-  <div class="lprow{{#if this.fumble}} off{{/if}}">
+  <div class="lprow{{#if this.off}} off{{/if}}">
     <span class="lpname">{{this.name}}</span>
     <span class="lpdice">
       {{#each this.dice}}
       <button type="button" class="lpdie" data-action="pick" data-id="{{../id}}" data-index="{{this.index}}"
-        {{#if ../fumble}}disabled{{/if}}>{{this.value}}</button>
+        {{#if ../off}}disabled{{/if}}>{{this.value}}</button>
       {{/each}}
     </span>
   </div>

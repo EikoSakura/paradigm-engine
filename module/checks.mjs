@@ -68,16 +68,44 @@ export function startClashRoll(actor, anchor) {
 }
 
 /* The Trade button on a Clash roll card: for the roller while the Clash
-   runs, the card is no Fumble, and another roll of the Clash is there to
-   trade with. */
+   runs, the card is no Combo or Fumble, and another roll of the Clash is
+   there to trade with. */
 function wireTrade(message, flags, html) {
   const button = html.querySelector(".tradebtn");
   if (!button) return;
   const actor = ChatMessage.implementation.getSpeakerActor(message.speaker);
-  const open = actor?.isOwner && clashRunning(flags.clash.clashId) && readSplash(flags.card.faces) !== "fumble"
+  const open = actor?.isOwner && clashRunning(flags.clash.clashId) && readSplash(flags.card.faces) === null
     && clashRolls(flags.clash.clashId).some(m => m.id !== message.id);
   if (!open) return button.remove();
   button.addEventListener("click", () => TradePicker.open(message));
+}
+
+/* Who a flip is recorded under: this user's character, else the user. */
+function flipperName() {
+  return game.user.character?.name || game.user.name;
+}
+
+/* The Flip button on a single roll card, for anyone: pressed, the dice
+   wait for a click and the one clicked flips to its other side; pressed
+   again, they stand down. The face click is caught ahead of the Luck
+   spend the same face offers. */
+function wireFlip(message, html) {
+  const button = html.querySelector(".flipbtn");
+  if (!button) return;
+  const card = button.closest(".pe-card");
+  button.addEventListener("click", () => {
+    const on = card.classList.toggle("flipping");
+    button.classList.toggle("on", on);
+  });
+  for (const face of card.querySelectorAll(".dicerow .face")) {
+    face.addEventListener("click", event => {
+      if (!card.classList.contains("flipping")) return;
+      event.stopImmediatePropagation();
+      card.classList.remove("flipping");
+      button.classList.remove("on");
+      cardOp(message, { type: "flip", dieIndex: Number(face.dataset.index), name: flipperName() });
+    }, true);
+  }
 }
 
 /* A row's roll from a shared card: the popup under the button, the dice
@@ -142,7 +170,12 @@ function wireCard(message, html) {
       }
       button.addEventListener("click", () => cardOp(message, { type: "shift", dieIndex: Number(button.dataset.index) }));
     }
+    for (const button of html.querySelectorAll(".flipglyph")) {
+      const row = Number(button.closest("[data-row]").dataset.row);
+      button.addEventListener("click", () => cardOp(message, { type: "flip", dieIndex: Number(button.dataset.index), name: flipperName(), row }));
+    }
   }
+  if (flags.card) wireFlip(message, html);
   if (flags.clash && flags.card) wireTrade(message, flags, html);
   if (flags.clashLive) {
     for (const button of html.querySelectorAll(".clroll")) {
