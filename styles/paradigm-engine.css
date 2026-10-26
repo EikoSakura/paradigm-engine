@@ -1778,6 +1778,9 @@
 .pe-card .rline.luck .rmark {
   background: var(--gold);
 }
+.pe-card .rline.energy .rmark {
+  background: var(--green);
+}
 .pe-card.growth .cbody {
   margin-top: 8px;
   padding-top: 2px;

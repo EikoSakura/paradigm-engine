@@ -22,6 +22,9 @@
     {{#each flips}}
     <div class="rline flip"><i class="rmark"></i><span>{{this}}</span></div>
     {{/each}}
+    {{#if energy}}
+    <div class="rline energy"><i class="rmark"></i><span>{{energy}}</span></div>
+    {{/if}}
     {{#if band}}
     <div class="dband">
       <span class="dtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>

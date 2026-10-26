@@ -110,6 +110,28 @@ export function rebandCard(card) {
   card.difficulty.band = evaluateBand(card.faces, cardTotal(card), card.difficulty.effective, card.difficulty.npc);
 }
 
+/* The Actor behind a UUID: an Actor's own, or a Token's. */
+function actorOf(uuid) {
+  const doc = uuid ? fromUuidSync(uuid, { strict: false }) : null;
+  if (doc instanceof Actor) return doc;
+  return doc?.actor ?? null;
+}
+
+/* A Combo recovers 1 Energy for its roller, once per card, up to their
+   maximum; a Combo unmade later gives it back. The card keeps the Energy
+   it holds. Runs on a client that owns the actor: the roller posting, or
+   the Storyteller applying a card op. */
+export async function applyComboEnergy(actor, card) {
+  if (!card || !actor?.isOwner || !actor.system?.energy) return;
+  const want = card.difficulty?.band === "Combo" ? 1 : 0;
+  const have = card.energy ?? 0;
+  if (want === have) return;
+  const { value, max } = actor.system.energy;
+  const next = Math.clamp(value + want - have, 0, Math.max(max, value));
+  card.energy = have + next - value;
+  if (next !== value) await actor.update({ "system.energy.value": next });
+}
+
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
    with any die steps already applied. The card keeps the faces, so Luck
    replacements and Shifts re-total; its bonus holds the flat part of the
@@ -197,6 +219,7 @@ export function rollCardContext(card, clash = false) {
     luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name })),
     trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t)),
     flips: (card.flips ?? []).map(f => game.i18n.format("PARADIGMENGINE.Roll.FlipLine", f)),
+    energy: card.energy > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.ComboEnergy") : null,
     canFlip: canFlip(card)
   };
 }
@@ -225,6 +248,7 @@ export async function renderRollCard(flags) {
 export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0, extra = {}) {
   const { roll, card } = await rollDice(first, second, bonus);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
+  await applyComboEnergy(actor, card);
   const splash = readSplash(card.faces);
   const { alias, ...rest } = extra;
   const flags = { card, ...rest };
@@ -323,6 +347,7 @@ export function renderMultiCard(multi) {
 }
 
 async function writeMulti(message, multi) {
+  for (const row of multi.rows) if (row.card) await applyComboEnergy(actorOf(row.uuid), row.card);
   const content = await renderMultiCard(multi);
   await message.update({ content, flags: { "paradigm-engine": { multi } } });
 }
@@ -425,6 +450,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
    flags, and the splash flag moved when the Combo or Fumble state changed,
    so every client plays the splash from the update. */
 async function writeRollCard(message, stored, card) {
+  await applyComboEnergy(ChatMessage.implementation.getSpeakerActor(message.speaker), card);
   const splash = readSplash(card.faces);
   const flags = { "paradigm-engine": { card } };
   if (splash !== (stored.splash ?? null)) {
@@ -478,9 +504,10 @@ export async function applyCardOp(message, op) {
   }
 }
 
-/* A trade touches two messages, so it always goes through the Storyteller. */
+/* A trade touches two messages, and a row op another character's Energy,
+   so those always go through the Storyteller. */
 export async function cardOp(message, op) {
-  const direct = op.type === "trade" ? game.user.isGM : message.canUserModify(game.user, "update");
+  const direct = game.user.isGM || (op.type !== "trade" && op.row == null && message.canUserModify(game.user, "update"));
   if (direct) return applyCardOp(message, op);
   if (!game.users.activeGM) {
     ui.notifications.warn("PARADIGMENGINE.Check.NoStoryteller", { localize: true });

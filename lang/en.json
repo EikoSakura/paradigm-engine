@@ -171,7 +171,8 @@
       "LimitHeart": "Target −1 Heart",
       "LimitHearts": "Target −{n} Hearts",
       "LimitSetback": "Setback −{n} Hearts",
-      "MeterLabel": "Limit"
+      "MeterLabel": "Limit",
+      "ComboEnergy": "Combo · +1 Energy"
     },
     "Band": {
       "Combo": "Combo",
