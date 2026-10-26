@@ -193,21 +193,23 @@ export async function renderRollCard(flags) {
 
 /* Post an Action Roll: two dice and one optional flat bonus. difficulty is
    a DIFFICULTY index or null, raised by limitBreak steps. extra flags ride
-   the message beside the card: { clash: { side, name } } for a Clash roll.
+   the message beside the card: { clash: { side, name } } for a Clash roll,
+   and alias names the speaker in place of the actor, for a lettered copy.
    The card's state rides the message as a flag so Luck spends can
    re-render it. */
 export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0, extra = {}) {
   const { roll, card } = await rollDice(first, second, bonus);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
   const splash = readSplash(card.faces);
-  const flags = { card, ...extra };
+  const { alias, ...rest } = extra;
+  const flags = { card, ...rest };
   if (splash) flags.splash = splash;
   const content = await renderRollCard(flags);
   return ChatMessage.implementation.create({
     content,
     rolls: [roll],
     sound: CONFIG.sounds.dice,
-    speaker: ChatMessage.implementation.getSpeaker({ actor }),
+    speaker: ChatMessage.implementation.getSpeaker(alias ? { actor, alias } : { actor }),
     flags: { "paradigm-engine": flags }
   });
 }

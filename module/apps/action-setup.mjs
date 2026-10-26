@@ -1,4 +1,4 @@
-import { DIFFICULTY } from "../config.mjs";
+import { DIFFICULTY, letterCopies } from "../config.mjs";
 import { multiRow, postMultiCard } from "../chat.mjs";
 import { partyMembers, partyOf } from "../party.mjs";
 
@@ -9,8 +9,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
    the rows seed from the user's targets, for a Group Action from the
    starter's Party, who leads. Characters are dragged in from the Actors
    directory, a folder as one drop, or added from the controlled tokens;
-   a cross removes one. A Group Action picks its Difficulty here. Begin
-   posts the card. */
+   a cross removes one. The same character may be added more than once,
+   the copies lettered A, B, C. A Group Action picks its Difficulty here.
+   Begin posts the card. */
 export default class ActionSetup extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor, kind, rows, ...options } = {}) {
     super(options);
@@ -73,7 +74,7 @@ export default class ActionSetup extends HandlebarsApplicationMixin(ApplicationV
     const group = this.#kind === "group";
     context.group = group;
     context.title = this.title;
-    context.rows = this.#rows.map((row, index) => ({
+    context.rows = letterCopies(this.#rows).map((row, index) => ({
       ...row,
       index,
       chip: index ? "" : game.i18n.localize(group ? "PARADIGMENGINE.Check.Leader" : "PARADIGMENGINE.Check.Starter")
@@ -155,14 +156,15 @@ export default class ActionSetup extends HandlebarsApplicationMixin(ApplicationV
 
   static async #onBegin() {
     if (!this.#ready) return;
-    await postMultiCard(this.#actor, this.#kind, this.#rows, this.#difficulty);
+    const rows = letterCopies(this.#rows).map(({ base, ...row }) => row);
+    await postMultiCard(this.#actor, this.#kind, rows, this.#difficulty);
     this.close();
   }
 }
 
-/* A row for this actor, unless the list already holds it. */
+/* A row for this actor; a character already listed joins again as a copy. */
 function addRow(rows, actor) {
-  if (!actor || !["pc", "npc"].includes(actor.type) || rows.some(r => r.uuid === actor.uuid)) return false;
+  if (!actor || !["pc", "npc"].includes(actor.type)) return false;
   rows.push(multiRow(actor));
   return true;
 }

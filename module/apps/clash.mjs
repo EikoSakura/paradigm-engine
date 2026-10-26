@@ -12,6 +12,7 @@
    into the result when a side wins. */
 
 import { isSuccess, renderRollCard } from "../chat.mjs";
+import { letterCopies } from "../config.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const { renderTemplate } = foundry.applications.handlebars;
@@ -43,7 +44,8 @@ function cleanMember(m) {
   if (!m || typeof m !== "object") return null;
   const key = m.key ?? m.uuid ?? "";
   if (!key) return null;
-  return { key, uuid: m.uuid ?? key, name: m.name ?? "", img: m.img ?? "" };
+  const name = m.name ?? "";
+  return { key, uuid: m.uuid ?? key, name, base: m.base ?? name, img: m.img ?? "" };
 }
 
 /* A side's shown name: its own, or the first member's with a count. */
@@ -68,8 +70,18 @@ export function readClash() {
   return state;
 }
 
+/* Members are lettered on every write, so copies of one character read
+   A, B, C wherever the Clash shows them. */
 function writeClash(state) {
+  const all = letterCopies(state.sides.flatMap(s => s.members));
+  let i = 0;
+  for (const side of state.sides) side.members = side.members.map(() => all[i++]);
   return game.settings.set("paradigm-engine", SETTING, state);
+}
+
+/* The side a character already stands on, or -1. */
+function sideOfUuid(state, uuid) {
+  return state.sides.findIndex(s => s.members.some(m => m.uuid === uuid));
 }
 
 /* Index of the first side at the target, or -1. */
@@ -120,16 +132,34 @@ function memberKeys(state) {
   return new Set(state.sides.flatMap(s => s.members.map(m => m.key)));
 }
 
-/* New members join side `into`, or form a new side when it is -1 and
-   there is room. Members already present are skipped. */
+/* New members join side `into`, or form one new side together when it
+   is -1 and there is room. A token already present is skipped; an Actor
+   already present joins again as a copy, on the side its first copy
+   stands on, since a Clash roll finds its side by the actor. */
 function addMembers(state, members, into = -1) {
   const keys = memberKeys(state);
-  const fresh = members.filter(m => m && !keys.has(m.key) && keys.add(m.key));
-  if (!fresh.length) return false;
-  if (into >= 0 && state.sides[into]) state.sides[into].members.push(...fresh);
-  else if (state.sides.length < SIDES_MAX) state.sides.push({ name: "", members: fresh, marks: 0 });
-  else return false;
-  return true;
+  let formed = -1;
+  let changed = false;
+  for (let m of members) {
+    if (!m) continue;
+    if (keys.has(m.key)) {
+      if (m.key !== m.uuid) continue;
+      let n = 2;
+      while (keys.has(`${m.uuid}#${n}`)) n++;
+      m = { ...m, key: `${m.uuid}#${n}` };
+    }
+    let side = sideOfUuid(state, m.uuid);
+    if (side < 0) side = into >= 0 && state.sides[into] ? into : formed;
+    if (side < 0) {
+      if (state.sides.length >= SIDES_MAX) continue;
+      state.sides.push({ name: "", members: [], marks: 0 });
+      side = formed = state.sides.length - 1;
+    }
+    state.sides[side].members.push(m);
+    keys.add(m.key);
+    changed = true;
+  }
+  return changed;
 }
 
 function memberFromActor(actor, key = actor.uuid) {

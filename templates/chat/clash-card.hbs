@@ -18,7 +18,7 @@
         <img class="pf" src="{{this.img}}" alt="">
         <span class="rname">{{this.name}}</span>
         {{#if @root.running}}
-        <button type="button" class="cbtn o clroll" data-uuid="{{this.uuid}}" data-side="{{../index}}">{{localize "PARADIGMENGINE.Roll.Roll"}}</button>
+        <button type="button" class="cbtn o clroll" data-uuid="{{this.uuid}}" data-name="{{this.name}}" data-side="{{../index}}">{{localize "PARADIGMENGINE.Roll.Roll"}}</button>
         {{else if this.result}}
         <span class="mband{{#if ../won}} ok{{else}} no{{/if}}">{{this.result}}</span>
         {{/if}}

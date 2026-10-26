@@ -33,13 +33,15 @@ export function startGroup(actor) {
   ActionSetup.open(actor, "group");
 }
 
-/* A Clash roll for the side this actor stands on. */
-export function startClashRoll(actor, anchor) {
+/* A Clash roll for the side this actor stands on. alias names the copy
+   rolling, when the card's Roll button belongs to a lettered one. */
+export function startClashRoll(actor, anchor, alias = "") {
   const side = clashSideOf(actor);
   if (!side) return ui.notifications.warn("PARADIGMENGINE.Check.NotInClash", { localize: true });
+  const clash = { side: side.index, name: side.name, marks: side.marks, target: side.target, clashId: side.clashId };
   RollDialog.open(actor, null, anchor, {
     tag: side.name,
-    extra: { clash: { side: side.index, name: side.name, marks: side.marks, target: side.target, clashId: side.clashId } }
+    extra: alias && alias !== actor.name ? { clash, alias } : { clash }
   });
 }
 
@@ -160,7 +162,7 @@ function wireCard(message, html) {
         button.remove();
         continue;
       }
-      button.addEventListener("click", () => startClashRoll(actor, button));
+      button.addEventListener("click", () => startClashRoll(actor, button, button.dataset.name));
     }
     html.querySelector(".openclash")?.addEventListener("click", () => ClashWindow.open());
   }

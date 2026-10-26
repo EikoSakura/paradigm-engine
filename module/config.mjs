@@ -21,6 +21,24 @@ export const DIFFICULTY = [
   { rank: "SS", number: 19, cssVar: "--beni" }
 ];
 
+/* Copies of one character told apart by letter: items sharing a uuid read
+   their base name with A, B, C after it; a lone one keeps its plain name.
+   Returns new items with `name` set; `base` is the plain name and is kept
+   on the item so a later pass starts from it. */
+export function letterCopies(items) {
+  const counts = new Map();
+  for (const item of items) counts.set(item.uuid, (counts.get(item.uuid) ?? 0) + 1);
+  const seen = new Map();
+  return items.map(item => {
+    const base = item.base ?? item.name;
+    if ((counts.get(item.uuid) ?? 0) < 2) return { ...item, base, name: base };
+    const n = seen.get(item.uuid) ?? 0;
+    seen.set(item.uuid, n + 1);
+    const letter = n < 26 ? String.fromCharCode(65 + n) : String(n + 1);
+    return { ...item, base, name: `${base} ${letter}` };
+  });
+}
+
 export const ATTRIBUTES = [
   { key: "might", label: "PARADIGMENGINE.Attribute.Might", desc: "PARADIGMENGINE.Attribute.MightDesc" },
   { key: "agility", label: "PARADIGMENGINE.Attribute.Agility", desc: "PARADIGMENGINE.Attribute.AgilityDesc" },
