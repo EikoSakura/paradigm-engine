@@ -16,13 +16,14 @@ const CARDS = [
 const ATTR_POINTS = 5;
 const ATTR_CAP = 4;
 
-/* Hearts and Energy are the Storyteller's call, up to twelve each. */
-const POOL_MAX = 12;
+/* Hearts and Energy: eight points between them, as a PC's. */
+const POOL_POINTS = 8;
 
 /* The NPC Builder, opened by the Storyteller from an NPC File's title
    bar: one scrolling file on the skin, built like the PC Creator so an
    NPC starts where a PC does. Attributes spend five points, Skills are
-   two at Rank E, and Hearts, Energy, and the Rank are set freely. State
+   two at Rank E, Hearts and Energy split eight points, and the Rank is
+   set freely. State
    seeds from the actor and drafts to the actor flag "builder", so
    reopening resumes. Create NPC writes the actor and replaces the
    builder's own Skills, never touching items added outside it. One
@@ -69,7 +70,7 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
 
   #skills = [emptyPick(), emptyPick()];
 
-  #pools = { hearts: 6, energy: 6 };
+  #pools = { hearts: 4, energy: 4 };
 
   /* Which rank badges currently show their die face, and whether the
      stamp reads the Difficulty. Display state only. */
@@ -106,10 +107,8 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
         source: skills[i].system.source
       }
       : row);
-    this.#pools = {
-      hearts: Math.clamp(system.hearts.max ?? 6, 1, POOL_MAX),
-      energy: Math.clamp(system.energy.max ?? 6, 0, POOL_MAX)
-    };
+    const hearts = Math.clamp(system.hearts.max ?? 4, 0, POOL_POINTS);
+    this.#pools = { hearts, energy: Math.clamp(system.energy.max ?? 4, 0, POOL_POINTS - hearts) };
   }
 
   /* The saved draft wins over the seed. */
@@ -130,8 +129,10 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
         source: typeof saved.skills?.[i]?.source === "string" ? saved.skills[i].source : row.source
       };
     });
-    if (Number.isInteger(saved.pools?.hearts)) this.#pools.hearts = Math.clamp(saved.pools.hearts, 1, POOL_MAX);
-    if (Number.isInteger(saved.pools?.energy)) this.#pools.energy = Math.clamp(saved.pools.energy, 0, POOL_MAX);
+    if (Number.isInteger(saved.pools?.hearts) && Number.isInteger(saved.pools?.energy)) {
+      const hearts = Math.clamp(saved.pools.hearts, 0, POOL_POINTS);
+      this.#pools = { hearts, energy: Math.clamp(saved.pools.energy, 0, POOL_POINTS - hearts) };
+    }
   }
 
   #snapshot() {
@@ -209,11 +210,13 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
     const sources = new Set(this.#skills.map(t => t.source).filter(Boolean));
     context.tree = treeRoots().map(item => ({ ...startingSkillRow(item), taken: sources.has(item.uuid) }));
 
+    const free = this.#free();
+    context.poolLeft = free;
     context.pools = Object.fromEntries(Object.entries(this.#pools).map(([key, value]) => [key, {
       value,
-      pips: Array.from({ length: POOL_MAX }, (_, i) => i < value),
-      downDisabled: value <= (key === "hearts" ? 1 : 0),
-      upDisabled: value >= POOL_MAX
+      pips: Array.from({ length: POOL_POINTS }, (_, i) => i < value),
+      downDisabled: value <= 0,
+      upDisabled: free <= 0
     }]));
 
     const step = LADDER[this.#rank];
@@ -256,12 +259,16 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
     return Object.values(this.#attrs).reduce((a, b) => a + b, 0);
   }
 
+  #free() {
+    return POOL_POINTS - this.#pools.hearts - this.#pools.energy;
+  }
+
   #checks() {
     return {
       name: this.#name.trim().length > 0,
       attributes: this.#spent() === ATTR_POINTS,
       skills: this.#skills.every(t => t.name.trim().length > 0),
-      finishing: true
+      finishing: this.#free() === 0
     };
   }
 
@@ -273,7 +280,8 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
     return [
       ["name", "PARADIGMENGINE.Header.Name"],
       ["attributes", "PARADIGMENGINE.Panel.Attributes"],
-      ["skills", "PARADIGMENGINE.Panel.Skills"]
+      ["skills", "PARADIGMENGINE.Panel.Skills"],
+      ["finishing", "PARADIGMENGINE.Creator.HeartsEnergy"]
     ].map(([key, label]) => ({ key, label: game.i18n.localize(label), done: checks[key] }));
   }
 
@@ -368,8 +376,7 @@ export default class NpcBuilder extends HandlebarsApplicationMixin(ApplicationV2
     const dir = Number(target.dataset.dir);
     const value = this.#pools[key];
     if (value === undefined) return;
-    const min = key === "hearts" ? 1 : 0;
-    if (dir > 0 ? value >= POOL_MAX : value <= min) return;
+    if (dir > 0 ? this.#free() <= 0 : value <= 0) return;
     this.#pools[key] = value + dir;
     this.#touch();
     this.render();
