@@ -1,6 +1,6 @@
 import { LADDER, SKILL_KINDS } from "../config.mjs";
 import {
-  attributeRows, availableSkills, bondCandidates, bondRankRows, growthOptions, modifySkillRows, optionLabel, skillRankRows, spend
+  attributeRows, availableSkills, bondCandidates, bondRankRows, growthOptions, modifySkillRows, optionLabel, rankCap, skillRankRows, spend
 } from "../growth.mjs";
 import SkillTree from "./skill-tree.mjs";
 
@@ -123,8 +123,12 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
     context.isSkillRank = pick === "skillRank";
     context.isBondRank = pick === "bondRank";
     context.isAttribute = pick === "attribute";
-    const capStep = LADDER[pick === "attribute" ? 5 : actor.system.rank];
-    if (pick === "skillRank" || pick === "bondRank" || pick === "attribute") context.cap = { rank: capStep.rank, cssVar: capStep.cssVar };
+    const cap = pick === "attribute" ? 5 : rankCap(actor, option.key);
+    const capStep = LADDER[cap];
+    if (pick === "skillRank" || pick === "bondRank" || pick === "attribute") {
+      const top = cap !== actor.system.rank || pick === "attribute";
+      context.cap = { rank: capStep.rank, cssVar: capStep.cssVar, label: game.i18n.localize(top ? "PARADIGMENGINE.Growth.TopRank" : "PARADIGMENGINE.Growth.CharacterRank") };
+    }
     if (pick === "newSkill" || pick === "newBond") context.newRank = { rank: LADDER[0].rank, cssVar: LADDER[0].cssVar };
     if (pick === "newSkill") {
       context.kinds = SKILL_KINDS.map(kind => ({ kind, label: game.i18n.localize(`PARADIGMENGINE.Skill.${kind}`), on: kind === this.#kind }));
@@ -132,8 +136,8 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
     }
     if (pick === "newBond") Object.assign(context, bondCandidates(actor));
     if (pick === "modifySkill") context.rows = modifySkillRows(actor);
-    if (pick === "skillRank") context.rows = skillRankRows(actor);
-    if (pick === "bondRank") context.rows = bondRankRows(actor);
+    if (pick === "skillRank") context.rows = skillRankRows(actor, cap);
+    if (pick === "bondRank") context.rows = bondRankRows(actor, cap);
     if (pick === "attribute") context.rows = attributeRows(actor);
     return context;
   }

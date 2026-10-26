@@ -2,7 +2,7 @@
   <div class="eyebrow">{{eyebrow}}</div>
   <div class="gname">
     <span>{{title}}</span>
-    {{#if cap}}<span class="cap">{{localize "PARADIGMENGINE.Growth.CharacterRank"}} <span class="rk" style="--rk: var({{cap.cssVar}})">{{cap.rank}}</span></span>{{/if}}
+    {{#if cap}}<span class="cap">{{cap.label}} <span class="rk" style="--rk: var({{cap.cssVar}})">{{cap.rank}}</span></span>{{/if}}
     {{#if newRank}}<span class="rk big" style="--rk: var({{newRank.cssVar}})">{{newRank.rank}}</span>{{/if}}
   </div>
 

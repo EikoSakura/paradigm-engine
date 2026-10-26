@@ -225,6 +225,7 @@
       "Cost": "{group} · 1 GP",
       "CostOnce": "{group} · 1 GP · Once",
       "CharacterRank": "Character Rank",
+      "TopRank": "Top Rank",
       "Name": "Name",
       "Create": "Create",
       "RankUp": "Rank Up",
@@ -299,12 +300,27 @@
     "Party": {
       "Tab": {
         "members": "Members",
+        "dossier": "Dossier",
         "notes": "Notes"
       },
       "Open": "Open",
       "Lead": "Group",
       "NewScene": "New Scene",
-      "EditEmblem": "Edit Emblem"
+      "EditEmblem": "Edit Emblem",
+      "Standing": {
+        "ally": "Ally",
+        "neutral": "Neutral",
+        "enemy": "Enemy",
+        "unknown": "Unknown"
+      },
+      "Dossier": {
+        "Title": "Title",
+        "Affiliation": "Affiliation",
+        "LastSeen": "Last Seen",
+        "Known": "Known",
+        "Hidden": "Hidden",
+        "Flip": "Flip"
+      }
     },
     "Tracker": {
       "Encounter": "Encounter",

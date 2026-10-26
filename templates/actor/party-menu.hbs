@@ -9,7 +9,7 @@
   {{/if}}
   {{#each tabs}}
   <button type="button" class="mi {{this.cssClass}}" data-action="tab" data-group="{{this.group}}" data-tab="{{this.id}}">
-    <i class="fa-solid {{#if (eq this.id "notes")}}fa-note-sticky{{else}}fa-users{{/if}}" inert></i>{{localize this.label}}
+    <i class="fa-solid {{#if (eq this.id "notes")}}fa-note-sticky{{else if (eq this.id "dossier")}}fa-address-card{{else}}fa-users{{/if}}" inert></i>{{localize this.label}}
   </button>
   {{/each}}
   <button type="button" class="mi" data-action="openClash">

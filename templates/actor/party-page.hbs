@@ -52,6 +52,95 @@
     </div>
   </section>
 
+  <section class="tab dossier {{tabs.dossier.cssClass}}" data-group="primary" data-tab="dossier">
+    <div class="pcard board" style="--tc: var(--violet)">
+      <span class="tag">{{localize "PARADIGMENGINE.Party.Tab.dossier"}}<span class="tail">{{dossierCount}}</span></span>
+      <div class="dcards">
+        {{#each dossier}}
+        {{#if this.veiled}}
+        <div class="dc veiled">
+          <div class="hid"><span class="q">?</span><span class="cap">{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}</span></div>
+        </div>
+        {{else}}
+        <div class="dc{{#if this.flipped}} flip{{/if}}{{#if this.edit}} editing{{/if}}" style="--tc: var({{this.cssVar}})"
+          data-uuid="{{this.uuid}}"{{#unless this.edit}} data-action="flipCard"{{/unless}}>
+          <div class="in">
+            <div class="face front">
+              <div class="art">
+                {{#if this.portrait}}
+                <img class="{{#if this.edit}}framing{{/if}}" src="{{this.portrait}}" alt="{{this.name}}" style="{{this.frameStyle}}" draggable="false">
+                {{else}}<span class="ph">{{this.initial}}</span>{{/if}}
+              </div>
+              {{#if this.edit}}
+              <button type="button" class="delbtn" data-action="removeCard" data-i="{{this.index}}"
+                aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+              <div class="ctools">
+                {{#if this.portrait}}
+                <button type="button" data-action="stepCardZoom" data-dir="-1" aria-label="{{localize "PARADIGMENGINE.Edit.ZoomOut"}}">−</button>
+                <button type="button" data-action="stepCardZoom" data-dir="1" aria-label="{{localize "PARADIGMENGINE.Edit.ZoomIn"}}">＋</button>
+                {{/if}}
+                <button type="button" class="{{#if this.hidden}}on{{/if}}" data-action="toggleHidden" data-i="{{this.index}}"
+                  data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}" aria-pressed="{{this.hidden}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}"><i class="fa-solid {{#if this.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}" inert></i></button>
+                <button type="button" data-action="flipCard" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"><i class="fa-solid fa-rotate" inert></i></button>
+              </div>
+              <div class="band ed">
+                <div class="stands">
+                  {{#each this.standings}}
+                  <button type="button" class="{{#if this.on}}on{{/if}}" data-action="setStanding" data-i="{{../index}}" data-standing="{{this.key}}">{{this.label}}</button>
+                  {{/each}}
+                </div>
+                <div class="nm">{{this.name}}</div>
+                <input class="ed-input" type="text" name="system.dossier.{{this.index}}.title" value="{{this.title}}"
+                  placeholder="{{localize "PARADIGMENGINE.Party.Dossier.Title"}}" aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Title"}}">
+              </div>
+              {{else}}
+              <span class="stand">{{this.standingLabel}}</span>
+              {{#if this.hidden}}<span class="gmhid" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}"><i class="fa-solid fa-eye-slash" inert></i></span>{{/if}}
+              <div class="band">
+                <div class="nm">{{this.name}}</div>
+                <div class="ep">{{this.title}}</div>
+              </div>
+              <i class="fa-solid fa-rotate fl" inert></i>
+              {{/if}}
+            </div>
+            <div class="face back">
+              <div class="bh">
+                <div class="nm">{{this.name}}</div>
+                <div class="st">{{this.standingLabel}}</div>
+              </div>
+              <div class="bb">
+                {{#if this.edit}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.Affiliation"}}</div>
+                  <input class="ed-input" type="text" name="system.dossier.{{this.index}}.affiliation" value="{{this.affiliation}}"
+                    aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Affiliation"}}"></div>
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.LastSeen"}}</div>
+                  <input class="ed-input" type="text" name="system.dossier.{{this.index}}.lastSeen" value="{{this.lastSeen}}"
+                    aria-label="{{localize "PARADIGMENGINE.Party.Dossier.LastSeen"}}"></div>
+                <div class="known"><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.Known"}}</div>
+                  <textarea class="ed-area" name="system.dossier.{{this.index}}.known"
+                    aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Known"}}">{{this.known}}</textarea></div>
+                <button type="button" class="flipbtn" data-action="flipCard" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"><i class="fa-solid fa-rotate" inert></i></button>
+                {{else}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.Affiliation"}}</div><div class="vl">{{#if this.affiliation}}{{this.affiliation}}{{else}}<span class="empty">·</span>{{/if}}</div></div>
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.LastSeen"}}</div><div class="vl">{{#if this.lastSeen}}{{this.lastSeen}}{{else}}<span class="empty">·</span>{{/if}}</div></div>
+                <div class="known"><div class="lb">{{localize "PARADIGMENGINE.Party.Dossier.Known"}}</div><div class="vl">{{#if this.known}}{{this.known}}{{else}}<span class="empty">·</span>{{/if}}</div></div>
+                {{/if}}
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        {{/each}}
+        {{#if dossierEdit}}
+        <div class="slot"><i class="fa-solid fa-plus" inert></i></div>
+        {{/if}}
+      </div>
+    </div>
+  </section>
+
   <section class="tab notes {{tabs.notes.cssClass}}" data-group="primary" data-tab="notes">
     <div class="panel">
       <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Party.Tab.notes"}}</span></div>

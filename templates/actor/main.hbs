@@ -9,6 +9,7 @@
 
       <div class="pcard bonds" style="--tc: var(--yellow)">
         <span class="tag">{{localize "PARADIGMENGINE.Panel.Bonds"}}<span class="tail">{{bonds.length}}</span></span>
+        <div class="brows">
         {{#each bonds}}
         <div class="brow" style="--rk: var({{this.badge.cssVar}})" data-i="{{@index}}">
           {{#if @root.editMode}}
@@ -59,6 +60,7 @@
         {{/if}}
         </div>
         {{/each}}
+        </div>
         {{#if editMode}}
         <button type="button" class="addbtn" data-action="addBond">{{localize "PARADIGMENGINE.Edit.AddBond"}}</button>
         {{/if}}

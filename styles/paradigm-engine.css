@@ -2955,24 +2955,56 @@
     margin-top: 0;
   }
 
-  /* lower columns */
+  /* lower columns. The Main tab takes the height left under the header
+     and the columns fill it; the Skills rows and the Bond rows scroll
+     inside their cards once they outgrow it. A window too short for the
+     columns scrolls the tab instead. */
+  section.tab.main.active {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
   .cols {
     display: grid;
     grid-template-columns: 150px minmax(0, 1fr) 200px;
+    grid-template-rows: minmax(0, 1fr);
     gap: 22px;
     align-items: stretch;
+    flex: 1;
+    min-height: 440px;
   }
   .cols > .pcard:not(.attrs),
   .cols > .stack {
     margin-top: 22px;
   }
+  .cols > .pcard:not(.attrs) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
   .stack {
     display: flex;
     flex-direction: column;
     gap: 26px;
+    min-height: 0;
   }
   .stack > .pcard:last-child {
     flex: 1;
+  }
+  .stack > .bonds {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .brows {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .brows:has(.bpop) {
+    overflow: visible;
   }
 
   /* checks */
@@ -3054,6 +3086,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 18px;
+    align-content: start;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
   .srow {
     display: grid;
@@ -5042,6 +5078,313 @@
     color: var(--line);
     font-size: 28px;
   }
+  /* ----- the Dossier: a deck of NPC cards ----- */
+  .dcards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 16px;
+  }
+  .dcards .slot {
+    min-height: 0;
+    aspect-ratio: 5 / 7;
+  }
+  .dc {
+    position: relative;
+    aspect-ratio: 5 / 7;
+    perspective: 1000px;
+    cursor: pointer;
+  }
+  .dc.editing,
+  .dc.veiled {
+    cursor: default;
+  }
+  .dc .in {
+    position: absolute;
+    inset: 0;
+    transition: transform .55s;
+    transform-style: preserve-3d;
+  }
+  .dc.flip .in {
+    transform: rotateY(180deg);
+  }
+  .dc .face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: 6px;
+    box-shadow: var(--card-shadow);
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .dc .back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+  }
+  .dc .art {
+    position: absolute;
+    inset: 0;
+    background: var(--paper-2);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .dc .art img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+  }
+  .dc .art img.framing {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .dc .art img.framing:active {
+    cursor: grabbing;
+  }
+  .dc .art .ph {
+    font-family: var(--f-title);
+    font-size: 96px;
+    line-height: 1;
+    color: #e4e6ec;
+  }
+  .dc .stand {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    padding: 4px 12px 3px 10px;
+    background: var(--tc);
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 9px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+  .dc .gmhid {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(27, 28, 34, .82);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+  }
+  .dc .band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 26px 12px 10px;
+    background: linear-gradient(to top, rgba(27, 28, 34, .94) 60%, rgba(27, 28, 34, 0));
+  }
+  .dc .band .nm {
+    font-family: var(--f-title);
+    font-size: 17px;
+    line-height: 1.05;
+    color: #fff;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
+    border-bottom: 2px solid var(--tc);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dc .band .ep {
+    min-height: 14px;
+    font-size: 11.5px;
+    color: #d7dae2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dc .fl {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    color: #fff;
+    opacity: .7;
+    font-size: 13px;
+  }
+  .dc .bh {
+    padding: 12px 12px 8px;
+    border-bottom: 2px solid var(--tc);
+  }
+  .dc .bh .nm {
+    font-family: var(--f-title);
+    font-size: 17px;
+    line-height: 1.05;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dc .bh .st {
+    margin-top: 3px;
+    font-family: var(--f-tag);
+    font-size: 9px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--tc);
+  }
+  .dc .bb {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px 12px;
+  }
+  .dc .lb {
+    margin-bottom: 2px;
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dc .vl {
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ink-2);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .dc .known {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .dc .known .vl {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .dc .known textarea {
+    flex: 1;
+    min-height: 0;
+    resize: none;
+  }
+  .dc .bb .ed-input {
+    width: 100%;
+  }
+  .dc .bb .flipbtn {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+  }
+  .dc .hid {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    box-shadow: var(--card-shadow);
+    background: var(--paper-2) repeating-linear-gradient(45deg, rgba(35, 37, 46, .05) 0 8px, transparent 8px 16px);
+    display: grid;
+    place-items: center;
+  }
+  .dc .hid .q {
+    font-family: var(--f-title);
+    font-size: 80px;
+    line-height: 1;
+    color: #cfd3dc;
+  }
+  .dc .hid .cap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 12px;
+    text-align: center;
+    font-family: var(--f-tag);
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dc .delbtn {
+    position: absolute;
+    left: 6px;
+    top: 4px;
+    z-index: 2;
+  }
+  .dc .ctools {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: flex;
+    gap: 4px;
+  }
+  .dc .ctools button,
+  .dc .bb .flipbtn {
+    width: 26px;
+    height: 24px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 4px;
+    background: rgba(27, 28, 34, .82);
+    color: #fff;
+    font-family: var(--f-ui);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .dc .ctools button i,
+  .dc .bb .flipbtn i {
+    font-size: 11px;
+  }
+  .dc .ctools button:hover,
+  .dc .bb .flipbtn:hover {
+    background: var(--blue);
+  }
+  .dc .ctools button.on {
+    background: var(--pink);
+  }
+  .dc .band.ed {
+    padding-top: 10px;
+    background: rgba(27, 28, 34, .94);
+  }
+  .dc .band.ed .nm {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  .dc .stands {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 6px;
+  }
+  .dc .stands button {
+    flex: 1;
+    padding: 3px 0;
+    border: 1.5px solid rgba(255, 255, 255, .35);
+    border-radius: 4px;
+    background: none;
+    color: #d7dae2;
+    font-size: 8px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .dc .stands button:hover {
+    border-color: #fff;
+    color: #fff;
+  }
+  .dc .stands button.on {
+    background: var(--tc);
+    border-color: var(--tc);
+    color: #fff;
+  }
+  .dc .band .ed-input {
+    width: 100%;
+    background: rgba(255, 255, 255, .95);
+    color: #23252e;
+  }
   .tab.notes .panel-h {
     --tc: var(--green);
   }
@@ -6011,7 +6354,9 @@ body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) {
       background: var(--paper);
     }
     .emblem .ph,
-    .mc .art .ph {
+    .mc .art .ph,
+    .dc .art .ph,
+    .dc .hid .q {
       color: #3a3d48;
     }
     .mc .luck .lx.spent {

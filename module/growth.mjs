@@ -66,13 +66,19 @@ export async function cancelMilestone(actor) {
 
 /* ----- option states ----- */
 
-/* Skills with a Rank of their own below the Character Rank. */
-function rankableSkills(actor) {
-  return actor.itemTypes.skill.filter(i => !i.system.prerequisite && i.system.rank < actor.system.rank);
+/* The Rank a Rank Up may reach: the Character Rank for the General
+   options, the top of the Ladder for the Season ones. */
+export function rankCap(actor, key) {
+  return key.endsWith("2") ? LADDER.length - 1 : actor.system.rank;
 }
 
-function rankableBonds(actor) {
-  return actor.system.bonds.map((bond, index) => ({ bond, index })).filter(({ bond }) => bond.rank < actor.system.rank);
+/* Skills with a Rank of their own below the cap. */
+function rankableSkills(actor, cap) {
+  return actor.itemTypes.skill.filter(i => !i.system.prerequisite && i.system.rank < cap);
+}
+
+function rankableBonds(actor, cap) {
+  return actor.system.bonds.map((bond, index) => ({ bond, index })).filter(({ bond }) => bond.rank < cap);
 }
 
 /* Whether the option can be bought now, and its live reading. */
@@ -89,10 +95,16 @@ export function optionState(actor, option) {
     case "modifySkill": return { can: actor.itemTypes.skill.length > 0, sub: "" };
     case "newSkill": return { can: true, sub: atRank(LADDER[0]) };
     case "skillRankUp1":
-    case "skillRankUp2": return { can: rankableSkills(actor).length > 0, sub: toRank(rank) };
+    case "skillRankUp2": {
+      const cap = rankCap(actor, option.key);
+      return { can: rankableSkills(actor, cap).length > 0, sub: toRank(LADDER[cap]) };
+    }
     case "newBond": return { can: true, sub: atRank(LADDER[0]) };
     case "bondRankUp1":
-    case "bondRankUp2": return { can: rankableBonds(actor).length > 0, sub: toRank(rank) };
+    case "bondRankUp2": {
+      const cap = rankCap(actor, option.key);
+      return { can: rankableBonds(actor, cap).length > 0, sub: toRank(LADDER[cap]) };
+    }
     case "heart": return { can: system.hearts.max < GROWTH_CAPS.points, sub: of(system.hearts.max, GROWTH_CAPS.points) };
     case "energy": return { can: system.energy.max < GROWTH_CAPS.points, sub: of(system.energy.max, GROWTH_CAPS.points) };
     case "stepLuck": return { can: !!dieNext, sub: dieNext ? step(`d${system.luckDie}`, `d${dieNext}`) : `d${system.luckDie}` };
@@ -178,7 +190,7 @@ export async function spend(actor, key, choice = {}) {
     }
     case "skillRankUp1":
     case "skillRankUp2": {
-      const skill = rankableSkills(actor).find(i => i.id === choice.itemId);
+      const skill = rankableSkills(actor, rankCap(actor, key)).find(i => i.id === choice.itemId);
       if (!skill) return false;
       await skill.update({ "system.rank": skill.system.rank + 1 });
       item = { key, name: skill.name, rank: skill.system.rank };
@@ -195,7 +207,7 @@ export async function spend(actor, key, choice = {}) {
     case "bondRankUp2": {
       const bonds = system.toObject().bonds;
       const bond = bonds[choice.index];
-      if (!bond || bond.rank >= system.rank) return false;
+      if (!bond || bond.rank >= rankCap(actor, key)) return false;
       bond.rank += 1;
       update["system.bonds"] = bonds;
       item = { key, name: bond.name, rank: bond.rank };
@@ -299,8 +311,7 @@ export function modifySkillRows(actor) {
   return actor.itemTypes.skill.map(skill => skillRow(actor, skill, { can: true }));
 }
 
-export function skillRankRows(actor) {
-  const cap = actor.system.rank;
+export function skillRankRows(actor, cap = actor.system.rank) {
   return actor.itemTypes.skill.map(skill => {
     const can = !skill.system.prerequisite && skill.system.rank < cap;
     const next = can ? LADDER[skill.system.rank + 1] : null;
@@ -308,8 +319,7 @@ export function skillRankRows(actor) {
   });
 }
 
-export function bondRankRows(actor) {
-  const cap = actor.system.rank;
+export function bondRankRows(actor, cap = actor.system.rank) {
   return actor.system.bonds.map((bond, index) => {
     const step = LADDER[bond.rank];
     const can = bond.rank < cap;
