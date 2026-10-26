@@ -74,14 +74,15 @@ export function readSplash(faces) {
 }
 
 /* Band of a roll against an effective Difficulty, in rules order: Fumble
-   on double 1s, Combo on doubles of 6 or higher, then the Difficulty
-   itself: reach its number and the roll succeeds, below it fails. NPC
-   results read the same way. */
+   on double 1s, then the Difficulty itself: reach its number and the roll
+   succeeds, below it fails. Doubles of 6 or higher that reach it are a
+   Combo; a Combo only succeeds if the total meets the Difficulty, so one
+   below it fails like any other roll. NPC results read the same way. */
 export function evaluateBand(faces, total, effective, npc = false) {
   const splash = readSplash(faces);
   if (splash === "fumble") return "Fumble";
-  if (splash === "combo") return "Combo";
-  return total >= DIFFICULTY[effective].number ? "Success" : "Failure";
+  if (total < DIFFICULTY[effective].number) return "Failure";
+  return splash === "combo" ? "Combo" : "Success";
 }
 
 export function isSuccess(band) {
