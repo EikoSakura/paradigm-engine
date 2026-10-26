@@ -18,8 +18,10 @@ import { registerClash } from "./apps/clash.mjs";
 import { registerChecks } from "./checks.mjs";
 import { registerChat } from "./chat.mjs";
 import { registerTracker } from "./tracker.mjs";
+import { registerStartingSkills } from "./starting-skills.mjs";
 
 Hooks.once("init", () => {
+  registerStartingSkills();
   registerSplash();
   registerLuck();
   registerSidebarToggle();

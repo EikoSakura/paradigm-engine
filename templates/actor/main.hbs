@@ -18,6 +18,8 @@
           </select>
           <input class="ed-input ed-name" type="text" name="system.bonds.{{@index}}.name"
             value="{{this.name}}" placeholder="{{localize "PARADIGMENGINE.Placeholder.BondName"}}">
+          <input class="ed-input ed-rel" type="text" name="system.bonds.{{@index}}.relation"
+            value="{{this.relation}}" placeholder="{{localize "PARADIGMENGINE.Creator.Relation"}}">
           {{#if this.invoked}}
           <button type="button" class="invoked clear" data-action="clearInvoked" data-i="{{@index}}"
             data-tooltip="{{localize "PARADIGMENGINE.Bond.ClearInvoked"}}">{{localize "PARADIGMENGINE.Bond.Invoked"}} ✕</button>
@@ -27,7 +29,7 @@
           {{else}}
           <button type="button" class="rchip{{#if this.badge.flipped}} flipped{{/if}}" data-action="flipBadge"
             data-key="{{this.badge.key}}">{{this.badge.text}}</button>
-          <b>{{this.name}}</b>
+          <b>{{this.name}}{{#if this.relation}}<span class="rel">{{this.relation}}</span>{{/if}}</b>
           {{#if this.invoked}}
           <span class="invoked">{{localize "PARADIGMENGINE.Bond.Invoked"}}</span>
           {{else if this.canInvoke}}

@@ -28,6 +28,7 @@ export default class PcData extends foundry.abstract.TypeDataModel {
       bonds: new ArrayField(
         new SchemaField({
           name: textField(),
+          relation: textField(),
           rank: rankField(0),
           invoked: new BooleanField({ initial: false })
         })

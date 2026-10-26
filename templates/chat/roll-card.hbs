@@ -6,7 +6,7 @@
   <div class="cbody">
     <div class="dicerow">
       {{#each faces}}
-      <span class="face{{#if this.lucky}} lucky{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
+      <span class="face{{#if this.lucky}} lucky{{/if}}{{#if this.traded}} traded{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
       {{/each}}
       <div class="rtotal">
         <span class="tlab">{{localize "PARADIGMENGINE.Roll.Total"}}</span>
@@ -15,6 +15,9 @@
     </div>
     {{#each luck}}
     <div class="rline luck"><i class="rmark"></i><span>{{this}}</span></div>
+    {{/each}}
+    {{#each trades}}
+    <div class="rline trade"><i class="rmark"></i><span>{{this}}</span></div>
     {{/each}}
     {{#if band}}
     <div class="dband">
@@ -32,6 +35,7 @@
     <div class="cfoot clashfoot">
       <span class="sidename">{{clash.name}}</span>
       <span class="boxes">{{#each clash.boxes}}<i class="{{#if this.fresh}}fresh{{else if this.on}}on{{/if}}"></i>{{/each}}</span>
+      <button type="button" class="cbtn o tradebtn">{{localize "PARADIGMENGINE.Clash.Trade"}}</button>
     </div>
     {{/if}}
   </div>

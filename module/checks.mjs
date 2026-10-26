@@ -5,8 +5,9 @@
    ones for characters they own. */
 
 import RollDialog from "./apps/roll-dialog.mjs";
-import ClashWindow, { clashSideOf } from "./apps/clash.mjs";
-import { SOCKET, applyCardOp, cardOp, multiRow, postMultiCard, rollDice, showRoll } from "./chat.mjs";
+import ClashWindow, { clashRolls, clashRunning, clashSideOf } from "./apps/clash.mjs";
+import TradePicker from "./apps/trade-picker.mjs";
+import { SOCKET, applyCardOp, cardOp, multiRow, postMultiCard, readSplash, rollDice, showRoll } from "./chat.mjs";
 import { partyMembers, partyOf } from "./party.mjs";
 
 const { TextEditor } = foundry.applications.ux;
@@ -62,8 +63,21 @@ export function startClashRoll(actor, anchor) {
   if (!side) return ui.notifications.warn("PARADIGMENGINE.Check.NotInClash", { localize: true });
   RollDialog.open(actor, null, anchor, {
     tag: side.name,
-    extra: { clash: { side: side.index, name: side.name, marks: side.marks, target: side.target } }
+    extra: { clash: { side: side.index, name: side.name, marks: side.marks, target: side.target, clashId: side.clashId } }
   });
+}
+
+/* The Trade button on a Clash roll card: for the roller while the Clash
+   runs, the card is no Fumble, and another roll of the Clash is there to
+   trade with. */
+function wireTrade(message, flags, html) {
+  const button = html.querySelector(".tradebtn");
+  if (!button) return;
+  const actor = ChatMessage.implementation.getSpeakerActor(message.speaker);
+  const open = actor?.isOwner && clashRunning(flags.clash.clashId) && readSplash(flags.card.faces) !== "fumble"
+    && clashRolls(flags.clash.clashId).some(m => m.id !== message.id);
+  if (!open) return button.remove();
+  button.addEventListener("click", () => TradePicker.open(message));
 }
 
 /* A row's roll from a shared card: the popup under the button, the dice
@@ -129,6 +143,7 @@ function wireCard(message, html) {
       button.addEventListener("click", () => cardOp(message, { type: "shift", dieIndex: Number(button.dataset.index) }));
     }
   }
+  if (flags.clash && flags.card) wireTrade(message, flags, html);
   if (flags.clashLive) {
     for (const button of html.querySelectorAll(".clroll")) {
       const actor = actorFromUuid(button.dataset.uuid);

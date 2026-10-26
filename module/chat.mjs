@@ -168,9 +168,10 @@ export function rollCardContext(card) {
   return {
     band,
     title: card.title,
-    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], index: i })),
+    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], traded: card.traded?.[i], index: i })),
     total: cardTotal(card),
-    luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name }))
+    luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name })),
+    trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t))
   };
 }
 
@@ -366,6 +367,40 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
   await message.update({ content, flags });
 }
 
+/* A Clash trade: one die of this roll swaps with one die of another roll
+   of the same Clash, any side. Both cards re-band and re-render; the
+   Clash marks follow on the Storyteller's client through the update hook.
+   A Fumble on either card stands. */
+export async function applyTrade(message, dieIndex, otherId, otherIndex) {
+  const other = game.messages.get(otherId);
+  if (!other || other.id === message.id) return;
+  const mine = foundry.utils.deepClone(message.flags["paradigm-engine"]?.card);
+  const theirs = foundry.utils.deepClone(other.flags["paradigm-engine"]?.card);
+  if (!mine || !theirs || !(dieIndex in mine.faces) || !(otherIndex in theirs.faces)) return;
+  if (readSplash(mine.faces) === "fumble" || readSplash(theirs.faces) === "fumble") return;
+  const myName = message.speaker?.alias || message.author?.name || "";
+  const theirName = other.speaker?.alias || other.author?.name || "";
+  const a = mine.faces[dieIndex];
+  const b = theirs.faces[otherIndex];
+  mine.faces[dieIndex] = b;
+  theirs.faces[otherIndex] = a;
+  mine.traded = mine.faces.map((_, i) => !!mine.traded?.[i] || i === dieIndex);
+  theirs.traded = theirs.faces.map((_, i) => !!theirs.traded?.[i] || i === otherIndex);
+  (mine.trades ??= []).push({ mine: a, theirs: b, name: theirName });
+  (theirs.trades ??= []).push({ mine: b, theirs: a, name: myName });
+  rebandCard(mine);
+  rebandCard(theirs);
+  for (const [msg, card] of [[message, mine], [other, theirs]]) {
+    const stored = msg.flags["paradigm-engine"] ?? {};
+    const splash = readSplash(card.faces);
+    const flags = { "paradigm-engine": { card } };
+    if (splash !== (stored.splash ?? null)) {
+      flags["paradigm-engine"].splash = splash ?? new foundry.data.operators.ForcedDeletion();
+    }
+    await msg.update({ content: await renderRollCard({ ...stored, card }), flags });
+  }
+}
+
 /* ----- the card relay -----
    A change to a shared card applies directly when this user may update the
    message, else through the active Storyteller over the system socket. */
@@ -378,11 +413,14 @@ export async function applyCardOp(message, op) {
     case "multiRoll": return applyMultiRoll(message, op.row, op.card, op.npc);
     case "shift": return applyShift(message, op.dieIndex);
     case "addRow": return applyAddRow(message, op.row);
+    case "trade": return applyTrade(message, op.dieIndex, op.otherId, op.otherIndex);
   }
 }
 
+/* A trade touches two messages, so it always goes through the Storyteller. */
 export async function cardOp(message, op) {
-  if (message.canUserModify(game.user, "update")) return applyCardOp(message, op);
+  const direct = op.type === "trade" ? game.user.isGM : message.canUserModify(game.user, "update");
+  if (direct) return applyCardOp(message, op);
   if (!game.users.activeGM) {
     ui.notifications.warn("PARADIGMENGINE.Check.NoStoryteller", { localize: true });
     return;

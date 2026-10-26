@@ -1,0 +1,22 @@
+<div class="lpick tpick">
+  <div class="lprow own">
+    <span class="lpname">{{localize "PARADIGMENGINE.Clash.TradeYour"}}</span>
+    <span class="lpdice">
+      {{#each mine}}
+      <button type="button" class="lpdie{{#if this.on}} on{{/if}}" data-action="mine" data-index="{{this.index}}"
+        aria-pressed="{{this.on}}">{{this.value}}</button>
+      {{/each}}
+    </span>
+  </div>
+  {{#each others}}
+  <div class="lprow{{#if this.fumble}} off{{/if}}">
+    <span class="lpname">{{this.name}}</span>
+    <span class="lpdice">
+      {{#each this.dice}}
+      <button type="button" class="lpdie" data-action="pick" data-id="{{../id}}" data-index="{{this.index}}"
+        {{#if ../fumble}}disabled{{/if}}>{{this.value}}</button>
+      {{/each}}
+    </span>
+  </div>
+  {{/each}}
+</div>

@@ -16,7 +16,7 @@ export function registerTheme() {
       dark: "PARADIGMENGINE.Settings.Theme.Dark",
       foundry: "PARADIGMENGINE.Settings.Theme.Foundry"
     },
-    default: "light",
+    default: "dark",
     onChange: applyTheme
   });
   applyTheme(game.settings.get("paradigm-engine", SETTING));
@@ -25,5 +25,5 @@ export function registerTheme() {
 function applyTheme(theme) {
   const classes = document.body.classList;
   for (const t of THEMES) classes.remove(`pe-theme-${t}`);
-  classes.add(`pe-theme-${THEMES.includes(theme) ? theme : "light"}`);
+  classes.add(`pe-theme-${THEMES.includes(theme) ? theme : "dark"}`);
 }

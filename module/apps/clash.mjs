@@ -97,7 +97,22 @@ export function clashSideOf(actor) {
   const index = state.sides.findIndex(s => s.members.some(m => m.uuid === actor.uuid));
   if (index < 0) return null;
   const side = state.sides[index];
-  return { index, name: sideName(side), marks: side.marks, target: state.target };
+  return { index, name: sideName(side), marks: side.marks, target: state.target, clashId: state.messageId };
+}
+
+/* Whether a Clash roll card belongs to the Clash now running. */
+export function clashRunning(clashId) {
+  const state = readClash();
+  return !!clashId && state.started && clashWinner(state) < 0 && state.messageId === clashId;
+}
+
+/* The roll cards of a Clash, oldest first. */
+export function clashRolls(clashId) {
+  if (!clashId) return [];
+  return game.messages.filter(m => {
+    const flags = m.flags["paradigm-engine"];
+    return flags?.clash?.clashId === clashId && flags.card;
+  });
 }
 
 /* Members already in the Clash, by key. */
@@ -514,20 +529,22 @@ export async function syncClashCard(state, live = true) {
 
 /* A Clash roll's Success marks one box on its side, once. Runs on the
    Storyteller's client when the card arrives, and again when a Luck swap
-   re-renders it, in case the swap made the Success. The card's flag keeps
-   the side's marks as they stand after this roll. */
+   or a trade re-renders it, in case that made the Success — or, for a
+   trade, unmade it: a marked roll that is no longer a Success gives its
+   box back. The card's flag keeps the side's marks as they stand after
+   this roll. */
 export async function applyClashMark(message) {
   if (!game.user.isGM) return;
   const flags = message.flags["paradigm-engine"] ?? {};
   const clash = flags.clash;
-  const band = flags.card?.difficulty?.band;
-  if (!clash || clash.marked || !isSuccess(band)) return;
+  const success = isSuccess(flags.card?.difficulty?.band);
+  if (!clash || clash.marked === success) return;
   const state = readClash();
   if (!state.started || clashWinner(state) >= 0) return;
   const side = state.sides[clash.side];
   if (!side) return;
-  side.marks = Math.min(side.marks + 1, state.target);
-  const marked = { ...clash, marked: true, marks: side.marks, target: state.target };
+  side.marks = success ? Math.min(side.marks + 1, state.target) : Math.max(side.marks - 1, 0);
+  const marked = { ...clash, marked: success, marks: side.marks, target: state.target };
   await message.update({
     content: await renderRollCard({ ...flags, clash: marked }),
     flags: { "paradigm-engine": { clash: marked } }

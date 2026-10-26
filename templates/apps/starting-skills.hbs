@@ -1,0 +1,38 @@
+<div class="sskills">
+  <div class="card" data-list="granted" style="--tc: var(--green)">
+    <span class="tag">{{localize "PARADIGMENGINE.Settings.StartingSkills.Granted"}}<span class="tail">{{localize "PARADIGMENGINE.Settings.StartingSkills.GrantedSide"}}</span></span>
+    {{#each granted}}
+    <div class="srow">
+      <img class="ic" src="{{this.img}}" alt="">
+      <span class="nm">{{this.name}}</span>
+      <span class="kind">{{this.kind}}</span>
+      <span class="rk">{{this.rank}}</span>
+      <button type="button" class="x" data-action="remove" data-list="granted" data-uuid="{{this.uuid}}"
+        aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+    </div>
+    {{/each}}
+    <div class="drop">{{localize "PARADIGMENGINE.Settings.StartingSkills.Drop"}}</div>
+  </div>
+
+  <div class="card" data-list="choice" style="--tc: var(--yellow)">
+    <span class="tag">{{localize "PARADIGMENGINE.Settings.StartingSkills.Choice"}}<span class="tail">{{localize "PARADIGMENGINE.Settings.StartingSkills.ChoiceSide"}}</span></span>
+    <span class="pool">
+      <button type="button" data-action="stepCount" data-dir="-1"
+        aria-label="{{localize "PARADIGMENGINE.Settings.StartingSkills.PickDown"}}"{{#if downDisabled}} disabled{{/if}}>−</button>
+      <b>{{count}}</b>
+      <button type="button" data-action="stepCount" data-dir="1"
+        aria-label="{{localize "PARADIGMENGINE.Settings.StartingSkills.PickUp"}}"{{#if upDisabled}} disabled{{/if}}>＋</button>
+    </span>
+    {{#each choice}}
+    <div class="srow">
+      <img class="ic" src="{{this.img}}" alt="">
+      <span class="nm">{{this.name}}</span>
+      <span class="kind">{{this.kind}}</span>
+      <span class="rk">{{this.rank}}</span>
+      <button type="button" class="x" data-action="remove" data-list="choice" data-uuid="{{this.uuid}}"
+        aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+    </div>
+    {{/each}}
+    <div class="drop">{{localize "PARADIGMENGINE.Settings.StartingSkills.Drop"}}</div>
+  </div>
+</div>

@@ -2016,8 +2016,19 @@
   padding-top: 8px;
   border-top: 1.5px solid var(--line);
 }
-.pe-card .cfoot .openclash {
+.pe-card .cfoot .openclash,
+.pe-card .cfoot .tradebtn {
   margin-left: auto;
+}
+.pe-card .face.traded {
+  border-color: #b98500;
+  color: #b98500;
+}
+.pe-card .face.lucky.traded {
+  color: var(--ink);
+}
+.pe-card .rline.trade .rmark {
+  background: #b98500;
 }
 
 /* participant rows: shared cards and the Clash card */
@@ -2415,6 +2426,18 @@
     background: var(--gold);
     border-color: #a8771f;
   }
+  .lpdie.on {
+    background: var(--gold);
+    border-color: #a8771f;
+  }
+  .lpdie:disabled {
+    opacity: .35;
+    cursor: default;
+  }
+  .lprow.own {
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--line);
+  }
   .lpdie.static {
     cursor: default;
   }
@@ -2442,8 +2465,7 @@
   }
 }
 
-/* ===== PC creator & NPC builder ===== */
-.paradigm-engine.pc-creator,
+/* ===== NPC builder chrome ===== */
 .paradigm-engine.npc-builder {
   .window-header .dots {
     display: flex;
@@ -3833,6 +3855,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .brow > b .rel {
+    margin-left: 8px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  .brow .ed-rel {
+    flex: 0 1 140px;
   }
 
   /* ----- invoking a Bond ----- */
@@ -5692,7 +5722,857 @@
    Applications color scheme, which core marks on the body as theme-dark.
    The anime file skin inverts through its variables; the literal greys of
    empty pips, locked chips, and dashed edges are restated here. */
+/* ===== PC creator: one file on the skin ===== */
+.paradigm-engine.pc-creator {
+  --ink: #23252e;
+  --ink-2: #4a4d5a;
+  --paper: #ffffff;
+  --paper-2: #f3f5f9;
+  --muted: #8a8d9a;
+  --line: #e6e7ec;
+  --pip-empty: #e4e6ec;
+  --pip-line: #c9ccd6;
+  --blue: #2f7df6;
+  --pink: #f03a86;
+  --yellow: #f5b400;
+  --green: #22b573;
+  --violet: #8a5cf6;
+  --rk-e: #8a8fa0;
+  --rk-d: #22b573;
+  --rk-c: #2f7df6;
+  --rk-b: #8a5cf6;
+  --rk-a: #f26a2a;
+  --rk-s: #f5b400;
+  --f-ui: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  --f-title: "Reggae One", "Zen Kaku Gothic New", sans-serif;
+  --f-tag: "Mochiy Pop One", "Zen Kaku Gothic New", sans-serif;
+  --card-shadow: 0 2px 10px rgba(35, 37, 46, .10), 0 0 0 1px rgba(35, 37, 46, .06);
+
+  font-family: var(--f-ui);
+  font-size: 13px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+  font-variant-numeric: tabular-nums;
+
+  .window-header {
+    background: #1b1c22;
+    .window-title {
+      font-size: 12.5px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+  }
+  .window-content {
+    padding: 0;
+    overflow-y: auto;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .creator {
+    padding: 0 0 18px;
+  }
+  .window-content :where(button) {
+    cursor: pointer;
+  }
+  .window-content :where(button):disabled {
+    cursor: default;
+  }
+
+  /* header: the name and the rail */
+  .head {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 18px 22px 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .eyebrow {
+    font-family: var(--f-tag);
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--pink);
+  }
+  .cname {
+    width: 300px;
+    height: auto;
+    padding: 4px 0 2px;
+    border: none;
+    border-bottom: 3px solid var(--pink);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--f-title);
+    font-size: 30px;
+    line-height: 1;
+  }
+  .cname:focus {
+    outline: none;
+    box-shadow: none;
+  }
+  .rail {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-left: auto;
+  }
+  .rail button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px 5px 10px;
+    border: none;
+    border-radius: 0;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-family: var(--f-tag);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+  }
+  .rail button .n {
+    display: inline-grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--f-ui);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .rail button.done {
+    background: var(--blue);
+    color: #fff;
+  }
+  .rail button.done .n {
+    background: #fff;
+    color: var(--blue);
+  }
+
+  /* cards */
+  .card {
+    position: relative;
+    margin: 26px 22px 0;
+    padding: 22px 18px 16px;
+    border-radius: 6px;
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .tag {
+    position: absolute;
+    top: -13px;
+    left: 10px;
+    z-index: 2;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 5px 16px 4px 12px;
+    background: var(--tc, var(--blue));
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+  }
+  .tag .tail {
+    font-family: var(--f-ui);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: rgba(255, 255, 255, .85);
+  }
+  .pool {
+    position: absolute;
+    top: -13px;
+    right: 14px;
+    z-index: 2;
+    padding: 5px 12px 4px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    clip-path: polygon(9px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .pool b {
+    margin-right: 4px;
+    font-family: var(--f-title);
+    font-weight: 400;
+    font-size: 15px;
+  }
+  .pool.zero {
+    background: var(--green);
+    color: #fff;
+  }
+
+  /* rank badges, as on the file */
+  .badge {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    flex: none;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+  .badge .dia {
+    position: absolute;
+    inset: 3px;
+    transform: rotate(45deg);
+    border: 2px solid var(--ink);
+    background: var(--rkc, var(--rk-e));
+  }
+  .badge .r {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-family: var(--f-title);
+    font-size: 15px;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+  }
+  .badge .r.alt {
+    font-family: var(--f-ui);
+    font-weight: 900;
+    font-size: 11px;
+  }
+  .badge .r.alt.sm {
+    font-size: 9px;
+  }
+  .stepper {
+    display: inline-flex;
+    gap: 4px;
+  }
+  .stepper button {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stepper button:disabled {
+    opacity: .3;
+  }
+
+  /* attributes */
+  .arow {
+    display: grid;
+    grid-template-columns: 110px 34px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .arow:last-child {
+    border-bottom: none;
+  }
+  .arow .name,
+  .prow .name {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .arow .die {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* fields */
+  label {
+    display: block;
+    margin: 0 0 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .field input[type="text"],
+  .field textarea {
+    width: 100%;
+    height: auto;
+    padding: 4px 0;
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 14px;
+  }
+  .field textarea {
+    font-size: 13px;
+    resize: none;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom-color: var(--tc, var(--blue));
+  }
+
+  /* skills */
+  .two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .sk {
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+  }
+  .toprow {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .toprow .field {
+    flex: 1;
+    min-width: 0;
+  }
+  .kindrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .seg {
+    display: inline-flex;
+    overflow: hidden;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+  }
+  .seg button {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .seg button.on {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .chip {
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: var(--yellow);
+    color: #4a3600;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* a pick from the tree or a drop: name shown, no inputs */
+  .sk.taken {
+    border-color: var(--violet);
+  }
+  .locked {
+    padding: 4px 0;
+    border-bottom: 1.5px solid var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    min-height: 26px;
+  }
+  .src {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--violet);
+  }
+  .sec {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .sec .btn {
+    margin-left: auto;
+  }
+  .btn {
+    height: 26px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .btn.on {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* skill rows: the tree, the Choice, the Granted */
+  .srow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .srow:last-child {
+    border-bottom: none;
+  }
+  .srow .ic {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    object-fit: cover;
+    background: var(--paper-2);
+  }
+  .srow .nm {
+    flex: 1;
+    min-width: 0;
+    font-weight: 700;
+  }
+  .srow .kind {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .srow .rk {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    background: var(--rk-e);
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 11px;
+    line-height: 1;
+  }
+  .pick {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .pick.on {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
+  }
+  .pick:disabled {
+    opacity: .3;
+  }
+
+  /* bond */
+  .bondrow {
+    display: grid;
+    grid-template-columns: 1fr 160px 34px;
+    align-items: flex-end;
+    gap: 14px;
+  }
+  .drop {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* luck dice */
+  .hexes {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .hex {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 72px;
+    background: var(--ink);
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  .hex i {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 66px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-title);
+    font-style: normal;
+    font-size: 26px;
+    clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  }
+  .hex.empty i {
+    color: var(--line);
+    font-size: 18px;
+  }
+  .rollbtn {
+    height: 26px;
+    margin-left: 8px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .rollbtn:disabled {
+    opacity: .3;
+  }
+
+  /* finishing touches */
+  .fin {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    align-items: center;
+    gap: 16px;
+  }
+  .prow {
+    display: grid;
+    grid-template-columns: 70px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+  }
+  .pips {
+    display: flex;
+    gap: 4px;
+  }
+  .pip {
+    display: block;
+    width: 22px;
+    height: 20px;
+  }
+  .pip.bolt {
+    width: 18px;
+    height: 22px;
+  }
+  .pip svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .pip .shape {
+    fill: var(--pip-empty);
+    stroke: var(--pip-line);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+  }
+  .pip.on .heart {
+    fill: var(--pink);
+    stroke: #b4205f;
+  }
+  .pip.on .bolt {
+    fill: var(--blue);
+    stroke: #1f5bc0;
+  }
+  .stamp {
+    display: grid;
+    place-items: center;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border: 4px solid var(--pink);
+    border-radius: 50%;
+    color: var(--pink);
+    text-align: center;
+    transform: rotate(-8deg);
+    line-height: 1;
+  }
+  .stamp b {
+    display: block;
+    font-family: var(--f-title);
+    font-weight: 400;
+    font-size: 54px;
+  }
+  .stamp small {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  /* footer: the checklist and Create */
+  .foot {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 22px 22px 0;
+  }
+  .todo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .todo span::before {
+    content: "○ ";
+  }
+  .todo span.done {
+    color: var(--green);
+  }
+  .todo span.done::before {
+    content: "✓ ";
+  }
+  .create {
+    margin-left: auto;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 0;
+    background: var(--pink);
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  .create:disabled {
+    background: var(--muted);
+  }
+}
+
+/* ===== Starting Skills: the settings window ===== */
+.paradigm-engine.starting-skills {
+  --ink: #23252e;
+  --ink-2: #4a4d5a;
+  --paper: #ffffff;
+  --paper-2: #f3f5f9;
+  --muted: #8a8d9a;
+  --line: #e6e7ec;
+  --violet: #8a5cf6;
+  --green: #22b573;
+  --yellow: #f5b400;
+  --rk-e: #8a8fa0;
+  --f-ui: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  --f-title: "Reggae One", "Zen Kaku Gothic New", sans-serif;
+  --f-tag: "Mochiy Pop One", "Zen Kaku Gothic New", sans-serif;
+  --card-shadow: 0 2px 10px rgba(35, 37, 46, .10), 0 0 0 1px rgba(35, 37, 46, .06);
+
+  font-family: var(--f-ui);
+  font-size: 13px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+
+  .window-header {
+    background: #1b1c22;
+    .window-title {
+      font-size: 12.5px;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+  }
+  .window-content {
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .sskills {
+    display: grid;
+    gap: 26px;
+    padding: 26px 14px 14px;
+  }
+  .card {
+    position: relative;
+    padding: 18px 14px 12px;
+    border-radius: 6px;
+    background: var(--paper);
+    box-shadow: var(--card-shadow);
+  }
+  .pool {
+    position: absolute;
+    top: -13px;
+    right: 14px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px 2px;
+    background: var(--ink);
+    color: var(--paper);
+    clip-path: polygon(9px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .pool b {
+    min-width: 16px;
+    font-family: var(--f-title, var(--f-tag));
+    font-weight: 400;
+    font-size: 16px;
+    text-align: center;
+  }
+  .pool button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1.5px solid var(--paper);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--paper);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .pool button:disabled {
+    opacity: .3;
+    cursor: default;
+  }
+  .tag {
+    position: absolute;
+    top: -13px;
+    left: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 5px 16px 4px 12px;
+    background: var(--tc, var(--violet));
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 100%, 0 100%);
+  }
+  .tag .tail {
+    font-family: var(--f-ui);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    color: rgba(255, 255, 255, .85);
+  }
+  .srow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .srow .ic {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 4px;
+    object-fit: cover;
+    background: var(--paper-2);
+  }
+  .srow .nm {
+    flex: 1;
+    min-width: 0;
+    font-weight: 700;
+  }
+  .srow .kind {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .srow .rk {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    background: var(--rk-e);
+    color: #fff;
+    font-family: var(--f-tag);
+    font-size: 11px;
+    line-height: 1;
+  }
+  .srow .x {
+    width: auto;
+    padding: 0 4px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .srow .x:hover {
+    color: var(--ink);
+  }
+  .drop {
+    margin-top: 10px;
+    padding: 14px;
+    border: 1.5px dashed var(--line);
+    border-radius: 6px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
 body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) {
+  .paradigm-engine.starting-skills {
+    --ink: #eceef3;
+    --ink-2: #b3b7c4;
+    --paper: #23252d;
+    --paper-2: #2d3039;
+    --muted: #8e919e;
+    --line: #3a3d47;
+    --card-shadow: 0 2px 10px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .07);
+
+    .window-header {
+      background: #0f1013;
+    }
+  }
+
+  .paradigm-engine.pc-creator {
+    --ink: #eceef3;
+    --ink-2: #b3b7c4;
+    --paper: #23252d;
+    --paper-2: #2d3039;
+    --muted: #8e919e;
+    --line: #3a3d47;
+    --pip-empty: #30333d;
+    --pip-line: #44474f;
+    --card-shadow: 0 2px 10px rgba(0, 0, 0, .45), 0 0 0 1px rgba(255, 255, 255, .07);
+
+    .window-header {
+      background: #0f1013;
+    }
+  }
+
   .paradigm-engine.sheet.actor,
   .paradigm-engine.sheet.item,
   .paradigm-engine.skill-tree,

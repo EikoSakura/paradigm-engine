@@ -1,16 +1,24 @@
 import { ATTRIBUTES, LADDER, SKILL_KINDS, costLabel } from "../config.mjs";
+import { readStartingChoice, readStartingSkills, startingSkillRow } from "../starting-skills.mjs";
+import SkillTree from "./skill-tree.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-const STEP_LABELS = [
-  "PARADIGMENGINE.Header.PC",
-  "PARADIGMENGINE.Panel.Attributes",
-  "PARADIGMENGINE.Panel.Skills",
-  "PARADIGMENGINE.Creator.Bond",
-  "PARADIGMENGINE.Creator.Finishing"
+/* The five cards, in order; the rail at the top names them. */
+const CARDS = [
+  { key: "attributes", label: "PARADIGMENGINE.Panel.Attributes" },
+  { key: "skills", label: "PARADIGMENGINE.Panel.Skills" },
+  { key: "bond", label: "PARADIGMENGINE.Creator.Bond" },
+  { key: "luck", label: "PARADIGMENGINE.Vitals.LuckDice" },
+  { key: "finishing", label: "PARADIGMENGINE.Creator.Finishing" }
 ];
 
-const TRADE = { floor: 3, cap: 8, total: 12 };
+/* Attributes: five points, each from E up to A. */
+const ATTR_POINTS = 5;
+const ATTR_CAP = 4;
+
+/* Finishing Touches: eight points between Hearts and Energy. */
+const POOL_POINTS = 8;
 
 /* Creator textareas are plain text; the items' Description fields hold HTML. */
 export function paragraphs(text) {
@@ -30,12 +38,43 @@ function plainLines(html) {
   return lines.length ? lines.join("\n") : div.textContent.trim();
 }
 
-/* The PC Creator wizard, opened from a PC sheet's title
-   bar. State seeds from the actor, and every change is kept on the actor
-   flag "creator", so reopening resumes the selections instead of starting
-   over. Create PC writes the opening actor and replaces the
-   creator's own two Skills, never touching items added outside it.
-   One creator per actor. */
+function emptyPick() {
+  return { name: "", kind: "Technique", text: "", source: "" };
+}
+
+/* A pick filled from a world Skill: the tree's, or one dropped in. */
+function pickFrom(item) {
+  return {
+    name: item.name,
+    kind: SKILL_KINDS.includes(item.system.kind) ? item.system.kind : "Technique",
+    text: plainLines(item.system.text),
+    source: item.system.source || item.uuid
+  };
+}
+
+/* The Skill Tree's roots, the Skills a new PC can take. */
+function treeRoots() {
+  return game.items
+    .filter(i => i.type === "skill" && i.system.inTree && !i.system.prerequisite)
+    .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+}
+
+/* A world Skill's data, ready to land on the PC. */
+function copyOf(item, flags) {
+  const data = item.inCompendium ? game.items.fromCompendium(item, { clearFolder: true }) : item.toObject();
+  delete data._id;
+  data.system.source = item.system.source || item.uuid;
+  data.flags = { ...data.flags, "paradigm-engine": { ...(data.flags?.["paradigm-engine"] ?? {}), ...flags } };
+  return data;
+}
+
+/* The PC Creator, opened from a PC File's title bar: one scrolling file
+   on the skin, the name in the header and five cards under it. State
+   seeds from the actor, and every change is kept on the actor flag
+   "creator", so reopening resumes the selections instead of starting
+   over. Create PC writes the opening actor and replaces the creator's
+   own two Skills, never touching items added outside it. One creator
+   per actor. */
 export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor, ...options } = {}) {
     super(options);
@@ -45,17 +84,18 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   static DEFAULT_OPTIONS = {
-    classes: ["paradigm-engine", "sheet", "pc-creator"],
-    position: { width: 880, height: "auto" },
+    classes: ["paradigm-engine", "pc-creator"],
+    position: { width: 860, height: 760 },
+    window: { resizable: true },
     actions: {
       goto: this.#onGoto,
-      back: this.#onBack,
-      next: this.#onNext,
       stepAttr: this.#onStepAttr,
       flipBadge: this.#onFlipBadge,
       setKind: this.#onSetKind,
+      openTree: this.#onOpenTree,
+      takeSkill: this.#onTakeSkill,
+      choose: this.#onChoose,
       stepPool: this.#onStepPool,
-      flipSeal: this.#onFlipSeal,
       rollLuck: this.#onRollLuck,
       create: this.#onCreate
     }
@@ -69,24 +109,21 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
 
   #actor;
 
-  #step = 0;
-
   #name = "";
 
-  /* Attribute Ranks double as spent Step Ups: all start at E (0), cap C (2). */
+  /* Attribute Ranks double as spent points: all start at E (0), cap A (4). */
   #attrs = { might: 0, agility: 0, mind: 0, spirit: 0, charm: 0 };
 
-  #skills = [{ name: "", kind: "Technique", text: "" }, { name: "", kind: "Technique", text: "" }];
+  #skills = [emptyPick(), emptyPick()];
 
-  #bond = { name: "" };
+  /* UUIDs picked from the Choice list. */
+  #choice = [];
 
-  /* The creation trade: Hearts and Energy one for one, floor 3, cap 8,
-     always totalling 12. */
-  #pools = { hearts: 6, energy: 6 };
+  #bond = { name: "", relation: "" };
+
+  #pools = { hearts: 4, energy: 4 };
 
   #luck = [null, null, null];
-
-  #sealFlip = false;
 
   /* Which rank badges currently show their die face. Display state only. */
   #flipped = new Set();
@@ -107,22 +144,27 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     const system = actor.system;
     this.#name = actor.name ?? "";
     for (const key of Object.keys(this.#attrs)) {
-      this.#attrs[key] = Math.clamp(system.attributes[key] ?? 0, 0, 2);
+      this.#attrs[key] = Math.clamp(system.attributes[key] ?? 0, 0, ATTR_CAP);
     }
-    const skills = actor.itemTypes.skill;
+    const skills = actor.itemTypes.skill.filter(item => !item.getFlag("paradigm-engine", "granted"));
     this.#seededIds = skills.slice(0, 2).map(item => item.id);
     this.#skills = this.#skills.map((row, i) => skills[i]
       ? {
         name: skills[i].name,
         kind: SKILL_KINDS.includes(skills[i].system.kind) ? skills[i].system.kind : "Technique",
-        text: plainLines(skills[i].system.text)
+        text: plainLines(skills[i].system.text),
+        source: skills[i].system.source
       }
       : row);
-    if (system.bonds[0]?.name) this.#bond.name = system.bonds[0].name;
-    this.#pools = {
-      hearts: Math.clamp(system.hearts.max ?? 6, TRADE.floor, TRADE.cap),
-      energy: Math.clamp(system.energy.max ?? 6, TRADE.floor, TRADE.cap)
-    };
+    this.#choice = actor.itemTypes.skill
+      .filter(item => item.getFlag("paradigm-engine", "choice") && item.system.source)
+      .map(item => item.system.source);
+    if (system.bonds[0]?.name) {
+      this.#bond.name = system.bonds[0].name;
+      this.#bond.relation = system.bonds[0].relation ?? "";
+    }
+    const hearts = Math.clamp(system.hearts.max ?? 4, 0, POOL_POINTS);
+    this.#pools = { hearts, energy: Math.clamp(system.energy.max ?? 4, 0, POOL_POINTS - hearts) };
     if (system.luck.length >= 3 && system.luck.slice(0, 3).every(slot => slot.value >= 1)) {
       this.#luck = system.luck.slice(0, 3).map(slot => slot.value);
     }
@@ -133,21 +175,24 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     const saved = this.#actor.getFlag("paradigm-engine", "creator");
     if (!saved) return;
     if (typeof saved.name === "string") this.#name = saved.name;
-    if (Number.isInteger(saved.step)) this.#step = Math.clamp(saved.step, 0, 4);
     for (const key of Object.keys(this.#attrs)) {
-      if (Number.isInteger(saved.attrs?.[key])) this.#attrs[key] = Math.clamp(saved.attrs[key], 0, 2);
+      if (Number.isInteger(saved.attrs?.[key])) this.#attrs[key] = Math.clamp(saved.attrs[key], 0, ATTR_CAP);
     }
     this.#skills = this.#skills.map((row, i) => {
       const kind = saved.skills?.[i]?.kind;
       return {
         name: typeof saved.skills?.[i]?.name === "string" ? saved.skills[i].name : row.name,
         kind: SKILL_KINDS.includes(kind) ? kind : row.kind,
-        text: typeof saved.skills?.[i]?.text === "string" ? saved.skills[i].text : row.text
+        text: typeof saved.skills?.[i]?.text === "string" ? saved.skills[i].text : row.text,
+        source: typeof saved.skills?.[i]?.source === "string" ? saved.skills[i].source : row.source
       };
     });
+    if (Array.isArray(saved.choice)) this.#choice = saved.choice.filter(uuid => typeof uuid === "string");
     if (typeof saved.bond?.name === "string") this.#bond.name = saved.bond.name;
-    for (const key of Object.keys(this.#pools)) {
-      if (Number.isInteger(saved.pools?.[key])) this.#pools[key] = Math.clamp(saved.pools[key], TRADE.floor, TRADE.cap);
+    if (typeof saved.bond?.relation === "string") this.#bond.relation = saved.bond.relation;
+    if (Number.isInteger(saved.pools?.hearts) && Number.isInteger(saved.pools?.energy)) {
+      const hearts = Math.clamp(saved.pools.hearts, 0, POOL_POINTS);
+      this.#pools = { hearts, energy: Math.clamp(saved.pools.energy, 0, POOL_POINTS - hearts) };
     }
     if (Array.isArray(saved.luck) && saved.luck.length === 3) {
       this.#luck = saved.luck.map(v => (Number.isInteger(v) && v >= 1 && v <= 6 ? v : null));
@@ -156,10 +201,10 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
 
   #snapshot() {
     return {
-      step: this.#step,
       name: this.#name,
       attrs: { ...this.#attrs },
       skills: this.#skills.map(t => ({ ...t })),
+      choice: [...this.#choice],
       bond: { ...this.#bond },
       pools: { ...this.#pools },
       luck: [...this.#luck]
@@ -190,76 +235,85 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   get title() {
-    return game.system.title;
-  }
-
-  async _renderFrame(options) {
-    const frame = await super._renderFrame(options);
-    const dots = document.createElement("div");
-    dots.className = "dots";
-    for (let i = 0; i < 3; i++) dots.append(document.createElement("span"));
-    this.window.title.before(dots);
-    const sheetname = document.createElement("span");
-    sheetname.className = "sheetname";
-    sheetname.textContent = game.i18n.localize("PARADIGMENGINE.Creator.Title");
-    this.window.title.after(sheetname);
-    return frame;
+    return game.i18n.localize("PARADIGMENGINE.Creator.Title");
   }
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const checks = this.#checks();
     const spent = this.#spent();
-
-    context.obiName = this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Creator.New");
-    context.steps = STEP_LABELS.map((label, index) => ({
-      index,
-      n: index + 1,
-      label: game.i18n.localize(label),
-      active: index === this.#step,
-      done: checks[index]
-    }));
-    context.active = STEP_LABELS.map((_, index) => index === this.#step);
+    const left = ATTR_POINTS - spent;
 
     context.name = this.#name;
-    context.stepUps = 5 - spent;
+    context.rail = CARDS.map((card, i) => ({
+      key: card.key,
+      n: i + 1,
+      label: game.i18n.localize(card.label),
+      done: checks[card.key]
+    }));
+
+    context.attrLeft = left;
     context.attributes = ATTRIBUTES.map(a => {
       const rank = this.#attrs[a.key];
       return {
         key: a.key,
         name: game.i18n.localize(a.label),
         badge: this.#badge(`attributes.${a.key}`, rank),
+        die: LADDER[rank].die,
         downDisabled: rank <= 0,
-        upDisabled: rank >= 2 || spent >= 5
+        upDisabled: rank >= ATTR_CAP || left <= 0
       };
     });
     context.skills = this.#skills.map((t, i) => ({
       i,
       ...t,
+      locked: !!t.source,
       technique: t.kind === "Technique",
+      kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${t.kind}`),
       badge: this.#badge(`skill.${i}`, 0),
       costLabel: costLabel({ kind: t.kind, rank: 0 })
     }));
-    context.bond = { name: this.#bond.name, badge: this.#badge("bond", 0) };
-    context.seal = this.#sealFlip
-      ? { text: String(LADDER[1].difficulty), label: game.i18n.localize("PARADIGMENGINE.Ladder.Difficulty") }
-      : { text: LADDER[1].rank, label: game.i18n.localize("PARADIGMENGINE.Header.Rank") };
-    const free = this.#free();
-    context.free = free;
-    context.pools = Object.fromEntries(Object.entries(this.#pools).map(([key, value]) => [key, {
-      value,
-      pips: Array(value).fill(true),
-      downDisabled: value <= TRADE.floor,
-      upDisabled: value >= TRADE.cap || free <= 0
-    }]));
+    const sources = new Set(this.#skills.map(t => t.source).filter(Boolean));
+    context.tree = treeRoots().map(item => ({ ...startingSkillRow(item), taken: sources.has(item.uuid) }));
+
+    const choice = this.#choiceState();
+    context.choice = choice.count > 0 ? {
+      count: choice.count,
+      left: choice.count - choice.picked.length,
+      side: game.i18n.format("PARADIGMENGINE.Creator.ChoiceSide", { n: choice.count }),
+      full: choice.picked.length >= choice.count,
+      skills: choice.skills.map(item => {
+        const on = choice.picked.includes(item.uuid);
+        return { ...startingSkillRow(item), on, disabled: !on && choice.picked.length >= choice.count };
+      })
+    } : null;
+    context.granted = readStartingSkills().map(startingSkillRow);
+    context.bond = { ...this.#bond, badge: this.#badge("bond", 0) };
     context.luck = this.#luck.map(value => ({ value, filled: value !== null }));
     context.rolled = this.#luck.every(v => v !== null);
 
-    context.position = game.i18n.format("PARADIGMENGINE.Creator.Position", { n: this.#step + 1, total: 5 });
-    context.first = this.#step === 0;
-    context.last = this.#step === 4;
-    context.canCreate = checks.every(Boolean);
+    const free = this.#free();
+    context.poolLeft = free;
+    context.pools = Object.fromEntries(Object.entries(this.#pools).map(([key, value]) => [key, {
+      value,
+      pips: Array.from({ length: POOL_POINTS }, (_, i) => i < value),
+      downDisabled: value <= 0,
+      upDisabled: free <= 0
+    }]));
+    context.rank = LADDER[1].rank;
+
+    context.todo = this.#todo(checks);
+    context.canCreate = this.#complete(checks);
     return context;
+  }
+
+  _onRender(context, options) {
+    super._onRender(context, options);
+    new foundry.applications.ux.DragDrop.implementation({
+      dropSelector: ".card.bond, .sk",
+      permissions: { drop: () => this.#actor.isOwner },
+      callbacks: { drop: this.#onDrop.bind(this) }
+    }).bind(this.element);
   }
 
   _onFirstRender(context, options) {
@@ -282,17 +336,46 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   #free() {
-    return TRADE.total - this.#pools.hearts - this.#pools.energy;
+    return POOL_POINTS - this.#pools.hearts - this.#pools.energy;
+  }
+
+  /* The Choice list with the picks that still stand in it. */
+  #choiceState() {
+    const { skills, count } = readStartingChoice();
+    const uuids = new Set(skills.map(i => i.uuid));
+    const picked = this.#choice.filter(uuid => uuids.has(uuid)).slice(0, count);
+    return { skills, count, picked };
   }
 
   #checks() {
-    return [
-      this.#name.trim().length > 0,
-      this.#spent() === 5,
-      this.#skills.every(t => t.name.trim().length > 0),
-      this.#bond.name.trim().length > 0,
-      this.#luck.every(v => v !== null) && this.#free() === 0
+    const choice = this.#choiceState();
+    return {
+      name: this.#name.trim().length > 0,
+      attributes: this.#spent() === ATTR_POINTS,
+      skills: this.#skills.every(t => t.name.trim().length > 0),
+      choice: choice.picked.length >= choice.count,
+      bond: this.#bond.name.trim().length > 0,
+      luck: this.#luck.every(v => v !== null),
+      finishing: this.#free() === 0
+    };
+  }
+
+  #complete(checks) {
+    return Object.values(checks).every(Boolean);
+  }
+
+  #todo(checks) {
+    const rows = [
+      ["name", "PARADIGMENGINE.Header.Name"],
+      ["attributes", "PARADIGMENGINE.Panel.Attributes"],
+      ["skills", "PARADIGMENGINE.Panel.Skills"],
+      ["choice", "PARADIGMENGINE.Creator.Choice"],
+      ["bond", "PARADIGMENGINE.Creator.Bond"],
+      ["luck", "PARADIGMENGINE.Vitals.LuckDice"],
+      ["finishing", "PARADIGMENGINE.Creator.HeartsEnergy"]
     ];
+    if (this.#choiceState().count === 0) rows.splice(3, 1);
+    return rows.map(([key, label]) => ({ key, label: game.i18n.localize(label), done: checks[key] }));
   }
 
   #badge(key, rankIndex) {
@@ -303,17 +386,17 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
   }
 
   /* Text fields write straight into state; a render here would drop focus
-     from the input being typed in, so the obi name, rail checks, and the
+     from the input being typed in, so the rail, the checklist, and the
      Create button sync in place instead. */
   #onInput(event) {
     const el = event.target;
     if (!el.name) return;
     const [group, i, key] = el.name.split(".");
     if (group === "name") this.#name = el.value;
-    else if (group === "bond" && i === "name") this.#bond.name = el.value;
+    else if (group === "bond" && (i === "name" || i === "relation")) this.#bond[i] = el.value;
     else if (group === "skill") {
       const row = this.#skills[Number(i)];
-      if (row && (key === "name" || key === "text")) row[key] = el.value;
+      if (row && !row.source && (key === "name" || key === "text")) row[key] = el.value;
     } else return;
     this.#touch();
     this.#syncLive();
@@ -321,29 +404,16 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
 
   #syncLive() {
     const checks = this.#checks();
-    this.element.querySelector(".obi .cname").textContent =
-      this.#name.trim() || game.i18n.localize("PARADIGMENGINE.Creator.New");
-    this.element.querySelectorAll(".crail button").forEach((b, i) => b.classList.toggle("done", checks[i]));
-    const create = this.element.querySelector('[data-action="create"]');
-    if (create) create.disabled = !checks.every(Boolean);
+    const root = this.element;
+    root.querySelectorAll(".rail button").forEach(b => b.classList.toggle("done", checks[b.dataset.card]));
+    root.querySelectorAll(".todo span").forEach(s => s.classList.toggle("done", checks[s.dataset.key]));
+    const create = root.querySelector('[data-action="create"]');
+    if (create) create.disabled = !this.#complete(checks);
   }
 
-  #goto(step) {
-    this.#step = Math.clamp(step, 0, 4);
-    this.#touch();
-    this.render();
-  }
-
+  /* The rail scrolls the file to its card. */
   static #onGoto(event, target) {
-    this.#goto(Number(target.dataset.step));
-  }
-
-  static #onBack() {
-    this.#goto(this.#step - 1);
-  }
-
-  static #onNext() {
-    this.#goto(this.#step + 1);
+    this.element.querySelector(`.card.${target.dataset.card}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   static #onStepAttr(event, target) {
@@ -351,7 +421,7 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     const dir = Number(target.dataset.dir);
     const rank = this.#attrs[key];
     if (rank === undefined) return;
-    if (dir > 0 ? rank >= 2 || this.#spent() >= 5 : rank <= 0) return;
+    if (dir > 0 ? rank >= ATTR_CAP || this.#spent() >= ATTR_POINTS : rank <= 0) return;
     this.#attrs[key] = rank + dir;
     this.#touch();
     this.render();
@@ -366,8 +436,41 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
 
   static #onSetKind(event, target) {
     const row = this.#skills[Number(target.dataset.i)];
-    if (!row) return;
+    if (!row || row.source) return;
     row.kind = target.dataset.kind === "Talent" ? "Talent" : "Technique";
+    this.#touch();
+    this.render();
+  }
+
+  static #onOpenTree() {
+    SkillTree.open(this.#actor);
+  }
+
+  /* Take from the tree fills the next empty pick, or the first one not
+     already from a world Skill; Taken clears the pick it filled. */
+  static #onTakeSkill(event, target) {
+    const uuid = target.dataset.uuid;
+    const held = this.#skills.findIndex(t => t.source === uuid);
+    if (held >= 0) {
+      this.#skills[held] = emptyPick();
+    } else {
+      const item = fromUuidSync(uuid, { strict: false });
+      if (!(item instanceof Item) || item.type !== "skill") return;
+      let slot = this.#skills.findIndex(t => !t.source && !t.name.trim());
+      if (slot < 0) slot = this.#skills.findIndex(t => !t.source);
+      if (slot < 0) return;
+      this.#skills[slot] = pickFrom(item);
+    }
+    this.#touch();
+    this.render();
+  }
+
+  static #onChoose(event, target) {
+    const uuid = target.dataset.uuid;
+    const { count, picked } = this.#choiceState();
+    if (picked.includes(uuid)) this.#choice = picked.filter(u => u !== uuid);
+    else if (picked.length < count) this.#choice = [...picked, uuid];
+    else return;
     this.#touch();
     this.render();
   }
@@ -377,14 +480,9 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     const dir = Number(target.dataset.dir);
     const value = this.#pools[key];
     if (value === undefined) return;
-    if (dir > 0 ? value >= TRADE.cap || this.#free() <= 0 : value <= TRADE.floor) return;
+    if (dir > 0 ? this.#free() <= 0 : value <= 0) return;
     this.#pools[key] = value + dir;
     this.#touch();
-    this.render();
-  }
-
-  static #onFlipSeal() {
-    this.#sealFlip = !this.#sealFlip;
     this.render();
   }
 
@@ -397,18 +495,45 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     this.render();
   }
 
+  /* A character dropped on the Bond card is the Bond; a Skill dropped on
+     a pick fills it. */
+  async #onDrop(event) {
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    const slot = event.currentTarget.closest(".sk");
+    if (slot) {
+      if (data.type !== "Item") return;
+      const item = await Item.implementation.fromDropData(data);
+      if (!item || item.type !== "skill" || item.parent === this.#actor) return;
+      const i = Number(slot.dataset.i);
+      if (!(i in this.#skills)) return;
+      this.#skills[i] = pickFrom(item);
+    } else {
+      if (data.type !== "Actor") return;
+      const actor = await Actor.implementation.fromDropData(data);
+      if (!actor || actor === this.#actor) return;
+      this.#bond.name = actor.name;
+    }
+    this.#touch();
+    this.render();
+  }
+
   /* Safe to run again on a created PC: grown Rank, extra Bonds,
      and Luck Die sizes survive, and only the rows the creator itself
      seeded or wrote before are replaced. */
   static async #onCreate() {
-    if (this.#creating || !this.#checks().every(Boolean)) return;
+    if (this.#creating || !this.#complete(this.#checks())) return;
     this.#creating = true;
     try {
       const actor = this.#actor;
       const source = actor.system.toObject();
       const luck = [...this.#luck.map(value => ({ value, spent: false })), ...source.luck.slice(3)];
       const bonds = [
-        { name: this.#bond.name.trim(), rank: source.bonds[0]?.rank ?? 0 },
+        {
+          name: this.#bond.name.trim(),
+          relation: this.#bond.relation.trim(),
+          rank: source.bonds[0]?.rank ?? 0,
+          invoked: source.bonds[0]?.invoked ?? false
+        },
         ...source.bonds.slice(1)
       ];
       await actor.update({
@@ -426,12 +551,27 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
       const stale = [...new Set([...this.#seededIds, ...mine])].filter(id => actor.items.has(id));
       if (stale.length) await actor.deleteEmbeddedDocuments("Item", stale);
       const flags = { "paradigm-engine": { creator: true } };
-      await actor.createEmbeddedDocuments("Item", this.#skills.map(t => ({
-        name: t.name.trim(),
-        type: "skill",
-        system: { rank: 0, kind: t.kind, text: paragraphs(t.text) },
-        flags
-      })));
+      const picks = this.#skills.map(t => {
+        const item = t.source ? fromUuidSync(t.source, { strict: false }) : null;
+        if (item instanceof Item && item.type === "skill") {
+          const data = copyOf(item, { creator: true });
+          data.system.rank = 0;
+          return data;
+        }
+        return {
+          name: t.name.trim(),
+          type: "skill",
+          system: { rank: 0, kind: t.kind, text: paragraphs(t.text) },
+          flags
+        };
+      });
+      const { picked } = this.#choiceState();
+      const chosen = picked
+        .map(uuid => fromUuidSync(uuid, { strict: false }))
+        .filter(item => item instanceof Item && item.type === "skill")
+        .map(item => copyOf(item, { creator: true, granted: true, choice: true }));
+      const granted = readStartingSkills().map(item => copyOf(item, { creator: true, granted: true }));
+      await actor.createEmbeddedDocuments("Item", [...picks, ...chosen, ...granted]);
       await this.close();
       actor.sheet.render(true);
     } finally {
