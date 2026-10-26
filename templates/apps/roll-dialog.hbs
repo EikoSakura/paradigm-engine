@@ -2,7 +2,6 @@
   <header class="phead">
     <span class="ptitle">{{title}}</span>
     {{#if tag}}<span class="pill tagpill">{{tag}}</span>{{/if}}
-    {{#unless difficultyOnly}}
     <span class="pname">{{first.name}}</span>
     {{#if first.costLabel}}<span class="pill">{{first.costLabel}}</span>{{/if}}
     <span class="stepgrp">
@@ -12,10 +11,8 @@
       <button type="button" class="stepbtn" data-action="step" data-die="0" data-delta="1"
               aria-label="{{localize "PARADIGMENGINE.Roll.StepUp"}}"{{#if first.upDisabled}} disabled{{/if}}>&#9650;</button>
     </span>
-    {{/unless}}
   </header>
 
-  {{#unless difficultyOnly}}
   {{#if firstPick}}
   <div class="sec">{{localize "PARADIGMENGINE.Roll.FirstAttribute"}}</div>
   <div class="firstpick">
@@ -77,7 +74,6 @@
   {{/if}}
   {{/each}}
   {{/if}}
-  {{/unless}}
 
   {{#if showDifficulty}}
   <div class="sec">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</div>
@@ -96,7 +92,6 @@
   </div>
   {{/if}}
 
-  {{#unless difficultyOnly}}
   {{#if showDifficulty}}
   <div class="lbhead{{#unless hasDifficulty}} off{{/unless}}">
     <span class="lbl">{{localize "PARADIGMENGINE.Roll.LimitBreak"}}</span>
@@ -114,7 +109,6 @@
   </div>
   {{/if}}
   {{/if}}
-  {{/unless}}
 
   <footer class="pfoot">
     <span class="formula">{{formula}}{{#if versus}} <span class="vs">{{versus}}</span>{{/if}}</span>

@@ -229,7 +229,7 @@ export default class PartySheet extends ParadigmEngineSheet(ActorSheetV2) {
 
   static #onLead(event, target) {
     const actor = fromUuidSync(target.dataset.uuid);
-    if (actor) startGroup(actor, target);
+    if (actor) startGroup(actor);
   }
 
   static async #onRemoveMember(event, target) {

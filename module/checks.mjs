@@ -7,8 +7,8 @@
 import RollDialog from "./apps/roll-dialog.mjs";
 import ClashWindow, { clashRolls, clashRunning, clashSideOf } from "./apps/clash.mjs";
 import TradePicker from "./apps/trade-picker.mjs";
-import { SOCKET, applyCardOp, cardOp, multiRow, postMultiCard, readSplash, rollDice, showRoll } from "./chat.mjs";
-import { partyMembers, partyOf } from "./party.mjs";
+import ActionSetup from "./apps/action-setup.mjs";
+import { SOCKET, applyCardOp, cardOp, multiRow, readSplash, rollDice, showRoll } from "./chat.mjs";
 
 const { TextEditor } = foundry.applications.ux;
 
@@ -19,42 +19,18 @@ export function actorFromUuid(uuid) {
   return doc?.actor ?? null;
 }
 
-/* The user's targets as actors, in target order, without the given one. */
-function targetActors(except) {
-  const seen = new Set([except?.uuid]);
-  const out = [];
-  for (const token of game.user.targets) {
-    const actor = token.actor;
-    if (!actor || seen.has(actor.uuid)) continue;
-    seen.add(actor.uuid);
-    out.push(actor);
-  }
-  return out;
+/* An Opposed Action: the setup window, this actor first and the user's
+   targets after, more dragged in; Begin posts the card. */
+export function startOpposed(actor) {
+  ActionSetup.open(actor, "opposed");
 }
 
-/* An Opposed Action: this actor and every targeted character, each a row. */
-export async function startOpposed(actor) {
-  const others = targetActors(actor);
-  if (!others.length) return ui.notifications.warn("PARADIGMENGINE.Check.NeedTargets", { localize: true });
-  const rows = [multiRow(actor), ...others.map(a => multiRow(a))];
-  await postMultiCard(actor, "opposed", rows);
-}
-
-/* A Group Action: this actor leads, the rest of its Party supports. The
-   Difficulty is picked first, in the popup under the button. A leader
-   with no party, or alone in one, still posts the card, so the
-   Storyteller can drop supporters onto it. */
-export function startGroup(actor, anchor) {
-  const party = partyOf(actor);
-  const others = party ? partyMembers(party).filter(a => a.id !== actor.id) : [];
-  RollDialog.open(actor, null, anchor, {
-    title: game.i18n.localize("PARADIGMENGINE.Check.Group"),
-    difficulty: "only",
-    submit: async ({ difficulty }) => {
-      const rows = [multiRow(actor, true), ...others.map(a => multiRow(a))];
-      await postMultiCard(actor, "group", rows, difficulty);
-    }
-  });
+/* A Group Action: the setup window, this actor leading and the rest of
+   its Party supporting, more dragged in, the Difficulty picked there;
+   Begin posts the card. The Storyteller can still drop supporters onto
+   the posted card. */
+export function startGroup(actor) {
+  ActionSetup.open(actor, "group");
 }
 
 /* A Clash roll for the side this actor stands on. */

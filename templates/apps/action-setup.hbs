@@ -1,0 +1,31 @@
+<div class="asetup">
+  <div class="card" style="--tc: var({{#if group}}--green{{else}}--violet{{/if}})">
+    <span class="tag">{{title}}</span>
+    {{#each rows}}
+    <div class="srow">
+      <img class="ic" src="{{this.img}}" alt="">
+      <span class="nm">{{this.name}}</span>
+      {{#if this.chip}}
+      <span class="chip">{{this.chip}}</span>
+      {{else}}
+      <button type="button" class="x" data-action="remove" data-index="{{this.index}}"
+        aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+      {{/if}}
+    </div>
+    {{/each}}
+    <div class="drop">+</div>
+    {{#if group}}
+    <div class="diffs">
+      <span class="dlabel">{{localize "PARADIGMENGINE.Roll.Difficulty"}}</span>
+      {{#each difficulties}}
+      <button type="button" class="dtag{{#if this.selected}} sel{{/if}}" data-action="difficulty" data-index="{{this.index}}"
+        style="--gc: var({{this.cssVar}})" aria-pressed="{{this.selected}}"><b>{{this.rank}}</b><small>{{this.number}}</small></button>
+      {{/each}}
+    </div>
+    {{/if}}
+    <div class="foot">
+      <button type="button" class="go alt" data-action="addSelected">{{localize "PARADIGMENGINE.Check.AddSelected"}}</button>
+      <button type="button" class="go" data-action="begin"{{#unless ready}} disabled{{/unless}}>{{localize "PARADIGMENGINE.Check.Begin"}}</button>
+    </div>
+  </div>
+</div>

@@ -14,8 +14,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
    - title: the header word in place of Action Roll.
    - tag: a chip in the header, such as a Clash side's name.
    - difficulty: "free" (the picker, the default), "none" (totals only),
-     { locked: index } (shown, not picked), or "only" (the picker alone,
-     with a Begin button and no dice).
+     or { locked: index } (shown, not picked).
    - extra: flags posted beside the roll card.
    - submit: a function taking the result in place of posting a card. */
 export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -110,17 +109,11 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     context.flip = this.#flip;
     context.title = this.#title || game.i18n.localize("PARADIGMENGINE.Roll.Title");
     context.tag = this.#tag;
-    context.difficultyOnly = this.#mode === "only";
-    context.showDifficulty = this.#mode === "free" || this.#mode === "only";
+    context.showDifficulty = this.#mode === "free";
     context.difficulties = DIFFICULTY.map((d, index) => ({ ...d, index, selected: this.#difficulty === index }));
     context.hasDifficulty = this.#difficulty !== null;
     context.locked = this.#mode === "locked" && this.#difficulty !== null ? DIFFICULTY[this.#difficulty] : null;
-    context.rollLabel = game.i18n.localize(this.#mode === "only" ? "PARADIGMENGINE.Check.Begin" : "PARADIGMENGINE.Roll.Roll");
-    if (this.#mode === "only") {
-      context.versus = this.#difficulty === null ? "" : game.i18n.format("PARADIGMENGINE.Roll.Versus", { n: DIFFICULTY[this.#difficulty].number });
-      context.canRoll = this.#difficulty !== null;
-      return context;
-    }
+    context.rollLabel = game.i18n.localize("PARADIGMENGINE.Roll.Roll");
     const first = this.#resolveFirst();
     if (!first) {
       this.close();
@@ -339,7 +332,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static #onDifficulty(event, target) {
-    if (this.#mode !== "free" && this.#mode !== "only") return;
+    if (this.#mode !== "free") return;
     const index = Number(target.dataset.index);
     this.#difficulty = this.#difficulty === index ? null : index;
     this.#limitBreak = this.#difficulty === null ? 0 : Math.min(this.#limitBreak, 6 - this.#difficulty);
@@ -356,12 +349,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static async #onRoll() {
-    if (this.#mode === "only") {
-      if (this.#difficulty === null) return;
-      const difficulty = this.#difficulty;
-      this.close();
-      return this.#submit?.({ difficulty });
-    }
     const first = this.#resolveFirst();
     const second = this.#resolveSecond();
     if (!first || !second) return this.close();

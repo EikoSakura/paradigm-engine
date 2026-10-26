@@ -389,12 +389,12 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     RollDialog.open(this.document, first, target);
   }
 
-  static #onGroupAction(event, target) {
-    startGroup(this.document, target);
+  static #onGroupAction() {
+    startGroup(this.document);
   }
 
-  static async #onOpposedAction() {
-    await startOpposed(this.document);
+  static #onOpposedAction() {
+    startOpposed(this.document);
   }
 
   static #onClashCheck(event, target) {
