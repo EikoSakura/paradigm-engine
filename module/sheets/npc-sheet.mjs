@@ -12,7 +12,17 @@ export default class NpcSheet extends BaseActorSheet {
 
   static PARTS = {
     header: { template: "systems/paradigm-engine/templates/actor/header.hbs" },
-    main: { template: "systems/paradigm-engine/templates/actor/npc-main.hbs" }
+    tabs: { template: "templates/generic/tab-navigation.hbs" },
+    main: { template: "systems/paradigm-engine/templates/actor/npc-main.hbs" },
+    growth: { template: "systems/paradigm-engine/templates/actor/growth.hbs" }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [{ id: "main" }, { id: "growth" }],
+      initial: "main",
+      labelPrefix: "PARADIGMENGINE.Tab"
+    }
   };
 
   /* The NPC Builder button in the title bar, beside the mode

@@ -1,4 +1,4 @@
-import { attributesField, pointsField, rankField } from "./fields.mjs";
+import { attributesField, growthField, pointsField, rankField } from "./fields.mjs";
 
 export default class NpcData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -6,7 +6,8 @@ export default class NpcData extends foundry.abstract.TypeDataModel {
       rank: rankField(1),
       attributes: attributesField(),
       hearts: pointsField(),
-      energy: pointsField()
+      energy: pointsField(),
+      growth: growthField()
     };
   }
 }

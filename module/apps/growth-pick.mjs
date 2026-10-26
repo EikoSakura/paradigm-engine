@@ -1,6 +1,6 @@
-import { LADDER, GROWTH_OPTIONS, SKILL_KINDS } from "../config.mjs";
+import { LADDER, SKILL_KINDS } from "../config.mjs";
 import {
-  attributeRows, availableSkills, bondCandidates, bondRankRows, modifySkillRows, optionLabel, skillRankRows, spend
+  attributeRows, availableSkills, bondCandidates, bondRankRows, growthOptions, modifySkillRows, optionLabel, skillRankRows, spend
 } from "../growth.mjs";
 import SkillTree from "./skill-tree.mjs";
 
@@ -49,7 +49,7 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
   }
 
   static open(actor, key) {
-    const option = GROWTH_OPTIONS.find(o => o.key === key);
+    const option = growthOptions(actor).find(o => o.key === key);
     if (!option?.pick) return null;
     const id = `growth-pick-${actor.uuid.replaceAll(".", "-")}`;
     const prior = GrowthPick.#instances.get(actor.uuid);

@@ -1,165 +1,145 @@
-<div class="builder">
+<div class="creator builder">
 
-  <header class="obi">
-    <div class="obi-inner">
-      <div class="idblock">
-        <div class="eyebrow">{{localize "PARADIGMENGINE.Builder.Title"}}</div>
-        <div class="cname">{{obiName}}</div>
-      </div>
+  <header class="head">
+    <div class="idblock">
+      <div class="eyebrow">{{localize "PARADIGMENGINE.Builder.Title"}}</div>
+      <input class="cname" type="text" name="name" value="{{name}}" placeholder="{{localize "PARADIGMENGINE.Header.Name"}}"
+        aria-label="{{localize "PARADIGMENGINE.Header.Name"}}">
     </div>
+    <nav class="rail">
+      {{#each rail}}
+      <button type="button" class="{{#if this.done}}done{{/if}}" data-action="goto" data-card="{{this.key}}">
+        <span class="n">{{this.n}}</span>{{this.label}}
+      </button>
+      {{/each}}
+    </nav>
   </header>
 
-  <nav class="crail">
-    {{#each steps}}
-    <button type="button" class="{{#if this.active}}active{{/if}}{{#if this.done}} done{{/if}}"
-      data-action="goto" data-step="{{this.index}}">
-      <span class="num">{{this.n}}</span>{{this.label}}<span class="check">✓</span>
-    </button>
+  <section class="card attributes" style="--tc: var(--blue)">
+    <span class="tag">{{localize "PARADIGMENGINE.Panel.Attributes"}}<span class="tail">{{localize "PARADIGMENGINE.Creator.AttributesSide"}}</span></span>
+    <span class="pool{{#unless attrLeft}} zero{{/unless}}"><b>{{attrLeft}}</b>{{localize "PARADIGMENGINE.Creator.PointsLeft"}}</span>
+    {{#each attributes}}
+    <div class="arow">
+      <span class="name">{{this.name}}</span>
+      {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
+      <span class="die">{{this.die}}</span>
+      <span class="stepper">
+        <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="-1"
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if this.downDisabled}} disabled{{/if}}>−</button>
+        <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="1"
+          aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if this.upDisabled}} disabled{{/if}}>＋</button>
+      </span>
+    </div>
     {{/each}}
-  </nav>
+  </section>
 
-  <div class="stage">
-
-    <section class="pane{{#if active.[0]}} active{{/if}}">
-      <div class="panel">
-        <div class="panel-h"><span class="en">{{localize "TYPES.Actor.npc"}}</span></div>
-        <div class="panel-b">
+  <section class="card skills" style="--tc: var(--violet)">
+    <span class="tag">{{localize "PARADIGMENGINE.Panel.Skills"}}<span class="tail">{{localize "PARADIGMENGINE.Creator.SkillsSide"}}</span></span>
+    <div class="two">
+      {{#each skills}}
+      <div class="sk{{#if this.locked}} taken{{/if}}" data-i="{{this.i}}">
+        {{#if this.locked}}
+        <div class="toprow">
           <div class="field">
-            <label for="ab-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
-            <input type="text" id="ab-name" name="name" value="{{name}}">
+            <label>{{localize "PARADIGMENGINE.Header.Name"}}</label>
+            <div class="locked">{{this.name}}</div>
           </div>
+          {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
         </div>
+        <div class="src">{{localize "PARADIGMENGINE.Creator.FromTree"}} · {{this.kindLabel}}{{#if this.costLabel}} · {{this.costLabel}}{{/if}}</div>
+        {{else}}
+        <div class="toprow">
+          <div class="field">
+            <label for="nb-skill-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
+            <input type="text" id="nb-skill-{{this.i}}-name" name="skill.{{this.i}}.name" value="{{this.name}}">
+          </div>
+          {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
+        </div>
+        <div class="kindrow">
+          <span class="seg">
+            <button type="button" class="{{#if this.technique}}on{{/if}}" data-action="setKind"
+              data-i="{{this.i}}" data-kind="Technique">{{localize "PARADIGMENGINE.Skill.Technique"}}</button>
+            <button type="button" class="{{#unless this.technique}}on{{/unless}}" data-action="setKind"
+              data-i="{{this.i}}" data-kind="Talent">{{localize "PARADIGMENGINE.Skill.Talent"}}</button>
+          </span>
+          {{#if this.costLabel}}<span class="chip">{{this.costLabel}}</span>{{/if}}
+        </div>
+        <div class="field">
+          <label for="nb-skill-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
+          <textarea id="nb-skill-{{this.i}}-text" name="skill.{{this.i}}.text" rows="3">{{this.text}}</textarea>
+        </div>
+        {{/if}}
       </div>
-    </section>
+      {{/each}}
+    </div>
+    <div class="sec">
+      <span>{{localize "PARADIGMENGINE.Tree.Title"}}</span>
+      <button type="button" class="btn" data-action="openTree">{{localize "PARADIGMENGINE.Creator.OpenTree"}}</button>
+    </div>
+    {{#each tree}}
+    <div class="srow">
+      <img class="ic" src="{{this.img}}" alt="">
+      <span class="nm">{{this.name}}</span>
+      <span class="kind">{{this.kind}}</span>
+      <span class="rk">{{this.rank}}</span>
+      <button type="button" class="btn{{#if this.taken}} on{{/if}}" data-action="takeSkill" data-uuid="{{this.uuid}}"
+        aria-pressed="{{this.taken}}">{{#if this.taken}}{{localize "PARADIGMENGINE.Creator.Taken"}}{{else}}{{localize "PARADIGMENGINE.Tree.Take"}}{{/if}}</button>
+    </div>
+    {{/each}}
+  </section>
 
-    <section class="pane{{#if active.[1]}} active{{/if}}">
-      <div class="panel">
-        <div class="panel-h">
-          <span class="en">{{localize "PARADIGMENGINE.Builder.Stats"}}</span>
-          <span class="tail">{{localize "PARADIGMENGINE.Builder.StatsSide"}}</span>
-        </div>
-        <div class="panel-b">
-          <div class="statgrid">
-            <div class="sealblock">
-              <button type="button" class="seal" data-action="flipSeal" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
-                <span class="g">{{seal.text}}</span>
-                <span class="lbl">{{seal.label}}</span>
-              </button>
-              <span class="stepper">
-                <button type="button" data-action="stepSeal" data-dir="-1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if sealDownDisabled}} disabled{{/if}}>−</button>
-                <button type="button" data-action="stepSeal" data-dir="1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if sealUpDisabled}} disabled{{/if}}>＋</button>
-              </span>
-            </div>
-            <div class="attrcol">
-              {{#each attributes}}
-              <div class="attr-row">
-                <span class="name">{{this.name}}</span>
-                {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
-                <span class="stepper">
-                  <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="-1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if this.downDisabled}} disabled{{/if}}>−</button>
-                  <button type="button" data-action="stepAttr" data-key="{{this.key}}" data-dir="1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if this.upDisabled}} disabled{{/if}}>＋</button>
-                </span>
-              </div>
-              {{/each}}
-            </div>
-          </div>
-          <div class="pools">
-            <div class="pool-row">
-              <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Hearts"}}</span>
-              <span class="stepper">
-                <button type="button" data-action="stepPool" data-kind="hearts" data-dir="-1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if hearts.downDisabled}} disabled{{/if}}>−</button>
-              </span>
-              <div class="val">{{hearts.value}}</div>
-              <span class="stepper">
-                <button type="button" data-action="stepPool" data-kind="hearts" data-dir="1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if hearts.upDisabled}} disabled{{/if}}>＋</button>
-              </span>
-              <div class="pips">
-                {{#each hearts.pips}}
-                <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape heart" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
-                {{/each}}
-              </div>
-            </div>
-            <div class="pool-row">
-              <span class="plabel">{{localize "PARADIGMENGINE.Vitals.Energy"}}</span>
-              <span class="stepper">
-                <button type="button" data-action="stepPool" data-kind="energy" data-dir="-1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if energy.downDisabled}} disabled{{/if}}>−</button>
-              </span>
-              <div class="val">{{energy.value}}</div>
-              <span class="stepper">
-                <button type="button" data-action="stepPool" data-kind="energy" data-dir="1"
-                  aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if energy.upDisabled}} disabled{{/if}}>＋</button>
-              </span>
-              <div class="pips">
-                {{#each energy.pips}}
-                <span class="pip on"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape bolt" d="M13 2 4.5 13.5H11l-1.2 8.5 8.7-11.5H12L13 2z"/></svg></span>
-                {{/each}}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="pane{{#if active.[2]}} active{{/if}}">
-      <div class="panel">
-        <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Panel.Skills"}}</span></div>
-        <div class="panel-b">
-          {{#if skills.length}}
-          <div class="cards">
-            {{#each skills}}
-            <div class="card">
-              <button type="button" class="x" data-action="removeRow" data-group="skill" data-i="{{this.i}}"
-                aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
-              <div class="toprow">
-                <div class="field">
-                  <label for="ab-skill-{{this.i}}-name">{{localize "PARADIGMENGINE.Header.Name"}}</label>
-                  <input type="text" id="ab-skill-{{this.i}}-name" name="skill.{{this.i}}.name" value="{{this.name}}">
-                </div>
-                {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
-                <span class="vstep">
-                  <button type="button" data-action="stepRank" data-group="skill" data-i="{{this.i}}" data-dir="1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if this.upDisabled}} disabled{{/if}}>＋</button>
-                  <button type="button" data-action="stepRank" data-group="skill" data-i="{{this.i}}" data-dir="-1"
-                    aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if this.downDisabled}} disabled{{/if}}>−</button>
-                </span>
-              </div>
-              <div class="seg">
-                <button type="button" class="{{#if this.technique}}on{{/if}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Technique">{{localize "PARADIGMENGINE.Skill.Technique"}}</button>
-                <button type="button" class="{{#unless this.technique}}on{{/unless}}" data-action="setKind"
-                  data-i="{{this.i}}" data-kind="Talent">{{localize "PARADIGMENGINE.Skill.Talent"}}</button>
-              </div>
-              <div class="field">
-                <label for="ab-skill-{{this.i}}-text">{{localize "PARADIGMENGINE.Item.Description"}}</label>
-                <textarea id="ab-skill-{{this.i}}-text" name="skill.{{this.i}}.text" rows="3">{{this.text}}</textarea>
-              </div>
-              {{#if this.costLabel}}<span class="chip gold">{{this.costLabel}}</span>{{/if}}
-            </div>
+  <section class="card finishing" style="--tc: var(--green)">
+    <span class="tag">{{localize "PARADIGMENGINE.Creator.HeartsEnergy"}}</span>
+    <div class="fin">
+      <div class="pools">
+        <div class="prow">
+          <span class="name">{{localize "PARADIGMENGINE.Vitals.Hearts"}}</span>
+          <div class="pips">
+            {{#each pools.hearts.pips}}
+            <span class="pip{{#if this}} on{{/if}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape heart" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></span>
             {{/each}}
           </div>
-          {{/if}}
-          <button type="button" class="addbtn" data-action="addRow" data-group="skill">{{localize "PARADIGMENGINE.Builder.AddSkill"}}</button>
+          <span class="stepper">
+            <button type="button" data-action="stepPool" data-pool="hearts" data-dir="-1"
+              aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if pools.hearts.downDisabled}} disabled{{/if}}>−</button>
+            <button type="button" data-action="stepPool" data-pool="hearts" data-dir="1"
+              aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if pools.hearts.upDisabled}} disabled{{/if}}>＋</button>
+          </span>
+        </div>
+        <div class="prow">
+          <span class="name">{{localize "PARADIGMENGINE.Vitals.Energy"}}</span>
+          <div class="pips">
+            {{#each pools.energy.pips}}
+            <span class="pip bolt{{#if this}} on{{/if}}"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="shape bolt" d="M13 2 4.5 13.5H11l-1.2 8.5 8.7-11.5H12L13 2z"/></svg></span>
+            {{/each}}
+          </div>
+          <span class="stepper">
+            <button type="button" data-action="stepPool" data-pool="energy" data-dir="-1"
+              aria-label="{{localize "PARADIGMENGINE.Edit.LowerMax"}}"{{#if pools.energy.downDisabled}} disabled{{/if}}>−</button>
+            <button type="button" data-action="stepPool" data-pool="energy" data-dir="1"
+              aria-label="{{localize "PARADIGMENGINE.Edit.RaiseMax"}}"{{#if pools.energy.upDisabled}} disabled{{/if}}>＋</button>
+          </span>
         </div>
       </div>
-    </section>
+      <div class="stampblock">
+        <button type="button" class="stamp" data-action="flipStamp" aria-label="{{localize "PARADIGMENGINE.Header.Rank"}}">
+          <b>{{stamp.text}}</b><small>{{stamp.label}}</small>
+        </button>
+        <span class="stepper">
+          <button type="button" data-action="stepRank" data-dir="-1"
+            aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if rankDownDisabled}} disabled{{/if}}>−</button>
+          <button type="button" data-action="stepRank" data-dir="1"
+            aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if rankUpDisabled}} disabled{{/if}}>＋</button>
+        </span>
+      </div>
+    </div>
+  </section>
 
-  </div>
-
-  <footer class="cfoot">
-    <button type="button" class="btn ghost" data-action="back"{{#if first}} disabled{{/if}}>{{localize "PARADIGMENGINE.Creator.Back"}}</button>
-    <span class="pos">{{position}}</span>
-    {{#if last}}
-    <button type="button" class="btn create" data-action="create"{{#unless canCreate}} disabled{{/unless}}>{{localize "PARADIGMENGINE.Builder.Create"}}</button>
-    {{else}}
-    <button type="button" class="btn main" data-action="next">{{localize "PARADIGMENGINE.Creator.Next"}}</button>
-    {{/if}}
+  <footer class="foot">
+    <div class="todo">
+      {{#each todo}}<span class="{{#if this.done}}done{{/if}}" data-key="{{this.key}}">{{this.label}}</span>{{/each}}
+    </div>
+    <button type="button" class="create" data-action="create"{{#unless canCreate}} disabled{{/unless}}>{{localize "PARADIGMENGINE.Builder.Create"}}</button>
   </footer>
 
 </div>

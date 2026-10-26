@@ -1,8 +1,6 @@
 import BaseActorSheet from "./base-actor-sheet.mjs";
-import { LADDER, GROWTH_OPTIONS, GROWTH_TIERS } from "../config.mjs";
+import { LADDER } from "../config.mjs";
 import PcCreator from "../apps/pc-creator.mjs";
-import GrowthPick from "../apps/growth-pick.mjs";
-import { GROWTH_GROUPS, cancelMilestone, growthCards, growthLog, spend, startMilestone, startTimeskip } from "../growth.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
 import { postBondCard } from "../chat.mjs";
 
@@ -20,12 +18,6 @@ export default class PcSheet extends BaseActorSheet {
     classes: ["pc"],
     position: { width: 920, height: 760 },
     actions: {
-      growthStart: this.#onGrowthStart,
-      growthCancel: this.#onGrowthCancel,
-      growthTake: this.#onGrowthTake,
-      growthTsStep: this.#onGrowthTsStep,
-      growthTsAccess: this.#onGrowthTsAccess,
-      growthTsAward: this.#onGrowthTsAward,
       addBond: this.#onAddBond,
       deleteBond: this.#onDeleteBond,
       invoke: this.#onInvoke,
@@ -44,9 +36,6 @@ export default class PcSheet extends BaseActorSheet {
   #luckPick = false;
 
   #onDocumentPointerDown = this.#closePopoverOnOutside.bind(this);
-
-  /* The Timeskip award being set up, or null. Display state only. */
-  #timeskip = null;
 
   static PARTS = {
     header: { template: "systems/paradigm-engine/templates/actor/header.hbs" },
@@ -106,7 +95,6 @@ export default class PcSheet extends BaseActorSheet {
       }));
     }
     context.bondRanks = Object.fromEntries(LADDER.map((step, i) => [i, step.rank]));
-    Object.assign(context, this.#prepareGrowth());
     Object.assign(context, await this.#prepareProfile());
     return context;
   }
@@ -132,98 +120,6 @@ export default class PcSheet extends BaseActorSheet {
       };
     }
     return { identity, profile };
-  }
-
-  /* ----- Growth ----- */
-
-  #prepareGrowth() {
-    const actor = this.document;
-    const milestone = actor.system.growth.milestone;
-    const open = !!milestone.tier;
-    const canStart = this.isEditable && !open && !this.#timeskip;
-    const tiers = Object.entries(GROWTH_TIERS).map(([tier, gp]) => ({
-      tier, gp, label: game.i18n.localize(`PARADIGMENGINE.Growth.${tier}`), on: milestone.tier === tier, can: canStart
-    }));
-    if (game.user.isGM) {
-      tiers.push({
-        tier: "Timeskip", gp: 0, label: game.i18n.localize("PARADIGMENGINE.Growth.Timeskip"),
-        on: milestone.tier === "Timeskip" || !!this.#timeskip, can: this.isEditable && !open
-      });
-    }
-    const tail = open
-      ? game.i18n.format("PARADIGMENGINE.Growth.ToSpend", { tier: game.i18n.localize(`PARADIGMENGINE.Growth.${milestone.tier}`), n: milestone.gp })
-      : game.i18n.localize("PARADIGMENGINE.Growth.SpendOnAward");
-    const context = {
-      milestone: {
-        open,
-        gp: milestone.gp,
-        pips: Array.from({ length: Math.max(milestone.gp, 5) }, (_, i) => i < milestone.gp),
-        tiers,
-        tail,
-        cancelLabel: game.i18n.localize(milestone.items.length ? "PARADIGMENGINE.Growth.End" : "PARADIGMENGINE.Growth.Cancel")
-      },
-      cards: growthCards(actor).map(card => ({
-        ...card,
-        options: card.options.map(o => ({ ...o, can: o.can && this.isEditable }))
-      })),
-      log: growthLog(actor)
-    };
-    if (this.#timeskip && !open) {
-      context.timeskip = {
-        gp: this.#timeskip.gp,
-        access: GROWTH_GROUPS.map(group => ({
-          group,
-          label: game.i18n.localize(`PARADIGMENGINE.Growth.Group.${group}`),
-          on: this.#timeskip.access[group]
-        }))
-      };
-    }
-    return context;
-  }
-
-  static async #onGrowthStart(event, target) {
-    if (!this.isEditable) return;
-    const tier = target.dataset.tier;
-    if (tier === "Timeskip") {
-      if (!game.user.isGM) return;
-      this.#timeskip = this.#timeskip ? null : { gp: 1, access: { general: true, arc: true, season: false } };
-      return this.render({ parts: ["growth"] });
-    }
-    await startMilestone(this.document, tier);
-  }
-
-  static async #onGrowthCancel() {
-    if (!this.isEditable) return;
-    await cancelMilestone(this.document);
-  }
-
-  /* An option with a pick opens its window; the rest apply at once. */
-  static async #onGrowthTake(event, target) {
-    if (!this.isEditable) return;
-    const option = GROWTH_OPTIONS.find(o => o.key === target.dataset.key);
-    if (!option) return;
-    if (option.pick) GrowthPick.open(this.document, option.key);
-    else await spend(this.document, option.key);
-  }
-
-  static #onGrowthTsStep(event, target) {
-    if (!this.#timeskip) return;
-    this.#timeskip.gp = Math.clamp(this.#timeskip.gp + Number(target.dataset.dir), 1, 20);
-    this.render({ parts: ["growth"] });
-  }
-
-  static #onGrowthTsAccess(event, target) {
-    const group = target.dataset.group;
-    if (!this.#timeskip || group === "general" || !(group in this.#timeskip.access)) return;
-    this.#timeskip.access[group] = !this.#timeskip.access[group];
-    this.render({ parts: ["growth"] });
-  }
-
-  static async #onGrowthTsAward() {
-    if (!this.isEditable || !this.#timeskip) return;
-    const { gp, access } = this.#timeskip;
-    this.#timeskip = null;
-    await startTimeskip(this.document, gp, access);
   }
 
   async _onRender(context, options) {
@@ -252,7 +148,6 @@ export default class PcSheet extends BaseActorSheet {
     document.removeEventListener("pointerdown", this.#onDocumentPointerDown, true);
     this.#invokeOpen = null;
     this.#luckPick = false;
-    this.#timeskip = null;
   }
 
   /* Closing pulls the popover out of the page at once instead of waiting

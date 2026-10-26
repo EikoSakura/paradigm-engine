@@ -15,6 +15,14 @@ const SIZES = [6, 8, 10, 12];
 
 export const GROWTH_GROUPS = ["general", "arc", "season"];
 
+/* NPCs hold no Bonds and no Luck Dice, so those options are not theirs. */
+const PC_ONLY = new Set(["newBond", "bondRankUp1", "bondRankUp2", "stepLuck", "unlockLuck"]);
+
+/* The options this actor can grow by. */
+export function growthOptions(actor) {
+  return actor.type === "pc" ? GROWTH_OPTIONS : GROWTH_OPTIONS.filter(o => !PC_ONLY.has(o.key));
+}
+
 export function optionLabel(key) {
   return game.i18n.localize(`PARADIGMENGINE.Growth.Option.${key}`);
 }
@@ -107,7 +115,7 @@ export function growthCards(actor) {
       label: game.i18n.localize(`PARADIGMENGINE.Growth.Group.${group}`),
       tail: game.i18n.localize(`PARADIGMENGINE.Growth.GroupTail.${group}`),
       off: !reach,
-      options: GROWTH_OPTIONS.filter(o => o.group === group).map(o => {
+      options: growthOptions(actor).filter(o => o.group === group).map(o => {
         const state = optionState(actor, o);
         const taken = !!o.once && milestone.items.some(i => i.key === o.key);
         return {
@@ -125,7 +133,7 @@ export function growthCards(actor) {
 /* ----- spending ----- */
 
 function canSpend(actor, key) {
-  const option = GROWTH_OPTIONS.find(o => o.key === key);
+  const option = growthOptions(actor).find(o => o.key === key);
   const milestone = actor.system.growth.milestone;
   if (!option || !actor.isOwner || !milestone.tier || milestone.gp < 1 || !milestone.access[option.group]) return null;
   if (option.once && milestone.items.some(i => i.key === key)) return null;

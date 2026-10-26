@@ -31,19 +31,19 @@ export function paragraphs(text) {
 
 /* Reverse of paragraphs(), for seeding the creator textareas back from
    an item's stored Description. */
-function plainLines(html) {
+export function plainLines(html) {
   const div = document.createElement("div");
   div.innerHTML = html ?? "";
   const lines = [...div.querySelectorAll("p")].map(p => p.textContent.trim()).filter(Boolean);
   return lines.length ? lines.join("\n") : div.textContent.trim();
 }
 
-function emptyPick() {
+export function emptyPick() {
   return { name: "", kind: "Technique", text: "", source: "" };
 }
 
 /* A pick filled from a world Skill: the tree's, or one dropped in. */
-function pickFrom(item) {
+export function pickFrom(item) {
   return {
     name: item.name,
     kind: SKILL_KINDS.includes(item.system.kind) ? item.system.kind : "Technique",
@@ -53,14 +53,14 @@ function pickFrom(item) {
 }
 
 /* The Skill Tree's roots, the Skills a new PC can take. */
-function treeRoots() {
+export function treeRoots() {
   return game.items
     .filter(i => i.type === "skill" && i.system.inTree && !i.system.prerequisite)
     .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
 }
 
 /* A world Skill's data, ready to land on the PC. */
-function copyOf(item, flags) {
+export function copyOf(item, flags) {
   const data = item.inCompendium ? game.items.fromCompendium(item, { clearFolder: true }) : item.toObject();
   delete data._id;
   data.system.source = item.system.source || item.uuid;

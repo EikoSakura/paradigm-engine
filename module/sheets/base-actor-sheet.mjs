@@ -1,5 +1,7 @@
 import ParadigmEngineSheet from "./mixin.mjs";
-import { LADDER, ATTRIBUTES, costLabel } from "../config.mjs";
+import { LADDER, ATTRIBUTES, GROWTH_TIERS, costLabel } from "../config.mjs";
+import GrowthPick from "../apps/growth-pick.mjs";
+import { GROWTH_GROUPS, cancelMilestone, growthCards, growthLog, growthOptions, spend, startMilestone, startTimeskip } from "../growth.mjs";
 import { postItemCard } from "../chat.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
 import SkillTree from "../apps/skill-tree.mjs";
@@ -24,6 +26,12 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
       stepRank: this.#onStepRank,
       stepMax: this.#onStepMax,
       stepZoom: this.#onStepZoom,
+      growthStart: this.#onGrowthStart,
+      growthCancel: this.#onGrowthCancel,
+      growthTake: this.#onGrowthTake,
+      growthTsStep: this.#onGrowthTsStep,
+      growthTsAccess: this.#onGrowthTsAccess,
+      growthTsAward: this.#onGrowthTsAward,
       createItem: this.#onCreateItem,
       openItem: this.#onOpenItem,
       deleteItem: this.#onDeleteItem,
@@ -44,6 +52,9 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
 
   /* Which rank badges currently show their die face. Display state only, never stored. */
   #flipped = new Set();
+
+  /* The Timeskip award being set up, or null. Display state only. */
+  #timeskip = null;
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
@@ -73,6 +84,7 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     }));
     context.skills = await this.#prepareItems();
     context.clash = clashSideOf(this.document);
+    Object.assign(context, this.#prepareGrowth());
     return context;
   }
 
@@ -211,6 +223,105 @@ export default class BaseActorSheet extends ParadigmEngineSheet(ActorSheetV2) {
     const zoom = Math.clamp(Math.round((frame.zoom + Number(target.dataset.dir) * ZOOM_STEP) * 10) / 10, ZOOM_MIN, ZOOM_MAX);
     if (zoom === frame.zoom) return;
     await this.document.setFlag("paradigm-engine", "frame", { ...frame, zoom });
+  }
+
+  /* ----- Growth: a milestone's points, the option cards, the log ----- */
+
+  #prepareGrowth() {
+    const actor = this.document;
+    const growth = actor.system.growth;
+    if (!growth) return {};
+    const milestone = growth.milestone;
+    const open = !!milestone.tier;
+    const canStart = this.isEditable && !open && !this.#timeskip;
+    const tiers = Object.entries(GROWTH_TIERS).map(([tier, gp]) => ({
+      tier, gp, label: game.i18n.localize(`PARADIGMENGINE.Growth.${tier}`), on: milestone.tier === tier, can: canStart
+    }));
+    if (game.user.isGM) {
+      tiers.push({
+        tier: "Timeskip", gp: 0, label: game.i18n.localize("PARADIGMENGINE.Growth.Timeskip"),
+        on: milestone.tier === "Timeskip" || !!this.#timeskip, can: this.isEditable && !open
+      });
+    }
+    const tail = open
+      ? game.i18n.format("PARADIGMENGINE.Growth.ToSpend", { tier: game.i18n.localize(`PARADIGMENGINE.Growth.${milestone.tier}`), n: milestone.gp })
+      : game.i18n.localize("PARADIGMENGINE.Growth.SpendOnAward");
+    const context = {
+      milestone: {
+        open,
+        gp: milestone.gp,
+        pips: Array.from({ length: Math.max(milestone.gp, 5) }, (_, i) => i < milestone.gp),
+        tiers,
+        tail,
+        cancelLabel: game.i18n.localize(milestone.items.length ? "PARADIGMENGINE.Growth.End" : "PARADIGMENGINE.Growth.Cancel")
+      },
+      cards: growthCards(actor).map(card => ({
+        ...card,
+        options: card.options.map(o => ({ ...o, can: o.can && this.isEditable }))
+      })),
+      log: growthLog(actor)
+    };
+    if (this.#timeskip && !open) {
+      context.timeskip = {
+        gp: this.#timeskip.gp,
+        access: GROWTH_GROUPS.map(group => ({
+          group,
+          label: game.i18n.localize(`PARADIGMENGINE.Growth.Group.${group}`),
+          on: this.#timeskip.access[group]
+        }))
+      };
+    }
+    return context;
+  }
+
+  static async #onGrowthStart(event, target) {
+    if (!this.isEditable) return;
+    const tier = target.dataset.tier;
+    if (tier === "Timeskip") {
+      if (!game.user.isGM) return;
+      this.#timeskip = this.#timeskip ? null : { gp: 1, access: { general: true, arc: true, season: false } };
+      return this.render({ parts: ["growth"] });
+    }
+    await startMilestone(this.document, tier);
+  }
+
+  static async #onGrowthCancel() {
+    if (!this.isEditable) return;
+    await cancelMilestone(this.document);
+  }
+
+  /* An option with a pick opens its window; the rest apply at once. */
+  static async #onGrowthTake(event, target) {
+    if (!this.isEditable) return;
+    const option = growthOptions(this.document).find(o => o.key === target.dataset.key);
+    if (!option) return;
+    if (option.pick) GrowthPick.open(this.document, option.key);
+    else await spend(this.document, option.key);
+  }
+
+  static #onGrowthTsStep(event, target) {
+    if (!this.#timeskip) return;
+    this.#timeskip.gp = Math.clamp(this.#timeskip.gp + Number(target.dataset.dir), 1, 20);
+    this.render({ parts: ["growth"] });
+  }
+
+  static #onGrowthTsAccess(event, target) {
+    const group = target.dataset.group;
+    if (!this.#timeskip || group === "general" || !(group in this.#timeskip.access)) return;
+    this.#timeskip.access[group] = !this.#timeskip.access[group];
+    this.render({ parts: ["growth"] });
+  }
+
+  static async #onGrowthTsAward() {
+    if (!this.isEditable || !this.#timeskip) return;
+    const { gp, access } = this.#timeskip;
+    this.#timeskip = null;
+    await startTimeskip(this.document, gp, access);
+  }
+
+  _onClose(options) {
+    super._onClose(options);
+    this.#timeskip = null;
   }
 
   /* In Edit the portrait drags inside its frame to set the focus. */

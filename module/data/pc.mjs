@@ -1,16 +1,6 @@
-import { attributesField, luckField, pointsField, rankField, textField } from "./fields.mjs";
+import { attributesField, growthField, luckField, pointsField, rankField, textField } from "./fields.mjs";
 
-const { ArrayField, BooleanField, HTMLField, NumberField, SchemaField, StringField } = foundry.data.fields;
-
-/* One bought advancement: the option key, the name of what it touched
-   when it touched one thing, and the Rank it left that thing at. */
-function growthItemField() {
-  return new SchemaField({
-    key: textField(),
-    name: textField(),
-    rank: new NumberField({ required: true, nullable: true, integer: true, min: 0, max: 5, initial: null })
-  });
-}
+const { ArrayField, BooleanField, HTMLField, NumberField, SchemaField } = foundry.data.fields;
 
 export default class PcData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -33,27 +23,7 @@ export default class PcData extends foundry.abstract.TypeDataModel {
           invoked: new BooleanField({ initial: false })
         })
       ),
-      growth: new SchemaField({
-        /* The open milestone: its tier, the Growth Points left, which
-           option tiers it reaches, and what has been bought so far. An
-           empty tier means no milestone is open. */
-        milestone: new SchemaField({
-          tier: new StringField({ required: true, blank: true, initial: "", choices: ["", "Episode", "Arc", "Season", "Timeskip"] }),
-          gp: new NumberField({ required: true, nullable: false, integer: true, min: 0, initial: 0 }),
-          access: new SchemaField({
-            general: new BooleanField({ initial: true }),
-            arc: new BooleanField({ initial: false }),
-            season: new BooleanField({ initial: false })
-          }),
-          items: new ArrayField(growthItemField())
-        }),
-        log: new ArrayField(
-          new SchemaField({
-            tier: textField(),
-            items: new ArrayField(growthItemField())
-          })
-        )
-      }),
+      growth: growthField(),
       personality: new HTMLField({ required: true, initial: "" }),
       history: new HTMLField({ required: true, initial: "" }),
       notes: new HTMLField({ required: true, initial: "" })

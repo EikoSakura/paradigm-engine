@@ -290,18 +290,11 @@
       "SkillsSide": "Two at Rank E",
       "BondSide": "Rank E",
       "LuckSide": "3d6",
-      "Roll": "Roll 3d6",
-      "Back": "Back",
-      "Next": "Next",
-      "Position": "Step {n} of {total}"
+      "Roll": "Roll 3d6"
     },
     "Builder": {
       "Title": "NPC Builder",
-      "New": "New NPC",
-      "Create": "Create NPC",
-      "Stats": "Stats",
-      "StatsSide": "Storyteller-Set",
-      "AddSkill": "Add Skill"
+      "Create": "Create NPC"
     },
     "Party": {
       "Tab": {
