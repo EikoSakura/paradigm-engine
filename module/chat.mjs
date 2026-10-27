@@ -85,6 +85,19 @@ export function evaluateBand(faces, total, effective, npc = false) {
   return splash === "combo" ? "Combo" : "Success";
 }
 
+/* Whether any die of a card has been modified: a Luck swap, a trade, a
+   flip, or a Shift. */
+export function modified(card) {
+  return [card?.lucky, card?.traded, card?.flipped, card?.shifted].some(a => a?.some(Boolean));
+}
+
+/* The Timing rule's lock: a natural Combo or Fumble, read from the dice as
+   they were rolled, cannot be modified, so no Luck swap, trade, flip, or
+   Shift touches it. A Combo or Fumble made by a modification stays open. */
+export function locked(card) {
+  return !modified(card) && readSplash(card.faces) !== null;
+}
+
 export function isSuccess(band) {
   return band === "Success" || band === "Combo";
 }
@@ -443,23 +456,25 @@ export async function applyAddRow(message, row) {
 }
 
 /* The leader spends one Shift: the chosen die shows one higher, up to its
-   size, and the band is read again. */
+   size, and the band is read again. A card on a natural Combo or Fumble is
+   refused. */
 export async function applyShift(message, dieIndex) {
   const multi = foundry.utils.deepClone(message.getFlag("paradigm-engine", "multi"));
   const leader = multi?.rows.find(r => r.leader);
   const card = leader?.card;
-  if (!card || !(dieIndex in card.faces) || shiftsLeft(multi) < 1) return;
+  if (!card || !(dieIndex in card.faces) || shiftsLeft(multi) < 1 || locked(card)) return;
   if (card.faces[dieIndex] >= card.maxes[dieIndex]) return;
   card.faces[dieIndex]++;
+  card.shifted = card.faces.map((_, i) => !!card.shifted?.[i] || i === dieIndex);
   multi.shiftsUsed++;
   rebandCard(card);
   await writeMulti(message, multi);
 }
 
-/* A die flips while its card stands on neither a Combo nor a Fumble and
-   the card knows its dice sizes. */
+/* A die flips while its card stands on no natural Combo or Fumble and the
+   card knows its dice sizes. */
 export function canFlip(card) {
-  return !!card?.maxes && readSplash(card.faces) === null;
+  return !!card?.maxes && !locked(card);
 }
 
 /* Anyone flips one die of any roll to its other side, the die's lowest
@@ -467,7 +482,7 @@ export function canFlip(card) {
    a 2 on the S die a 13. The
    die shows blue with a line naming who flipped it, and the band is read
    again. row names a shared card's row, or null for a single roll card.
-   A card standing on a Combo or a Fumble is refused. */
+   A card standing on a natural Combo or Fumble is refused. */
 export async function applyFlip(message, dieIndex, name, row = null) {
   const stored = message.flags["paradigm-engine"] ?? {};
   const flip = card => {
@@ -493,7 +508,7 @@ export async function applyFlip(message, dieIndex, name, row = null) {
 /* Replace one die of a roll card with a spent Luck Die's recorded number and
    re-render. row names a shared card's row, or null for a single roll card.
    Runs on a client allowed to update the message; a spend that lands on a
-   card already standing on a Fumble is refused. The splash flag updates
+   card standing on a natural Combo or Fumble is refused. The splash flag updates
    when the Combo or Fumble state changes, and every client plays the
    splash from the update. */
 export async function applyLuckSwap(message, dieIndex, value, spenderName, row = null) {
@@ -501,7 +516,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
   if (row !== null) {
     const multi = foundry.utils.deepClone(stored.multi);
     const card = multi?.rows[row]?.card;
-    if (!card || !(dieIndex in card.faces) || readSplash(card.faces) === "fumble") return;
+    if (!card || !(dieIndex in card.faces) || locked(card)) return;
     card.faces[dieIndex] = value;
     card.lucky[dieIndex] = true;
     card.luck.push(spenderName);
@@ -509,8 +524,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
     return writeMulti(message, multi);
   }
   const card = foundry.utils.deepClone(stored.card);
-  if (!card || !(dieIndex in card.faces)) return;
-  if (readSplash(card.faces) === "fumble") return;
+  if (!card || !(dieIndex in card.faces) || locked(card)) return;
   card.faces[dieIndex] = value;
   card.lucky[dieIndex] = true;
   card.luck.push(spenderName);
@@ -534,14 +548,14 @@ async function writeRollCard(message, stored, card) {
 /* A Clash trade: one die of this roll swaps with one die of another roll
    of the same Clash, any side. Both cards re-band and re-render; the
    Clash marks follow on the Storyteller's client through the update hook.
-   A Combo or a Fumble on either card stands. */
+   A natural Combo or Fumble on either card stands. */
 export async function applyTrade(message, dieIndex, otherId, otherIndex) {
   const other = game.messages.get(otherId);
   if (!other || other.id === message.id) return;
   const mine = foundry.utils.deepClone(message.flags["paradigm-engine"]?.card);
   const theirs = foundry.utils.deepClone(other.flags["paradigm-engine"]?.card);
   if (!mine || !theirs || !(dieIndex in mine.faces) || !(otherIndex in theirs.faces)) return;
-  if (readSplash(mine.faces) || readSplash(theirs.faces)) return;
+  if (locked(mine) || locked(theirs)) return;
   const myName = message.speaker?.alias || message.author?.name || "";
   const theirName = other.speaker?.alias || other.author?.name || "";
   const a = mine.faces[dieIndex];

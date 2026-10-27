@@ -1,4 +1,4 @@
-import { cardOp, readSplash } from "../chat.mjs";
+import { cardOp, locked } from "../chat.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -98,7 +98,7 @@ export function registerLuck() {
       const rowEl = face.closest("[data-row]");
       const row = rowEl ? Number(rowEl.dataset.row) : null;
       const card = row === null ? flags.card : flags.multi?.rows[row]?.card;
-      if (!card || readSplash(card.faces) === "fumble") continue;
+      if (!card || locked(card)) continue;
       face.classList.add("spendable");
       face.addEventListener("click", () => LuckPicker.open(message, Number(face.dataset.index), row));
     }

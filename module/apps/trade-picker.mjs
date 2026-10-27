@@ -1,4 +1,4 @@
-import { cardOp, readSplash } from "../chat.mjs";
+import { cardOp, locked } from "../chat.mjs";
 import { clashRolls } from "../apps/clash.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -54,7 +54,7 @@ export default class TradePicker extends HandlebarsApplicationMixin(ApplicationV
         return {
           id: m.id,
           name: m.speaker?.alias || m.author?.name || "",
-          off: readSplash(other.faces) !== null,
+          off: locked(other),
           dice: other.faces.map((value, index) => ({ value, index }))
         };
       });

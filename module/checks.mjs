@@ -8,7 +8,7 @@ import RollDialog from "./apps/roll-dialog.mjs";
 import ClashWindow, { clashRolls, clashRunning, clashSideOf } from "./apps/clash.mjs";
 import TradePicker from "./apps/trade-picker.mjs";
 import ActionSetup from "./apps/action-setup.mjs";
-import { SOCKET, applyCardOp, cardOp, multiRow, readSplash, rollDice, showRoll } from "./chat.mjs";
+import { SOCKET, applyCardOp, cardOp, locked, multiRow, rollDice, showRoll } from "./chat.mjs";
 
 const { TextEditor } = foundry.applications.ux;
 
@@ -46,13 +46,13 @@ export function startClashRoll(actor, anchor, alias = "") {
 }
 
 /* The Trade button on a Clash roll card: for the roller while the Clash
-   runs, the card is no Combo or Fumble, and another roll of the Clash is
-   there to trade with. */
+   runs, the card is no natural Combo or Fumble, and another roll of the
+   Clash is there to trade with. */
 function wireTrade(message, flags, html) {
   const button = html.querySelector(".tradebtn");
   if (!button) return;
   const actor = ChatMessage.implementation.getSpeakerActor(message.speaker);
-  const open = actor?.isOwner && clashRunning(flags.clash.clashId) && readSplash(flags.card.faces) === null
+  const open = actor?.isOwner && clashRunning(flags.clash.clashId) && !locked(flags.card)
     && clashRolls(flags.clash.clashId).some(m => m.id !== message.id);
   if (!open) return button.remove();
   button.addEventListener("click", () => TradePicker.open(message));
