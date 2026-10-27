@@ -44,16 +44,16 @@
             <span class="btitle">{{localize "PARADIGMENGINE.Bond.Popup"}}</span>
             <span class="bname">{{this.name}}</span>
           </div>
-          <button type="button" class="ben" data-action="benefit" data-benefit="BorrowStrength" data-i="{{@index}}">
-            <span class="n">{{localize "PARADIGMENGINE.Bond.BorrowStrength"}}<small>{{localize "PARADIGMENGINE.Bond.BorrowStrengthLine"}}</small></span>
+          <button type="button" class="ben" data-action="benefit" data-benefit="die" data-i="{{@index}}">
+            <span class="n">{{localize "PARADIGMENGINE.Bond.Die"}}</span>
             <span class="dt die">{{this.die}}</span>
           </button>
-          <button type="button" class="ben" data-action="benefit" data-benefit="TwistOfFate" data-i="{{@index}}">
-            <span class="n">{{localize "PARADIGMENGINE.Bond.TwistOfFate"}}<small>{{localize "PARADIGMENGINE.Bond.TwistOfFateLine"}}</small></span>
+          <button type="button" class="ben" data-action="benefit" data-benefit="luck" data-i="{{@index}}">
+            <span class="n">{{localize "PARADIGMENGINE.Bond.Luck"}}</span>
             <span class="dt"><i class="fa-solid fa-dice-d6" inert></i></span>
           </button>
-          <button type="button" class="ben" data-action="benefit" data-benefit="Sync" data-i="{{@index}}"{{#unless @root.canSync}} disabled{{/unless}}>
-            <span class="n">{{localize "PARADIGMENGINE.Bond.Sync"}}<small>{{localize "PARADIGMENGINE.Bond.SyncLine"}}</small></span>
+          <button type="button" class="ben" data-action="benefit" data-benefit="turn" data-i="{{@index}}"{{#unless this.canSync}} disabled{{/unless}}>
+            <span class="n">{{localize "PARADIGMENGINE.Bond.Turn"}}</span>
             <span class="dt">1 <i class="fa-solid fa-bolt" inert></i></span>
           </button>
         </div>

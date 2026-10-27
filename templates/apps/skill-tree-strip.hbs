@@ -1,0 +1,28 @@
+<div class="strip">
+  {{#if pc}}
+  <div class="who" style="--rk: var({{who.cssVar}})">
+    <span class="med">{{#if who.portrait}}<img src="{{who.portrait}}" alt="{{who.name}}" style="{{who.frameStyle}}">{{else}}{{who.initial}}{{/if}}</span>
+    <span>
+      <span class="nm">{{who.name}}</span>
+      <span class="sub">{{localize "PARADIGMENGINE.Tree.CharacterRank"}} <span class="rkchip">{{who.rank}}</span></span>
+    </span>
+  </div>
+  <div class="prog">
+    <span class="lab"><span>{{localize "PARADIGMENGINE.Tree.Known"}}</span><b>{{counts.known}} / {{counts.total}}</b></span>
+    <span class="pips">{{#each pips}}<i class="{{this}}"></i>{{/each}}</span>
+  </div>
+  {{else}}
+  <div class="who">
+    <span class="gmtag">{{localize "PARADIGMENGINE.Tree.Storyteller"}}</span>
+    <span>
+      <span class="nm">{{localize "PARADIGMENGINE.Tree.Title"}}</span>
+      <span class="sub">{{localize "PARADIGMENGINE.Tree.LinesCount" n=counts.lines}} · {{localize "PARADIGMENGINE.Tree.SkillsCount" n=counts.total}}</span>
+    </span>
+  </div>
+  {{/if}}
+  <span class="sp"></span>
+  <label class="search">
+    <i class="fa-solid fa-magnifying-glass" inert></i>
+    <input type="search" name="query" value="{{query}}" aria-label="{{localize "PARADIGMENGINE.Tree.Search"}}" autocomplete="off">
+  </label>
+</div>

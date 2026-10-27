@@ -141,11 +141,6 @@ async function skillsReplaceTraits() {
     const { traits, techniques } = sort(actor.items);
     if (techniques.length) await actor.updateEmbeddedDocuments("Item", techniques);
     if (traits.length) await actor.deleteEmbeddedDocuments("Item", traits);
-    const update = {};
-    if (actor.type === "pc") {
-      update["system.advancements.standard"] = ForcedReplacement.create(actor.system.advancements.standard.toObject());
-    }
-    if (!foundry.utils.isEmpty(update)) await actor.update(update);
   }
 }
 

@@ -6,11 +6,17 @@
    shafts, a lens flare and a bloom, a gradient ribbon on a diagonal with
    the roller's portrait as a lit medallion on it, the word in a glow, the
    two dice, sparkles, petals, and motes. Combo is gold and sweeps in from
-   the left; Fumble is pink to violet and settles down from above. */
+   the left; Fumble is pink to violet and settles down from above. A Combo
+   that earns an extra turn adds the chain under the dice: its word in the
+   same light and five stars, one lit per extra turn of the run, the
+   newest flaring; the sixth Combo's word and stars turn pink as the chain
+   ends. */
 
 import { frameOf, frameStyle, portraitOf } from "../portrait.mjs";
+import { chainResult } from "../chat.mjs";
 
 const HOLD = { combo: 2300, fumble: 2500 };
+const CHAIN_HOLD = 700;
 const EXIT = 420;
 
 /* x%, y%, size vw, gold, delay s */
@@ -87,6 +93,7 @@ export function showSplash(kind, message) {
   const faces = card?.faces ?? message.rolls[0]?.dice.map(d => d.total) ?? [];
   const word = game.i18n.localize(`PARADIGMENGINE.Splash.${kind === "combo" ? "Combo" : "Fumble"}`);
   const art = speakerArt(message);
+  const chain = kind === "combo" ? chainResult(card) : null;
   const el = document.createElement("div");
   el.className = `pe-splash ${kind}`;
   el.innerHTML = `
@@ -111,11 +118,24 @@ export function showSplash(kind, message) {
         ${kind === "combo" && card?.energy > 0 ? `<span class="chip">${game.i18n.localize("PARADIGMENGINE.Splash.Energy")}</span>` : ""}
         ${kind === "fumble" && card?.hearts > 0 ? `<span class="chip">${card.hearts === 1 ? game.i18n.localize("PARADIGMENGINE.Splash.Heart") : game.i18n.format("PARADIGMENGINE.Splash.Hearts", { n: card.hearts })}</span>` : ""}
       </div>
+      ${chain ? `<div class="chain${chain.ends ? " ends" : ""}"><div class="cwordbox"><div class="cecho"></div><div class="cword"></div></div><div class="pips"></div></div>` : ""}
     </div>
     <div class="who"><span class="nm"></span><span class="kind"></span></div>
     <div class="sparks"></div>`;
   el.querySelector(".word").textContent = word;
   el.querySelector(".echo").textContent = word;
+  if (chain) {
+    const cword = game.i18n.format(`PARADIGMENGINE.Splash.${chain.key}`, { n: chain.n });
+    el.querySelector(".cword").textContent = cword;
+    el.querySelector(".cecho").textContent = cword;
+    const pips = el.querySelector(".pips");
+    for (let i = 0; i < 5; i++) {
+      const star = svgStar();
+      if (i < chain.turns) star.classList.add("lit");
+      if (!chain.ends && i === chain.turns - 1) star.classList.add("new");
+      pips.appendChild(star);
+    }
+  }
   el.querySelector(".nm").textContent = message.alias;
   el.querySelector(".kind").textContent = game.i18n.localize("PARADIGMENGINE.Roll.Title");
 
@@ -154,6 +174,6 @@ export function showSplash(kind, message) {
     setTimeout(() => el.remove(), EXIT);
   };
   el.addEventListener("click", close, { once: true });
-  setTimeout(close, HOLD[kind]);
+  setTimeout(close, HOLD[kind] + (chain ? CHAIN_HOLD : 0));
   document.body.appendChild(el);
 }

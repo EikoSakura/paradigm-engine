@@ -1,6 +1,7 @@
 import { LADDER, SKILL_KINDS } from "../config.mjs";
 import {
-  attributeRows, availableSkills, bondCandidates, bondRankRows, growthOptions, modifySkillRows, optionLabel, rankCap, skillRankRows, spend
+  attributeRows, availableSkills, bondCandidates, bondRankRows, growthOptions, modifySkillRows, optionLabel, rankCap, retrainSkillRows,
+  skillRankRows, spend, techniqueRows
 } from "../growth.mjs";
 import SkillTree from "./skill-tree.mjs";
 
@@ -9,8 +10,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 /* The pick window a Growth option opens when it has to choose what it
    touches: a new Skill by name, from the Skill Tree, or dropped in; a new
    Bond by name, from the Party and the NPCs, or dropped in; the Skill to
-   modify; the Skill, Bond, or Attribute to Rank Up. One pick spends the
-   point and closes the window. */
+   modify; the Skill to retrain, then its replacement as a new Skill is
+   picked; the Skill, Bond, or Attribute to Rank Up; the Technique to
+   master. One pick spends the point and closes the window. */
 export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2) {
   static DEFAULT_OPTIONS = {
     classes: ["paradigm-engine", "growth-pick"],
@@ -24,6 +26,8 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
       pickItem: this.#onPickItem,
       pickBond: this.#onPickBond,
       pickAttribute: this.#onPickAttribute,
+      pickRetrain: this.#onPickRetrain,
+      backRetrain: this.#onBackRetrain,
       openTree: this.#onOpenTree
     }
   };
@@ -39,6 +43,9 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
   #option;
 
   #kind = "Technique";
+
+  /* Retrain: the id of the Skill being replaced, once chosen. */
+  #retrainId = null;
 
   #hooks = [];
 
@@ -67,6 +74,19 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
     return optionLabel(this.#option.key);
   }
 
+  /* The Skill a Retrain is replacing, while it still stands. */
+  get #retraining() {
+    const skill = this.#retrainId ? this.#actor.items.get(this.#retrainId) : null;
+    return skill?.type === "skill" ? skill : null;
+  }
+
+  /* Whether the window is choosing a new Skill: New Skill, or the second
+     step of a Retrain. */
+  get #choosingSkill() {
+    const pick = this.#option.pick;
+    return pick === "newSkill" || (pick === "retrain" && !!this.#retraining);
+  }
+
   /* The lists read live data: a change on the actor, or a Skill coming or
      going, redraws them. The window closes with its milestone. */
   _onFirstRender(context, options) {
@@ -84,7 +104,7 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
   _onRender(context, options) {
     super._onRender(context, options);
     const pick = this.#option.pick;
-    if (pick === "newSkill" || pick === "newBond") {
+    if (this.#choosingSkill || pick === "newBond") {
       new foundry.applications.ux.DragDrop.implementation({
         dropSelector: ".gpick",
         permissions: { drop: () => this.#actor.isOwner },
@@ -114,35 +134,48 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
     const option = this.#option;
     const pick = option.pick;
     const group = game.i18n.localize(`PARADIGMENGINE.Growth.Group.${option.group}`);
+    const retraining = pick === "retrain" ? this.#retraining : null;
     context.kind = pick;
     context.title = this.title;
     context.eyebrow = game.i18n.format(option.once ? "PARADIGMENGINE.Growth.CostOnce" : "PARADIGMENGINE.Growth.Cost", { group });
-    context.isNewSkill = pick === "newSkill";
+    context.isNewSkill = this.#choosingSkill;
     context.isNewBond = pick === "newBond";
     context.isModifySkill = pick === "modifySkill";
+    context.isRetrain = pick === "retrain" && !retraining;
     context.isSkillRank = pick === "skillRank";
     context.isBondRank = pick === "bondRank";
     context.isAttribute = pick === "attribute";
-    const cap = pick === "attribute" ? 5 : rankCap(actor, option.key);
+    context.isTechnique = pick === "technique";
+    const cap = pick === "attribute" ? 5 : rankCap(actor);
     const capStep = LADDER[cap];
     if (pick === "skillRank" || pick === "bondRank" || pick === "attribute") {
-      const top = cap !== actor.system.rank || pick === "attribute";
-      context.cap = { rank: capStep.rank, cssVar: capStep.cssVar, label: game.i18n.localize(top ? "PARADIGMENGINE.Growth.TopRank" : "PARADIGMENGINE.Growth.CharacterRank") };
+      context.cap = { rank: capStep.rank, cssVar: capStep.cssVar, label: game.i18n.localize("PARADIGMENGINE.Growth.UpTo") };
     }
-    if (pick === "newSkill" || pick === "newBond") context.newRank = { rank: LADDER[0].rank, cssVar: LADDER[0].cssVar };
-    if (pick === "newSkill") {
+    const newRank = retraining ? retraining.system.rank : 0;
+    if (this.#choosingSkill || pick === "newBond") context.newRank = { rank: LADDER[newRank].rank, cssVar: LADDER[newRank].cssVar };
+    if (this.#choosingSkill) {
       context.kinds = SKILL_KINDS.map(kind => ({ kind, label: game.i18n.localize(`PARADIGMENGINE.Skill.${kind}`), on: kind === this.#kind }));
-      context.available = availableSkills(actor);
+      context.available = availableSkills(actor, retraining);
+    }
+    if (retraining) {
+      context.retraining = { name: retraining.name, label: game.i18n.localize("PARADIGMENGINE.Growth.Replacing") };
     }
     if (pick === "newBond") Object.assign(context, bondCandidates(actor));
     if (pick === "modifySkill") context.rows = modifySkillRows(actor);
+    if (context.isRetrain) context.rows = retrainSkillRows(actor);
     if (pick === "skillRank") context.rows = skillRankRows(actor, cap);
     if (pick === "bondRank") context.rows = bondRankRows(actor, cap);
     if (pick === "attribute") context.rows = attributeRows(actor);
+    if (pick === "technique") context.rows = techniqueRows(actor);
     return context;
   }
 
+  /* A Retrain carries the Skill it replaces into every spend. */
   async #spend(choice) {
+    if (this.#option.pick === "retrain") {
+      if (!this.#retraining) return false;
+      choice = { ...choice, itemId: this.#retrainId };
+    }
     const bought = await spend(this.#actor, this.#option.key, choice);
     if (bought) await this.close();
     return bought;
@@ -152,6 +185,21 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
     const name = this.element.querySelector(".crow input")?.value ?? "";
     if (this.#option.pick === "newBond" && !name.trim()) return;
     await this.#spend({ name, kind: this.#kind });
+  }
+
+  /* Retrain, first step: the Skill to replace is chosen and the window
+     turns to picking its replacement. */
+  static #onPickRetrain(event, target) {
+    const skill = this.#actor.items.get(target.dataset.itemId);
+    if (skill?.type !== "skill") return;
+    this.#retrainId = skill.id;
+    this.#kind = skill.system.kind;
+    this.render();
+  }
+
+  static #onBackRetrain() {
+    this.#retrainId = null;
+    this.render();
   }
 
   static #onSetKind(event, target) {
@@ -189,7 +237,7 @@ export default class GrowthPick extends HandlebarsApplicationMixin(ApplicationV2
   async #onDrop(event) {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     const pick = this.#option.pick;
-    if (pick === "newSkill" && data.type === "Item") {
+    if (this.#choosingSkill && data.type === "Item") {
       const item = await Item.implementation.fromDropData(data);
       if (item?.type === "skill" && item.parent !== this.#actor) await this.#spend({ uuid: item.uuid });
     } else if (pick === "newBond" && data.type === "Actor") {

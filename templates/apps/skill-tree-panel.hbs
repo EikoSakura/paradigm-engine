@@ -1,0 +1,52 @@
+<div class="panel">
+  {{#if detail}}
+  <div class="eyebrow">{{#if detail.spec}}{{localize "PARADIGMENGINE.Tree.Specialization"}}{{else}}{{localize "PARADIGMENGINE.Tree.Root"}}{{/if}}</div>
+  <div class="hd" style="--rk: var({{detail.cssVar}})">
+    <span class="bigrk{{#if detail.spec}} spec{{/if}}">{{detail.rank}}</span>
+    <span class="title">{{detail.name}}</span>
+  </div>
+  <div class="pills">
+    <span class="pill{{#if detail.technique}} kind{{/if}}">{{detail.kindLabel}}</span>
+    {{#if detail.costLabel}}<span class="pill cost">{{detail.costLabel}}</span>{{/if}}
+    {{#if detail.stateLabel}}<span class="state {{detail.state}}">{{detail.stateLabel}}</span>{{/if}}
+  </div>
+  <div class="lab">{{localize "PARADIGMENGINE.Tree.Line"}}</div>
+  <div class="chain">
+    {{#each detail.chain}}
+    {{#if @index}}<span class="ar">›</span>{{/if}}
+    <button type="button" class="lk{{#if this.state}} {{this.state}}{{/if}}{{#if this.me}} me{{/if}}" data-action="selectNode" data-uuid="{{this.uuid}}"><span class="d"></span>{{this.name}}</button>
+    {{/each}}
+  </div>
+  <div class="lab">{{detail.rankLabel}}</div>
+  <div class="txt">{{{detail.text}}}</div>
+  <div class="acts">
+    {{#if detail.takeable}}<button type="button" class="btn go" data-action="takeNode" data-uuid="{{detail.uuid}}">{{localize "PARADIGMENGINE.Tree.Take"}}</button>{{/if}}
+    <button type="button" class="btn" data-action="openNode" data-uuid="{{detail.uuid}}" data-item-id="{{detail.id}}">{{localize "PARADIGMENGINE.Tree.Open"}}</button>
+    {{#if canEdit}}<button type="button" class="btn warn" data-action="removeNode" data-uuid="{{detail.uuid}}">{{localize "PARADIGMENGINE.Tree.Remove"}}</button>{{/if}}
+  </div>
+  {{else}}
+  <div class="lines-head">
+    <span class="eyebrow">{{#if pc}}{{localize "PARADIGMENGINE.Tree.Progress"}}{{else}}{{localize "PARADIGMENGINE.Tree.Lines"}}{{/if}}</span>
+    <span class="cnt">{{localize "PARADIGMENGINE.Tree.LinesCount" n=counts.lines}}</span>
+  </div>
+  {{#if pc}}
+  <div class="counts">
+    <span class="c k"><b>{{counts.known}}</b><span>{{localize "PARADIGMENGINE.Tree.Known"}}</span></span>
+    <span class="c a"><b>{{counts.available}}</b><span>{{localize "PARADIGMENGINE.Tree.Available"}}</span></span>
+    <span class="c l"><b>{{counts.locked}}</b><span>{{localize "PARADIGMENGINE.Tree.Locked"}}</span></span>
+  </div>
+  {{/if}}
+  <div class="sum">
+    {{#each lanes}}
+    <button type="button" class="row{{#if this.off}} off{{/if}}" data-action="jumpLine" data-uuid="{{this.uuid}}" style="--rk: var({{this.cssVar}})">
+      <span class="n"><i></i>{{this.name}}</span>
+      <span class="v">
+        {{#if @root.active}}<span class="m">{{localize "PARADIGMENGINE.Tree.Found" n=this.hits}}</span>{{else if this.available}}<span class="m">{{localize "PARADIGMENGINE.Tree.Ready" n=this.available}}</span>{{/if}}
+        {{#if @root.pc}}{{this.known}} / {{this.all}}{{else}}{{localize "PARADIGMENGINE.Tree.SkillsCount" n=this.all}}{{/if}}
+      </span>
+      {{#if @root.pc}}<span class="bar"><i style="width: {{this.percent}}%"></i></span>{{/if}}
+    </button>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

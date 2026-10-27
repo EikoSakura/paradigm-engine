@@ -5,6 +5,7 @@ import { STANDINGS } from "../data/party.mjs";
 import { startGroup } from "../checks.mjs";
 import { ensurePartyFolder, joinParty, leaveParty, partyMembers } from "../party.mjs";
 import ClashWindow from "../apps/clash.mjs";
+import { clearChain } from "../chat.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 
@@ -242,10 +243,12 @@ export default class PartySheet extends ParadigmEngineSheet(ActorSheetV2) {
     ClashWindow.open();
   }
 
-  /* A new scene: every member's Bonds may be invoked again. */
+  /* A new scene: every member's Bonds may be invoked again, and every
+     Combo chain ends. */
   static async #onNewScene() {
     if (!game.user.isGM) return;
     for (const actor of partyMembers(this.document)) {
+      await clearChain(actor);
       const bonds = actor.system.toObject().bonds;
       if (!bonds.some(b => b.invoked)) continue;
       await actor.update({ "system.bonds": bonds.map(b => ({ ...b, invoked: false })) });

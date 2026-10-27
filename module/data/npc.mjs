@@ -1,4 +1,4 @@
-import { attributesField, growthField, pointsField, rankField } from "./fields.mjs";
+import { attributesField, comboField, growthField, migrateGrowthKeys, pointsField, rankField } from "./fields.mjs";
 
 export default class NpcData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
@@ -7,7 +7,13 @@ export default class NpcData extends foundry.abstract.TypeDataModel {
       attributes: attributesField(),
       hearts: pointsField(),
       energy: pointsField(),
+      comboMin: comboField(),
       growth: growthField()
     };
+  }
+
+  static migrateData(source, options) {
+    migrateGrowthKeys(source);
+    return super.migrateData(source, options);
   }
 }

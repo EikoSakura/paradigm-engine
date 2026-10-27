@@ -110,8 +110,7 @@
         {{#each luck}}
         <div class="luckslot{{#if this.spent}} spent{{/if}}{{#if @root.luckPick}} pick{{/if}}">
           {{#if @root.luckPick}}
-          <button type="button" class="face" data-action="luckPick" data-i="{{@index}}" data-tooltip="{{this.pickLabel}}">{{#unless this.spent}}{{this.value}}{{/unless}}</button>
-          <span class="hint">{{this.pickLabel}}</span>
+          <button type="button" class="face" data-action="luckPick" data-i="{{@index}}" data-tooltip="{{@root.luckPickLabel}}">{{#unless this.spent}}{{this.value}}{{/unless}}</button>
           {{else if @root.editMode}}
           <span class="face in"><input type="number" name="system.luck.{{@index}}.value" data-dtype="Number" min="1" max="{{@root.luckDie}}"
             value="{{this.value}}" aria-label="{{localize "PARADIGMENGINE.Edit.LuckValue"}}"></span>
@@ -123,7 +122,7 @@
         {{/each}}
       </div>
       {{#if luckPick}}
-      <button type="button" class="rollall done" data-action="luckDone">{{localize "PARADIGMENGINE.Bond.Done"}}</button>
+      <span class="rollall twist"><i class="fa-solid fa-dice-d6" inert></i>{{luckPick}}</span>
       {{else if editMode}}
       <button type="button" class="rollall" data-action="rollLuckAll">{{localize "PARADIGMENGINE.Edit.RollAll"}}</button>
       {{/if}}

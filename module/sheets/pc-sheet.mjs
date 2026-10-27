@@ -2,7 +2,7 @@ import BaseActorSheet from "./base-actor-sheet.mjs";
 import { LADDER } from "../config.mjs";
 import PcCreator from "../apps/pc-creator.mjs";
 import RollDialog from "../apps/roll-dialog.mjs";
-import { postBondCard } from "../chat.mjs";
+import { postBondCard, showRoll } from "../chat.mjs";
 
 /* The Profile tab's Identity cells and prose cards, each card with its tag color. */
 const PROFILE_IDENTITY = {
@@ -24,7 +24,6 @@ export default class PcSheet extends BaseActorSheet {
       benefit: this.#onBenefit,
       clearInvoked: this.#onClearInvoked,
       luckPick: this.#onLuckPick,
-      luckDone: this.#onLuckDone,
       openCreator: this.#onOpenCreator
     }
   };
@@ -32,8 +31,8 @@ export default class PcSheet extends BaseActorSheet {
   /* The Bond whose Invoke popover is open, or null. Display state only. */
   #invokeOpen = null;
 
-  /* Twist of Fate: while true the Luck hexes are in the pick state. */
-  #luckPick = false;
+  /* The Luck benefit's rolled die waiting for a slot, or null. */
+  #luckPick = null;
 
   #onDocumentPointerDown = this.#closePopoverOnOutside.bind(this);
 
@@ -79,21 +78,19 @@ export default class PcSheet extends BaseActorSheet {
     const system = this.document.system;
     context.rankBadge = this._badge("rank", system.rank, "difficulty");
     const canInvoke = this.isEditable && !this.isEditMode;
+    /* The turn benefit needs a Bond within another PC: one whose name is a PC's name. */
+    const pcNames = new Set(game.actors.filter(a => a.type === "pc" && a !== this.document).map(a => a.name.trim().toLowerCase()));
+    const canSync = system.energy.value >= 1;
     context.bonds = system.bonds.map((bond, i) => ({
       ...bond,
       badge: this._badge(`bond.${i}`, bond.rank),
       die: LADDER[bond.rank].die,
       canInvoke: canInvoke && !bond.invoked,
+      canSync: canSync && pcNames.has((bond.name ?? "").trim().toLowerCase()),
       open: canInvoke && this.#invokeOpen === i
     }));
-    context.canSync = system.energy.value >= 1;
-    context.luckPick = this.#luckPick && canInvoke;
-    if (context.luckPick) {
-      context.luck = context.luck.map(slot => ({
-        ...slot,
-        pickLabel: game.i18n.localize(slot.spent ? "PARADIGMENGINE.Bond.Replenish" : "PARADIGMENGINE.Bond.Reroll")
-      }));
-    }
+    context.luckPick = canInvoke ? this.#luckPick : null;
+    if (context.luckPick !== null) context.luckPickLabel = game.i18n.format("PARADIGMENGINE.Bond.Record", { value: context.luckPick });
     context.bondRanks = Object.fromEntries(LADDER.map((step, i) => [i, step.rank]));
     Object.assign(context, await this.#prepareProfile());
     return context;
@@ -147,7 +144,7 @@ export default class PcSheet extends BaseActorSheet {
     super._onClose(options);
     document.removeEventListener("pointerdown", this.#onDocumentPointerDown, true);
     this.#invokeOpen = null;
-    this.#luckPick = false;
+    this.#luckPick = null;
   }
 
   /* Closing pulls the popover out of the page at once instead of waiting
@@ -195,24 +192,28 @@ export default class PcSheet extends BaseActorSheet {
     const benefit = target.dataset.benefit;
     const anchor = this.element.querySelector(`.brow[data-i="${i}"]`) ?? target;
     this.#closePopover();
-    if (benefit === "Sync") {
+    if (benefit === "turn") {
       const energy = this.document.system.energy.value;
       if (energy < 1) return;
       const bond = await this.#spendBond(i);
       if (!bond) return;
       await this.document.update({ "system.energy.value": energy - 1 });
-      return postBondCard(this.document, bond, "Sync", game.i18n.localize("PARADIGMENGINE.Chat.SyncEnergy"));
+      return postBondCard(this.document, bond, game.i18n.localize("PARADIGMENGINE.Chat.TurnEnergy"));
     }
-    if (benefit === "TwistOfFate") {
+    if (benefit === "luck") {
       const bond = await this.#spendBond(i);
       if (!bond) return;
-      this.#luckPick = true;
+      const die = this.document.system.luckDie;
+      const roll = await new foundry.dice.Roll(`1d${die}`).evaluate();
+      await showRoll(roll);
+      this.#luckPick = roll.total;
       this.render();
-      return postBondCard(this.document, bond, "TwistOfFate");
+      return postBondCard(this.document, bond,
+        game.i18n.format("PARADIGMENGINE.Chat.LuckRoll", { die: `d${die}`, value: roll.total }));
     }
     const bond = await this.#spendBond(i);
     if (!bond) return;
-    await postBondCard(this.document, bond, "BorrowStrength",
+    await postBondCard(this.document, bond,
       game.i18n.format("PARADIGMENGINE.Chat.BorrowDie", { die: LADDER[bond.rank].die }));
     RollDialog.open(this.document, { kind: "bond", index: i }, anchor, { tag: game.i18n.localize("PARADIGMENGINE.Bond.Title") });
   }
@@ -226,21 +227,16 @@ export default class PcSheet extends BaseActorSheet {
     await this.document.update({ "system.bonds": bonds });
   }
 
-  /* Twist of Fate, one hex at a time: a spent die is replenished with a
-     fresh roll, a ready die is rerolled. */
+  /* The Luck benefit: the rolled die is recorded over the clicked slot, spent
+     or not, which stands ready; the pick ends and the Luck values post. */
   static async #onLuckPick(event, target) {
-    if (!this.isEditable || !this.#luckPick) return;
+    if (!this.isEditable || this.#luckPick === null) return;
     const luck = this.document.system.toObject().luck;
     const slot = luck[Number(target.dataset.i)];
     if (!slot) return;
-    const roll = await new foundry.dice.Roll(`1d${this.document.system.luckDie}`).evaluate();
-    Object.assign(slot, { value: roll.total, spent: false });
+    Object.assign(slot, { value: this.#luckPick, spent: false });
+    this.#luckPick = null;
     await this.document.update({ "system.luck": luck });
-  }
-
-  static async #onLuckDone() {
-    this.#luckPick = false;
-    this.render();
     const values = this.document.system.luck.map(slot => (slot.spent ? "\u2014" : String(slot.value))).join(" \u00b7 ");
     const line = foundry.utils.escapeHTML(game.i18n.format("PARADIGMENGINE.Chat.LuckNow", { values }));
     await ChatMessage.implementation.create({

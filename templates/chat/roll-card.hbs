@@ -28,6 +28,9 @@
     {{#if hearts}}
     <div class="rline hearts"><i class="rmark"></i><span>{{hearts}}</span></div>
     {{/if}}
+    {{#if chain}}
+    <div class="rline chain"><i class="rmark"></i><span>{{chain}}</span></div>
+    {{/if}}
     {{#if band}}
     <div class="dband">
       <span class="dtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>

@@ -1,0 +1,17 @@
+<div class="bar">
+  {{#if pc}}
+  <span class="filt" role="group" aria-label="{{localize "PARADIGMENGINE.Tree.Filter"}}">
+    {{#each filters}}
+    <button type="button" class="{{this.filter}}" data-action="setFilter" data-filter="{{this.filter}}" aria-pressed="{{#if this.on}}true{{else}}false{{/if}}">{{this.label}}</button>
+    {{/each}}
+  </span>
+  {{/if}}
+  <button type="button" class="tb" data-action="foldAll">{{#if anyFolded}}{{localize "PARADIGMENGINE.Tree.UnfoldAll"}}{{else}}{{localize "PARADIGMENGINE.Tree.FoldAll"}}{{/if}}</button>
+  {{#if active}}<span class="found">{{localize "PARADIGMENGINE.Tree.Found" n=found}}</span>{{/if}}
+  <span class="sp"></span>
+  <span class="zoom">
+    <button type="button" data-action="zoomOut" aria-label="{{localize "PARADIGMENGINE.Tree.ZoomOut"}}">−</button>
+    <button type="button" data-action="zoomFit">{{localize "PARADIGMENGINE.Tree.Fit"}}</button>
+    <button type="button" data-action="zoomIn" aria-label="{{localize "PARADIGMENGINE.Tree.ZoomIn"}}">＋</button>
+  </span>
+</div>

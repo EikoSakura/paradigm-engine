@@ -53,7 +53,7 @@ export default class ParadigmEngineItemSheet extends ParadigmEngineSheet(ItemShe
     context.badge = { text: this.#flipped ? step.die : step.rank, flipped: this.#flipped, cssVar: step.cssVar };
     context.rankLocked = !!system.prerequisite;
     context.kindLabel = game.i18n.localize(`PARADIGMENGINE.Skill.${system.kind}`);
-    context.costLabel = costLabel({ kind: system.kind, rank: LADDER.indexOf(step) });
+    context.costLabel = costLabel({ kind: system.kind, rank: LADDER.indexOf(step), mastery: system.mastery });
     context.technique = system.kind === "Technique";
     context.kinds = SKILL_KINDS.map(key => ({
       key,

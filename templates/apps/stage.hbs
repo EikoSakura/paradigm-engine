@@ -1,0 +1,84 @@
+{{#if episode}}
+<div class="slate{{#if episode.empty}} empty{{/if}}">
+  {{#if episode.empty}}
+  <button type="button" class="ep-new" data-action="editEpisode"><i class="fa-solid fa-clapperboard" inert></i>{{localize "PARADIGMENGINE.Stage.Episode"}}</button>
+  {{else}}
+  <div class="ep">
+    {{#if episode.eyebrow}}<span class="no">{{episode.eyebrow}}</span>{{/if}}
+    {{#if episode.title}}<span class="ttl">{{episode.title}}</span>{{/if}}
+    <span class="rule"></span>
+    {{#if gm}}<button type="button" class="edit" data-action="editEpisode" aria-label="{{localize "PARADIGMENGINE.Stage.Edit"}}"><i class="fa-solid fa-pen" inert></i></button>{{/if}}
+  </div>
+  {{#if episode.where}}
+  <div class="where">
+    {{#if episode.scene}}<span class="k">{{localize "PARADIGMENGINE.Stage.Scene"}}</span><span class="v">{{episode.scene}}</span>{{/if}}
+    {{#if episode.time}}<span class="k">{{localize "PARADIGMENGINE.Stage.Time"}}</span><span class="v">{{episode.time}}</span>{{/if}}
+  </div>
+  {{/if}}
+  {{/if}}
+</div>
+{{/if}}
+
+<div class="facing">
+  {{#each facing}}
+  <div class="plate{{#if this.veiled}} veiled{{/if}}" style="--rk: var({{this.cssVar}})">
+    <button type="button" class="pic" data-action="openActor" data-uuid="{{this.uuid}}" {{#unless this.canOpen}}disabled{{/unless}}>
+      <span class="frame">{{#if this.portrait}}<img src="{{this.portrait}}" alt="{{this.name}}" style="{{this.frameStyle}}" draggable="false">{{else}}<span class="ph">{{this.initial}}</span>{{/if}}</span>
+    </button>
+    <div class="who"><span class="nm">{{this.name}}</span><span class="rk">{{this.rank}}</span></div>
+    {{#if this.showHearts}}
+    <div class="pips{{#unless this.heartsShown}} hidden-to-players{{/unless}}">
+      {{#each this.hearts}}<span class="pip{{#if this}} on{{/if}}"><svg viewBox="0 0 24 22" aria-hidden="true"><path class="shape heart" d="M12 21 2.6 11.8C.5 9.7.5 6.2 2.6 4.1a5.3 5.3 0 0 1 7.5 0L12 6l1.9-1.9a5.3 5.3 0 0 1 7.5 0c2.1 2.1 2.1 5.6 0 7.7L12 21z"/></svg></span>{{/each}}
+    </div>
+    {{/if}}
+    {{#if @root.gm}}
+    <div class="gmc">
+      <button type="button" class="{{#if this.heartsShown}}on{{/if}}" data-action="toggleHearts" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Stage.ShowHearts"}}"><i class="fa-solid fa-eye" inert></i></button>
+      <button type="button" class="{{#if this.veiled}}on{{/if}}" data-action="toggleVeil" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Stage.Veil"}}"><i class="fa-solid fa-mask" inert></i></button>
+      <button type="button" data-action="removeFacing" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Stage.Remove"}}">✕</button>
+    </div>
+    {{/if}}
+  </div>
+  {{/each}}
+  {{#if gm}}<div class="drop" aria-hidden="true">+</div>{{/if}}
+</div>
+
+<div class="party">
+  {{#each party}}
+  <div class="pc{{#if this.hand}} hand{{/if}}{{#if this.invoked}} invoked{{/if}}" style="--rk: var({{this.cssVar}})" data-uuid="{{this.uuid}}">
+    <button type="button" class="pic" data-action="openActor" data-uuid="{{this.uuid}}" aria-label="{{this.name}}">
+      <span class="frame">{{#if this.portrait}}<img src="{{this.portrait}}" alt="" style="{{this.frameStyle}}" draggable="false">{{else}}<span class="ph">{{this.initial}}</span>{{/if}}</span>
+      <span class="rk">{{this.rank}}</span>
+      <span class="hand"><i class="fa-solid fa-hand" inert></i></span>
+    </button>
+    <div class="body">
+      <div class="nm">{{this.name}}{{#if this.invoked}}<span class="bond">{{localize "PARADIGMENGINE.Stage.BondInvoked"}}</span>{{/if}}</div>
+      <div class="row">
+        <span class="k">{{localize "PARADIGMENGINE.Vitals.Hearts"}}</span>
+        <span class="pips">{{#each this.hearts}}<button type="button" class="pip{{#if this}} on{{/if}}" data-action="setPip" data-kind="hearts" data-i="{{@index}}" {{#unless ../owner}}disabled{{/unless}} aria-label="{{localize "PARADIGMENGINE.Vitals.Hearts"}}"><svg viewBox="0 0 24 22" aria-hidden="true"><path class="shape heart" d="M12 21 2.6 11.8C.5 9.7.5 6.2 2.6 4.1a5.3 5.3 0 0 1 7.5 0L12 6l1.9-1.9a5.3 5.3 0 0 1 7.5 0c2.1 2.1 2.1 5.6 0 7.7L12 21z"/></svg></button>{{/each}}</span>
+      </div>
+      <div class="row">
+        <span class="k">{{localize "PARADIGMENGINE.Vitals.Energy"}}</span>
+        <span class="pips">{{#each this.energy}}<button type="button" class="pip bolt{{#if this}} on{{/if}}" data-action="setPip" data-kind="energy" data-i="{{@index}}" {{#unless ../owner}}disabled{{/unless}} aria-label="{{localize "PARADIGMENGINE.Vitals.Energy"}}"><svg viewBox="0 0 20 24" aria-hidden="true"><path class="shape bolt" d="M12.5 1 3 13.5h6l-1.5 9.5 9.5-12.5h-6L12.5 1z"/></svg></button>{{/each}}</span>
+      </div>
+      {{#if this.luck.length}}
+      <div class="row">
+        <span class="k">{{this.luckLabel}}</span>
+        <span class="luck">{{#each this.luck}}<span class="lx{{#if this.spent}} spent{{/if}}{{#if this.empty}} empty{{/if}}">{{#if this.empty}}·{{else}}{{this.value}}{{/if}}</span>{{/each}}</span>
+      </div>
+      {{/if}}
+    </div>
+    <div class="mini"><b><i style="--w: {{this.heartsPct}}%"></i></b><b><i style="--w: {{this.energyPct}}%"></i></b></div>
+  </div>
+  {{/each}}
+</div>
+
+{{#if clash}}
+<button type="button" class="clash" data-action="openClash">
+  <span class="target">{{clash.targetLabel}}</span>
+  {{#each clash.sides}}
+  {{#if @index}}<span class="vs">{{localize "PARADIGMENGINE.Stage.Vs"}}</span>{{/if}}
+  <span class="side{{#if this.won}} won{{/if}}"><span class="sn">{{this.name}}</span><span class="boxes">{{#each this.boxes}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span></span>
+  {{/each}}
+</button>
+{{/if}}

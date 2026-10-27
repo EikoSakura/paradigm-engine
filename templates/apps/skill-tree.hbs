@@ -1,30 +1,44 @@
-<div class="treewrap">
-<div class="tree{{#if canEdit}} editing{{/if}}" style="width: {{width}}px; height: {{height}}px;">
+<div class="board{{#if canEdit}} editing{{/if}}">
+<div class="tree" style="width: {{width}}px; height: {{height}}px; transform: scale({{scale}});">
+  {{#each lanes}}
+  <div class="lane{{#if this.open}} open{{/if}}{{#if this.quiet}} quiet{{/if}}" data-uuid="{{this.uuid}}" style="--rk: var({{this.cssVar}}); top: {{this.y}}px; height: {{this.h}}px;">
+    <button type="button" class="lt" data-action="foldNode" data-uuid="{{this.uuid}}"><span class="ch"></span>{{this.name}}<span class="ct">{{this.count}}</span></button>
+  </div>
+  {{/each}}
   <svg class="edges" width="{{width}}" height="{{height}}" aria-hidden="true">
     {{#each edges}}
-    <path class="{{#unless this.solid}}dashed{{/unless}}"
-      d="M{{this.x1}} {{this.y1}} C {{this.cx}} {{this.y1}}, {{this.cx}} {{this.y2}}, {{this.x2}} {{this.y2}}"/>
+    <g class="{{this.cls}}" data-to="{{this.to}}" style="--rk: var({{this.cssVar}})">
+      <path class="halo" d="M{{this.x1}} {{this.y1}} C {{this.cx}} {{this.y1}}, {{this.cx}} {{this.y2}}, {{this.x2}} {{this.y2}}"/>
+      <path class="core" d="M{{this.x1}} {{this.y1}} C {{this.cx}} {{this.y1}}, {{this.cx}} {{this.y2}}, {{this.x2}} {{this.y2}}"/>
+    </g>
     {{/each}}
   </svg>
-  {{#if empty}}{{#if canEdit}}
+  {{#if canEdit}}
   <div class="ghost" style="left: {{ghost.x}}px; top: {{ghost.y}}px;"></div>
-  {{/if}}{{/if}}
+  {{/if}}
   {{#each nodes}}
-  <div class="node{{#if this.state}} {{this.state}}{{/if}}{{#if this.selected}} selected{{/if}}" style="left: {{this.x}}px; top: {{this.y}}px; --rk: var({{this.cssVar}})"
-    data-uuid="{{this.uuid}}" data-item-id="{{this.id}}"{{#if @root.canEdit}} draggable="true"{{/if}}>
+  <div class="node{{#if this.state}} {{this.state}}{{/if}}{{#if this.spec}} spec{{/if}}{{#if this.selected}} selected{{/if}}{{#if this.dim}} dim{{/if}}"
+    style="left: {{this.x}}px; top: {{this.y}}px; --rk: var({{this.cssVar}})"
+    data-uuid="{{this.uuid}}" data-item-id="{{this.id}}" data-parent="{{this.parentUuid}}"{{#if @root.canEdit}} draggable="true"{{/if}}>
     <button type="button" class="nmain" data-action="selectNode" data-uuid="{{this.uuid}}" aria-pressed="{{#if this.selected}}true{{else}}false{{/if}}">
-      <span class="rchip">{{this.rank}}</span>
-      <span class="nbody">
-        <span class="nname">{{this.name}}</span>
-        {{#if this.stateLabel}}<span class="nstate">{{this.stateLabel}}</span>{{/if}}
+      <span class="rk">{{this.rank}}</span>
+      <span class="nb">
+        <span class="nn">{{this.name}}</span>
+        <span class="nk">{{#if this.technique}}<span class="pill cost">{{this.costLabel}}</span>{{else}}<span class="pill">{{this.kindLabel}}</span>{{/if}}</span>
       </span>
+      {{#if this.known}}<span class="st">✓</span>{{/if}}
+      {{#if this.locked}}<span class="st"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>{{/if}}
     </button>
     {{#if this.takeable}}
-    <button type="button" class="ntake" data-action="takeNode" data-uuid="{{this.uuid}}"
+    <button type="button" class="take" data-action="takeNode" data-uuid="{{this.uuid}}"
       data-tooltip="PARADIGMENGINE.Tree.Take" aria-label="{{localize "PARADIGMENGINE.Tree.Take"}}">＋</button>
     {{/if}}
+    {{#if this.hasKids}}
+    <button type="button" class="fold{{#if this.folded}} on{{/if}}" data-action="foldNode" data-uuid="{{this.uuid}}"
+      aria-label="{{localize "PARADIGMENGINE.Tree.Fold"}}">{{#if this.folded}}+{{this.desc}}{{else}}−{{/if}}</button>
+    {{/if}}
     {{#if @root.canEdit}}
-    <button type="button" class="nx" data-action="removeNode" aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+    <button type="button" class="nx" data-action="removeNode" data-uuid="{{this.uuid}}" aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
     {{/if}}
   </div>
   {{/each}}

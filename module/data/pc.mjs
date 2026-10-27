@@ -1,4 +1,4 @@
-import { attributesField, growthField, luckField, pointsField, rankField, textField } from "./fields.mjs";
+import { attributesField, comboField, growthField, luckField, migrateGrowthKeys, pointsField, rankField, textField } from "./fields.mjs";
 
 const { ArrayField, BooleanField, HTMLField, NumberField, SchemaField } = foundry.data.fields;
 
@@ -15,6 +15,7 @@ export default class PcData extends foundry.abstract.TypeDataModel {
       energy: pointsField(),
       luckDie: new NumberField({ required: true, nullable: false, integer: true, initial: 6, choices: [6, 8, 10, 12] }),
       luck: luckField(),
+      comboMin: comboField(),
       bonds: new ArrayField(
         new SchemaField({
           name: textField(),
@@ -46,6 +47,7 @@ export default class PcData extends foundry.abstract.TypeDataModel {
       const dice = source.luck.map(s => s?.die).filter(d => [6, 8, 10, 12].includes(d));
       if (dice.length) source.luckDie = Math.max(...dice);
     }
+    migrateGrowthKeys(source);
     return super.migrateData(source, options);
   }
 }

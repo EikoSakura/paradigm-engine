@@ -5,8 +5,8 @@
    milestone. The last point closes the milestone into the Growth Log and
    posts a card. */
 
-import { ATTRIBUTES, GROWTH_CAPS, GROWTH_OPTIONS, GROWTH_TIERS, LADDER } from "./config.mjs";
-import { foundationName, takeSkill } from "./skills.mjs";
+import { ATTRIBUTES, GROWTH_CAPS, GROWTH_OPTIONS, GROWTH_TIERS, LADDER, costLabel, energyCost } from "./config.mjs";
+import { foundationName, foundationOf, takeSkill, worldUuid } from "./skills.mjs";
 import { partyMembers, partyOf } from "./party.mjs";
 
 const { renderTemplate } = foundry.applications.handlebars;
@@ -16,7 +16,7 @@ const SIZES = [6, 8, 10, 12];
 export const GROWTH_GROUPS = ["general", "arc", "season"];
 
 /* NPCs hold no Bonds and no Luck Dice, so those options are not theirs. */
-const PC_ONLY = new Set(["newBond", "bondRankUp1", "bondRankUp2", "stepLuck", "unlockLuck"]);
+const PC_ONLY = new Set(["newBond", "bondRankUp", "stepLuck", "unlockLuck"]);
 
 /* The options this actor can grow by. */
 export function growthOptions(actor) {
@@ -66,10 +66,10 @@ export async function cancelMilestone(actor) {
 
 /* ----- option states ----- */
 
-/* The Rank a Rank Up may reach: the Character Rank for the General
-   options, the top of the Ladder for the Season ones. */
-export function rankCap(actor, key) {
-  return key.endsWith("2") ? LADDER.length - 1 : actor.system.rank;
+/* The Rank a Skill or Bond Rank Up may reach: one above the Character
+   Rank, within the Ladder. */
+export function rankCap(actor) {
+  return Math.min(actor.system.rank + 1, LADDER.length - 1);
 }
 
 /* Skills with a Rank of their own below the cap. */
@@ -81,36 +81,49 @@ function rankableBonds(actor, cap) {
   return actor.system.bonds.map((bond, index) => ({ bond, index })).filter(({ bond }) => bond.rank < cap);
 }
 
+/* Whether a Skill is the foundation of another the actor holds. */
+function hasDependents(actor, skill) {
+  return actor.itemTypes.skill.some(i => i !== skill && foundationOf(i) === skill);
+}
+
+/* Skills that can be retrained: any but a foundation still built on. */
+function retrainableSkills(actor) {
+  return actor.itemTypes.skill.filter(i => !hasDependents(actor, i));
+}
+
+/* Techniques whose Energy cost Technique Mastery can still lower. */
+function masterableSkills(actor) {
+  return actor.itemTypes.skill.filter(i => i.system.kind === "Technique" && energyCost(i.system) > 1);
+}
+
 /* Whether the option can be bought now, and its live reading. */
 export function optionState(actor, option) {
   const system = actor.system;
-  const rank = LADDER[system.rank];
-  const next = LADDER[system.rank + 1];
   const toRank = r => game.i18n.format("PARADIGMENGINE.Growth.ToRank", { rank: r.rank });
   const atRank = r => game.i18n.format("PARADIGMENGINE.Growth.AtRank", { rank: r.rank });
   const of = (n, max) => game.i18n.format("PARADIGMENGINE.Growth.Of", { n, max });
   const step = (from, to) => game.i18n.format("PARADIGMENGINE.Growth.Step", { from, to });
   const dieNext = SIZES[SIZES.indexOf(system.luckDie) + 1];
+  const cap = LADDER[rankCap(actor)];
   switch (option.key) {
-    case "modifySkill": return { can: actor.itemTypes.skill.length > 0, sub: "" };
     case "newSkill": return { can: true, sub: atRank(LADDER[0]) };
-    case "skillRankUp1":
-    case "skillRankUp2": {
-      const cap = rankCap(actor, option.key);
-      return { can: rankableSkills(actor, cap).length > 0, sub: toRank(LADDER[cap]) };
-    }
+    case "skillRankUp": return { can: rankableSkills(actor, rankCap(actor)).length > 0, sub: toRank(cap) };
+    case "modifySkill": return { can: actor.itemTypes.skill.length > 0, sub: "" };
+    case "retrainSkill": return { can: retrainableSkills(actor).length > 0, sub: "" };
     case "newBond": return { can: true, sub: atRank(LADDER[0]) };
-    case "bondRankUp1":
-    case "bondRankUp2": {
-      const cap = rankCap(actor, option.key);
-      return { can: rankableBonds(actor, cap).length > 0, sub: toRank(LADDER[cap]) };
-    }
+    case "bondRankUp": return { can: rankableBonds(actor, rankCap(actor)).length > 0, sub: toRank(cap) };
     case "heart": return { can: system.hearts.max < GROWTH_CAPS.points, sub: of(system.hearts.max, GROWTH_CAPS.points) };
     case "energy": return { can: system.energy.max < GROWTH_CAPS.points, sub: of(system.energy.max, GROWTH_CAPS.points) };
+    case "attrRankUp": return { can: ATTRIBUTES.some(a => system.attributes[a.key] < 5), sub: toRank(LADDER[5]) };
     case "stepLuck": return { can: !!dieNext, sub: dieNext ? step(`d${system.luckDie}`, `d${dieNext}`) : `d${system.luckDie}` };
     case "unlockLuck": return { can: system.luck.length < GROWTH_CAPS.luckDice, sub: of(system.luck.length, GROWTH_CAPS.luckDice) };
-    case "charRank": return { can: !!next, sub: next ? step(rank.rank, next.rank) : rank.rank };
-    case "attrRankUp": return { can: ATTRIBUTES.some(a => system.attributes[a.key] < 5), sub: toRank(LADDER[5]) };
+    case "comboMastery": {
+      const min = system.comboMin;
+      const can = min > GROWTH_CAPS.comboMin;
+      const doubles = n => game.i18n.format("PARADIGMENGINE.Growth.Doubles", { n });
+      return { can, sub: can ? step(doubles(min), doubles(min - 1)) : doubles(min) };
+    }
+    case "techMastery": return { can: masterableSkills(actor).length > 0, sub: "" };
     default: return { can: false, sub: "" };
   }
 }
@@ -153,6 +166,22 @@ function canSpend(actor, key) {
   return option;
 }
 
+/* A new Skill from a pick: a world Skill by uuid, taken onto the actor,
+   else one created by name and kind. rank is what a Skill with a Rank of
+   its own starts at; a specialization keeps its foundation's. */
+async function newSkillFrom(actor, choice, rank) {
+  if (choice.uuid) {
+    const source = await fromUuid(choice.uuid);
+    if (source?.type !== "skill" || source.parent === actor) return null;
+    const skill = await takeSkill(actor, source);
+    if (skill && !skill.system.prerequisite && skill.system.rank !== rank) await skill.update({ "system.rank": rank });
+    return skill;
+  }
+  const name = (choice.name ?? "").trim() || CONFIG.Item.documentClass.defaultName({ type: "skill", parent: actor });
+  const kind = choice.kind === "Talent" ? "Talent" : "Technique";
+  return Item.implementation.create({ name, type: "skill", system: { rank, kind } }, { parent: actor, renderSheet: true });
+}
+
 /* Buy an option. choice names what it touches: an item id, a bond index,
    an attribute key, a Skill to take, or a name to create. Returns false
    when nothing was bought. */
@@ -163,6 +192,19 @@ export async function spend(actor, key, choice = {}) {
   const update = {};
   let item = { key, name: "", rank: null };
   switch (key) {
+    case "newSkill": {
+      const skill = await newSkillFrom(actor, choice, 0);
+      if (!skill) return false;
+      item = { key, name: skill.name, rank: skill.system.rank };
+      break;
+    }
+    case "skillRankUp": {
+      const skill = rankableSkills(actor, rankCap(actor)).find(i => i.id === choice.itemId);
+      if (!skill) return false;
+      await skill.update({ "system.rank": skill.system.rank + 1 });
+      item = { key, name: skill.name, rank: skill.system.rank };
+      break;
+    }
     case "modifySkill": {
       const skill = actor.items.get(choice.itemId);
       if (skill?.type !== "skill") return false;
@@ -172,28 +214,14 @@ export async function spend(actor, key, choice = {}) {
       sheet.setMode?.("edit");
       break;
     }
-    case "newSkill": {
-      let skill;
-      if (choice.uuid) {
-        const source = await fromUuid(choice.uuid);
-        if (source?.type !== "skill" || source.parent === actor) return false;
-        skill = await takeSkill(actor, source);
-        if (skill && !skill.system.prerequisite && skill.system.rank !== 0) await skill.update({ "system.rank": 0 });
-      } else {
-        const name = (choice.name ?? "").trim() || CONFIG.Item.documentClass.defaultName({ type: "skill", parent: actor });
-        const kind = choice.kind === "Talent" ? "Talent" : "Technique";
-        skill = await Item.implementation.create({ name, type: "skill", system: { rank: 0, kind } }, { parent: actor, renderSheet: true });
-      }
+    case "retrainSkill": {
+      const old = retrainableSkills(actor).find(i => i.id === choice.itemId);
+      if (!old) return false;
+      const rank = old.system.rank;
+      const skill = await newSkillFrom(actor, choice, rank);
       if (!skill) return false;
-      item = { key, name: skill.name, rank: skill.system.rank };
-      break;
-    }
-    case "skillRankUp1":
-    case "skillRankUp2": {
-      const skill = rankableSkills(actor, rankCap(actor, key)).find(i => i.id === choice.itemId);
-      if (!skill) return false;
-      await skill.update({ "system.rank": skill.system.rank + 1 });
-      item = { key, name: skill.name, rank: skill.system.rank };
+      await old.delete();
+      item = { key, name: `${old.name} → ${skill.name}`, rank: skill.system.rank };
       break;
     }
     case "newBond": {
@@ -203,11 +231,10 @@ export async function spend(actor, key, choice = {}) {
       item = { key, name, rank: 0 };
       break;
     }
-    case "bondRankUp1":
-    case "bondRankUp2": {
+    case "bondRankUp": {
       const bonds = system.toObject().bonds;
       const bond = bonds[choice.index];
-      if (!bond || bond.rank >= rankCap(actor, key)) return false;
+      if (!bond || bond.rank >= rankCap(actor)) return false;
       bond.rank += 1;
       update["system.bonds"] = bonds;
       item = { key, name: bond.name, rank: bond.rank };
@@ -217,6 +244,14 @@ export async function spend(actor, key, choice = {}) {
     case "energy": {
       const pool = system[key === "heart" ? "hearts" : "energy"];
       update[`system.${key === "heart" ? "hearts" : "energy"}`] = { max: pool.max + 1, value: pool.value + 1 };
+      break;
+    }
+    case "attrRankUp": {
+      const attribute = ATTRIBUTES.find(a => a.key === choice.key);
+      if (!attribute || system.attributes[attribute.key] >= 5) return false;
+      const rank = system.attributes[attribute.key] + 1;
+      update[`system.attributes.${attribute.key}`] = rank;
+      item = { key, name: game.i18n.localize(attribute.label), rank };
       break;
     }
     case "stepLuck": {
@@ -232,17 +267,16 @@ export async function spend(actor, key, choice = {}) {
       });
       break;
     }
-    case "charRank": {
-      update["system.rank"] = system.rank + 1;
-      item = { key, name: "", rank: system.rank + 1 };
+    case "comboMastery": {
+      update["system.comboMin"] = system.comboMin - 1;
+      item = { key, name: game.i18n.format("PARADIGMENGINE.Growth.Doubles", { n: system.comboMin - 1 }), rank: null };
       break;
     }
-    case "attrRankUp": {
-      const attribute = ATTRIBUTES.find(a => a.key === choice.key);
-      if (!attribute || system.attributes[attribute.key] >= 5) return false;
-      const rank = system.attributes[attribute.key] + 1;
-      update[`system.attributes.${attribute.key}`] = rank;
-      item = { key, name: game.i18n.localize(attribute.label), rank };
+    case "techMastery": {
+      const skill = masterableSkills(actor).find(i => i.id === choice.itemId);
+      if (!skill) return false;
+      await skill.update({ "system.mastery": skill.system.mastery + 1 });
+      item = { key, name: `${skill.name} · ${costLabel(skill.system)}`, rank: null };
       break;
     }
     default: return false;
@@ -299,7 +333,7 @@ function skillRow(actor, skill, extra = {}) {
     name: skill.name,
     kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${skill.system.kind}`),
     technique: skill.system.kind === "Technique",
-    costLabel: skill.system.kind === "Talent" ? "" : game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
+    costLabel: costLabel(skill.system),
     foundation: skill.system.prerequisite ? foundationName(skill) : "",
     rank: step.rank,
     cssVar: step.cssVar,
@@ -311,7 +345,22 @@ export function modifySkillRows(actor) {
   return actor.itemTypes.skill.map(skill => skillRow(actor, skill, { can: true }));
 }
 
-export function skillRankRows(actor, cap = actor.system.rank) {
+/* Every Skill, the foundations still built on marked off. */
+export function retrainSkillRows(actor) {
+  return actor.itemTypes.skill.map(skill => skillRow(actor, skill, { can: !hasDependents(actor, skill) }));
+}
+
+/* Every Technique, those at the floor of 1 Energy marked off, the rest
+   with the cost Technique Mastery would leave. */
+export function techniqueRows(actor) {
+  return actor.itemTypes.skill.filter(skill => skill.system.kind === "Technique").map(skill => {
+    const can = energyCost(skill.system) > 1;
+    const next = can ? costLabel({ kind: skill.system.kind, rank: skill.system.rank, mastery: skill.system.mastery + 1 }) : "";
+    return skillRow(actor, skill, { can, nextCost: next });
+  });
+}
+
+export function skillRankRows(actor, cap = rankCap(actor)) {
   return actor.itemTypes.skill.map(skill => {
     const can = !skill.system.prerequisite && skill.system.rank < cap;
     const next = can ? LADDER[skill.system.rank + 1] : null;
@@ -319,7 +368,7 @@ export function skillRankRows(actor, cap = actor.system.rank) {
   });
 }
 
-export function bondRankRows(actor, cap = actor.system.rank) {
+export function bondRankRows(actor, cap = rankCap(actor)) {
   return actor.system.bonds.map((bond, index) => {
     const step = LADDER[bond.rank];
     const can = bond.rank < cap;
@@ -339,8 +388,10 @@ export function attributeRows(actor) {
 }
 
 /* The world Skills in the tree this PC can take: the roots, and every
-   specialization whose foundation the PC knows, less those it has. */
-export function availableSkills(actor) {
+   specialization whose foundation the PC knows, less those it has.
+   leaving names a Skill about to be retrained away: nothing built on it
+   is offered. */
+export function availableSkills(actor, leaving = null) {
   const world = game.items
     .filter(i => i.type === "skill" && i.system.inTree)
     .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
@@ -352,8 +403,9 @@ export function availableSkills(actor) {
       if (ownedBy(item)) return false;
       const parent = item.system.prerequisite;
       if (!parent || !inTree.has(parent)) return true;
+      if (leaving && (parent === worldUuid(leaving) || parent === leaving.uuid)) return false;
       const foundation = fromUuidSync(parent, { strict: false });
-      return !!foundation && !!ownedBy(foundation);
+      return !!foundation && !!ownedBy(foundation) && ownedBy(foundation) !== leaving;
     })
     .map(item => {
       const step = LADDER[item.system.prerequisite ? item.system.rank : 0];
@@ -363,7 +415,7 @@ export function availableSkills(actor) {
         name: item.name,
         kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${kind}`),
         technique: kind === "Technique",
-        costLabel: kind === "Talent" ? "" : game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: step.mod }),
+        costLabel: costLabel({ kind, rank: LADDER.indexOf(step) }),
         foundation: item.system.prerequisite ? fromUuidSync(item.system.prerequisite, { strict: false })?.name ?? "" : "",
         rank: step.rank,
         cssVar: step.cssVar

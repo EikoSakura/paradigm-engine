@@ -1,5 +1,5 @@
 import { DIFFICULTY, LADDER, ATTRIBUTES, costLabel, energyCost } from "../config.mjs";
-import { postActionRoll, postEnergyCard } from "../chat.mjs";
+import { chainOf, postActionRoll, postEnergyCard } from "../chat.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -248,13 +248,14 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     }
     const item = this.#actor.items.get(this.#first.id);
     if (!item) return null;
-    return { name: item.name, rank: item.system.rank, skill: item };
+    return { name: item.name, rank: item.system.rank, skill: item, id: item.id };
   }
 
   /* From an Attribute: the other four Attributes, then every Skill by name;
-     a Technique the actor cannot pay for is listed but off. From a Skill:
-     the five Attributes. From a Bond, which stands in for an Attribute: all
-     five Attributes and the Skills. */
+     a Technique the actor cannot pay for, or a Skill used in the running
+     Combo chain, is listed but off. From a Skill: the five Attributes.
+     From a Bond, which stands in for an Attribute: all five Attributes
+     and the Skills. */
   #seconds() {
     const fromSkill = this.#first?.kind === "skill";
     const firstKey = this.#first ? this.#first.key : this.#firstKey;
@@ -270,6 +271,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
       }));
     if (fromSkill) return attributes;
     const energy = this.#actor.system.energy.value;
+    const chained = new Set(chainOf(this.#actor).skills);
     const skills = [...this.#actor.itemTypes.skill]
       .sort((a, b) => a.name.localeCompare(b.name, game.i18n.lang))
       .map(item => ({
@@ -278,7 +280,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
         name: item.name,
         die: LADDER[item.system.rank].die,
         costLabel: costLabel(item.system),
-        off: energyCost(item.system) > energy
+        off: energyCost(item.system) > energy || chained.has(item.id)
       }));
     return [...attributes, ...skills];
   }
@@ -292,7 +294,7 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     }
     const item = this.#actor.items.get(key);
     if (!item) return null;
-    return { name: item.name, rank: item.system.rank };
+    return { name: item.name, rank: item.system.rank, id: item.id };
   }
 
   /* The one Skill in the roll, first or second die, or null. */
@@ -353,6 +355,10 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     const second = this.#resolveSecond();
     if (!first || !second) return this.close();
     const skill = this.#skillItem();
+    if (skill && chainOf(this.#actor).skills.includes(skill.id)) {
+      ui.notifications.warn(game.i18n.format("PARADIGMENGINE.Roll.SkillChained", { name: skill.name }));
+      return this.close();
+    }
     const cost = skill ? energyCost(skill.system) : 0;
     if (cost > 0) {
       const { value } = this.#actor.system.energy;
@@ -361,8 +367,8 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     }
     const ranks = this.#effRanks();
     const result = {
-      first: { name: first.name, rank: ranks[0] },
-      second: { name: second.name, rank: ranks[1] },
+      first: { name: first.name, rank: ranks[0], id: first.id },
+      second: { name: second.name, rank: ranks[1], id: second.id },
       difficulty: this.#mode === "none" ? null : this.#difficulty,
       limitBreak: this.#mode === "free" ? this.#limitBreak : 0
     };

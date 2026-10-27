@@ -54,32 +54,38 @@ export const GROWTH_TIERS = { Episode: 1, Arc: 3, Season: 5 };
    access it needs; once locks it after one purchase in a milestone; pick
    names the window that chooses what it touches. */
 export const GROWTH_OPTIONS = [
-  { key: "modifySkill", group: "general", pick: "modifySkill" },
   { key: "newSkill", group: "general", pick: "newSkill" },
-  { key: "skillRankUp1", group: "general", pick: "skillRank" },
+  { key: "skillRankUp", group: "general", pick: "skillRank" },
+  { key: "modifySkill", group: "general", pick: "modifySkill" },
+  { key: "retrainSkill", group: "general", pick: "retrain" },
   { key: "newBond", group: "general", pick: "newBond" },
-  { key: "bondRankUp1", group: "general", pick: "bondRank" },
+  { key: "bondRankUp", group: "general", pick: "bondRank" },
   { key: "heart", group: "arc", once: true },
   { key: "energy", group: "arc", once: true },
+  { key: "attrRankUp", group: "arc", once: true, pick: "attribute" },
   { key: "stepLuck", group: "arc", once: true },
-  { key: "skillRankUp2", group: "season", once: true, pick: "skillRank" },
-  { key: "bondRankUp2", group: "season", once: true, pick: "bondRank" },
   { key: "unlockLuck", group: "season", once: true },
-  { key: "charRank", group: "season", once: true },
-  { key: "attrRankUp", group: "season", once: true, pick: "attribute" }
+  { key: "comboMastery", group: "season", once: true },
+  { key: "techMastery", group: "season", once: true, pick: "technique" }
 ];
 
-export const GROWTH_CAPS = { points: 12, luckDice: 5, luckDie: 12 };
+/* Hearts and Energy stop at 12, the Luck Dice at five d12s, and Combo
+   Mastery lowers the doubles a Combo needs from 6 to no less than 3. */
+export const GROWTH_CAPS = { points: 12, luckDice: 5, luckDie: 12, comboMin: 3 };
+
+export const COMBO_MIN = 6;
 
 /* Skill kinds. A Technique spends its Rank's Energy cost when used; a
    Talent is always on and costs nothing. */
 export const SKILL_KINDS = ["Technique", "Talent"];
 
+/* A Technique's Energy cost: its Rank's, less its Technique Mastery, never
+   under 1. */
 export function energyCost(system) {
-  return system.kind === "Talent" ? 0 : LADDER[system.rank].mod;
+  if (system.kind === "Talent") return 0;
+  return Math.max(1, LADDER[system.rank].mod - (system.mastery ?? 0));
 }
 
-/* The cost chip's text, empty for a Talent so the chip is left out. */
 export function costLabel(system) {
-  return system.kind === "Talent" ? "" : game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: LADDER[system.rank].mod });
+  return system.kind === "Talent" ? "" : game.i18n.format("PARADIGMENGINE.Skill.Energy", { n: energyCost(system) });
 }

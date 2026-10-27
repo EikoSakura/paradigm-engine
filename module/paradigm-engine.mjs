@@ -16,13 +16,15 @@ import { registerSkillTree } from "./apps/skill-tree.mjs";
 import { registerTheme } from "./theme.mjs";
 import { registerClash } from "./apps/clash.mjs";
 import { registerChecks } from "./checks.mjs";
-import { registerChat } from "./chat.mjs";
+import { registerChain, registerChat } from "./chat.mjs";
 import { registerTracker } from "./tracker.mjs";
 import { registerStartingSkills } from "./starting-skills.mjs";
+import { registerStage } from "./apps/stage.mjs";
 
 Hooks.once("init", () => {
   registerStartingSkills();
   registerSplash();
+  registerChain();
   registerLuck();
   registerSidebarToggle();
   registerTokenDefaults();
@@ -34,6 +36,7 @@ Hooks.once("init", () => {
   registerChat();
   registerParty();
   registerTracker();
+  registerStage();
 
   CONFIG.Actor.dataModels.pc = PcData;
   CONFIG.Actor.dataModels.npc = NpcData;

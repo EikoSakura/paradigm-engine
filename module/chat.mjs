@@ -1,4 +1,4 @@
-import { DIFFICULTY, LADDER, costLabel } from "./config.mjs";
+import { COMBO_MIN, DIFFICULTY, LADDER, costLabel } from "./config.mjs";
 import { resolveRank } from "./skills.mjs";
 import { frameOf, frameStyle, portraitOf } from "./portrait.mjs";
 
@@ -45,17 +45,14 @@ export async function postEnergyCard(actor, item) {
 }
 
 /* Post an invoked Bond: the Bond's Rank and name over one line naming the
-   actor and the benefit, with its detail where there is one. */
-export async function postBondCard(actor, bond, benefit, detail = "") {
+   actor, then the line of what the invocation did. */
+export async function postBondCard(actor, bond, detail) {
   const step = LADDER[bond.rank];
   const context = {
     name: bond.name || game.i18n.localize("PARADIGMENGINE.Bond.Title"),
     rank: step.rank,
     cssVar: step.cssVar,
-    line: game.i18n.format("PARADIGMENGINE.Chat.Invoke", {
-      name: actor.name,
-      benefit: game.i18n.localize(`PARADIGMENGINE.Bond.${benefit}`)
-    }),
+    line: game.i18n.format("PARADIGMENGINE.Chat.Invoke", { name: actor.name }),
     detail
   };
   const content = await renderTemplate(`${TEMPLATES}/bond-card.hbs`, context);
@@ -65,12 +62,24 @@ export async function postBondCard(actor, bond, benefit, detail = "") {
   });
 }
 
-/* Combo or Fumble, read from two faces as they stand, or null. */
-export function readSplash(faces) {
+/* Combo or Fumble, read from two faces as they stand, or null. comboMin
+   is the lowest doubles that Combo: 6 unless Combo Mastery lowered it. */
+export function readSplash(faces, comboMin = COMBO_MIN) {
   if (faces.length !== 2 || faces[0] !== faces[1]) return null;
-  if (faces[0] >= 6) return "combo";
+  if (faces[0] >= comboMin) return "combo";
   if (faces[0] === 1) return "fumble";
   return null;
+}
+
+/* A card's Combo or Fumble, under the roller's Combo threshold as the
+   card recorded it. */
+export function splashOf(card) {
+  return readSplash(card.faces, card.comboMin ?? COMBO_MIN);
+}
+
+/* The doubles an actor's rolls need for a Combo. */
+export function comboMinOf(actor) {
+  return actor?.system?.comboMin ?? COMBO_MIN;
 }
 
 /* Band of a roll against an effective Difficulty, in rules order: Fumble
@@ -78,8 +87,8 @@ export function readSplash(faces) {
    succeeds, below it fails. Doubles of 6 or higher that reach it are a
    Combo; a Combo only succeeds if the total meets the Difficulty, so one
    below it fails like any other roll. NPC results read the same way. */
-export function evaluateBand(faces, total, effective, npc = false) {
-  const splash = readSplash(faces);
+export function evaluateBand(faces, total, effective, npc = false, comboMin = COMBO_MIN) {
+  const splash = readSplash(faces, comboMin);
   if (splash === "fumble") return "Fumble";
   if (total < DIFFICULTY[effective].number) return "Failure";
   return splash === "combo" ? "Combo" : "Success";
@@ -95,7 +104,7 @@ export function modified(card) {
    they were rolled, cannot be modified, so no Luck swap, trade, flip, or
    Shift touches it. A Combo or Fumble made by a modification stays open. */
 export function locked(card) {
-  return !modified(card) && readSplash(card.faces) !== null;
+  return !modified(card) && splashOf(card) !== null;
 }
 
 export function isSuccess(band) {
@@ -123,7 +132,7 @@ export function cardTotal(card) {
 /* Re-read a card's band from its faces as they stand. */
 export function rebandCard(card) {
   if (!card.difficulty) return;
-  card.difficulty.band = evaluateBand(card.faces, cardTotal(card), card.difficulty.effective, card.difficulty.npc);
+  card.difficulty.band = evaluateBand(card.faces, cardTotal(card), card.difficulty.effective, card.difficulty.npc, card.comboMin ?? COMBO_MIN);
 }
 
 /* The Actor behind a UUID: an Actor's own, or a Token's. */
@@ -156,7 +165,7 @@ function rollerHearts(card) {
   const d = card.difficulty;
   const n = d?.limitBreak ?? 0;
   if (n > 0 && d.band && !isSuccess(d.band)) return n + 1;
-  return readSplash(card.faces) === "fumble" ? 1 : 0;
+  return splashOf(card) === "fumble" ? 1 : 0;
 }
 
 /* The roller pays the Hearts the roll costs, once per card, down to none;
@@ -174,18 +183,98 @@ export async function applyRollerHearts(actor, card) {
   if (next !== value) await actor.update({ "system.hearts.value": next });
 }
 
-/* Both roll outcomes a card pays or takes. */
+/* ----- Combo chains -----
+   A Combo earns an extra turn; a Combo on an extra turn starts a chain,
+   each Combo earning the next, up to five extra turns in the run; a sixth
+   Combo earns none and ends it, as does any roll that is not a Combo. A
+   Skill rolled on an extra turn is locked until the chain ends. The run
+   is a flag on the actor: { count, skills }. */
+const CHAIN_MAX = 5;
+const CHAIN_FLAG = "chain";
+
+export function chainOf(actor) {
+  const chain = actor?.getFlag("paradigm-engine", CHAIN_FLAG);
+  return { count: chain?.count ?? 0, skills: chain?.skills ?? [] };
+}
+
+export async function clearChain(actor) {
+  if (!actor?.getFlag("paradigm-engine", CHAIN_FLAG)) return;
+  await actor.unsetFlag("paradigm-engine", CHAIN_FLAG);
+}
+
+/* A Combo for the chain: the band under a Difficulty, since a Combo short
+   of it fails, else the dice as they stand. */
+function comboFor(card) {
+  if (card.difficulty?.band) return card.difficulty.band === "Combo";
+  return splashOf(card) === "combo";
+}
+
+/* A Fumble, read the same way. */
+function fumbleFor(card) {
+  if (card.difficulty?.band) return card.difficulty.band === "Fumble";
+  return splashOf(card) === "fumble";
+}
+
+/* The run's count after a card: a Combo earns the next extra turn below
+   the cap; a sixth Combo, or any other roll, ends the run. */
+function chainAfter(before, combo) {
+  return combo && before < CHAIN_MAX ? before + 1 : 0;
+}
+
+/* The card records the run as it found it the first time it applies, and
+   what it made of it; a re-render after a Luck swap, a trade, a flip, or
+   a Shift reads the run again from the same start, while this card is
+   still the run's latest. Cards from before the chain carry no chain key
+   and leave the run alone. Runs where applyComboEnergy does. */
+export async function applyChain(actor, card) {
+  if (!card?.chain || !actor?.isOwner) return;
+  const current = chainOf(actor);
+  const c = card.chain;
+  if (c.before === undefined) Object.assign(c, { before: current.count, skillsBefore: current.skills });
+  else if (c.after !== current.count) return;
+  c.combo = comboFor(card);
+  c.after = chainAfter(c.before, c.combo);
+  const used = c.before > 0 ? card.skills ?? [] : [];
+  const skills = c.after > 0 ? [...new Set([...c.skillsBefore, ...used])] : [];
+  if (c.after === current.count && skills.join() === current.skills.join()) return;
+  await actor.setFlag("paradigm-engine", CHAIN_FLAG, { count: c.after, skills });
+}
+
+/* What a card did to the run, for the card and the splash, or null:
+   the lang key, its number, the extra turns lit out of five, and whether
+   the run ended. */
+export function chainResult(card) {
+  const c = card?.chain;
+  if (!c || c.after === undefined) return null;
+  if (c.combo && c.after === 1) return { key: "ExtraTurn", n: 1, turns: 1, ends: false };
+  if (c.combo && c.after > 1) return { key: "Chain", n: c.after, turns: c.after, ends: false };
+  if (c.combo) return { key: "ChainCapped", n: CHAIN_MAX, turns: CHAIN_MAX, ends: true };
+  if (c.before > 0) return { key: "ChainEnds", n: c.before, turns: 0, ends: true };
+  return null;
+}
+
+/* The end of an Encounter ends every combatant's run. */
+export function registerChain() {
+  Hooks.on("deleteCombat", combat => {
+    if (!game.users.activeGM?.isSelf) return;
+    for (const combatant of combat.combatants) clearChain(combatant.actor);
+  });
+}
+
+/* Every outcome a card pays, takes, or earns. */
 export async function applyRollEffects(actor, card) {
   await applyComboEnergy(actor, card);
   await applyRollerHearts(actor, card);
+  await applyChain(actor, card);
 }
 
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
    with any die steps already applied. The card keeps the faces as numbers,
    an S die's +1 folded into its face, so Luck replacements, trades, flips
    and Shifts move the number itself; each slot keeps its die's range and
-   Rank letter. */
-export async function rollDice(first, second) {
+   Rank letter. The card records the roller's Combo threshold, so a later
+   re-read on any client needs no actor. */
+export async function rollDice(first, second, actor = null) {
   const ranks = [first.rank, second.rank];
   const ranges = ranks.map(dieRange);
   const formula = ranks.map(r => `1${LADDER[r].die}`).join(" + ");
@@ -198,7 +287,10 @@ export async function rollDice(first, second) {
     luck: [],
     mins: ranges.map(r => r.min),
     maxes: ranges.map(r => r.max),
-    ranks: ranks.map(r => LADDER[r].rank)
+    ranks: ranks.map(r => LADDER[r].rank),
+    skills: [first, second].map(d => d.id).filter(Boolean),
+    comboMin: comboMinOf(actor),
+    chain: {}
   };
   return { roll, card };
 }
@@ -301,8 +393,15 @@ export function rollCardContext(card, clash = false) {
     flips: (card.flips ?? []).map(f => game.i18n.format("PARADIGMENGINE.Roll.FlipLine", f)),
     energy: card.energy > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.ComboEnergy") : null,
     hearts: card.hearts > 0 && !(card.difficulty?.limitBreak > 0) ? game.i18n.localize("PARADIGMENGINE.Roll.FumbleHeart") : null,
+    chain: chainLine(card),
     canFlip: canFlip(card)
   };
+}
+
+/* The run's line on the card, or null. */
+function chainLine(card) {
+  const result = chainResult(card);
+  return result ? game.i18n.format(`PARADIGMENGINE.Roll.${result.key}`, { n: result.n }) : null;
 }
 
 /* The single roll card, from its system flags: the card, and for a Clash
@@ -328,12 +427,12 @@ export async function renderRollCard(flags) {
    The card's state rides the message as a flag so Luck spends can
    re-render it. */
 export async function postActionRoll(actor, first, second, difficulty = null, limitBreak = 0, extra = {}) {
-  const { roll, card } = await rollDice(first, second);
+  const { roll, card } = await rollDice(first, second, actor);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
   const target = limitBreak > 0 && !extra.clash && game.user.targets.size === 1 ? game.user.targets.first().actor : null;
   if (target) card.target = { uuid: target.uuid, name: target.name };
   await applyRollEffects(actor, card);
-  const splash = readSplash(card.faces);
+  const splash = splashOf(card);
   const { alias, ...rest } = extra;
   const flags = { card, ...rest };
   if (splash) flags.splash = splash;
@@ -350,8 +449,10 @@ export async function postActionRoll(actor, first, second, difficulty = null, li
 /* ----- shared cards: Opposed and Group Actions -----
    One card collects every participant's roll. Its state is the multi flag:
    { kind, difficulty, shiftsUsed, rows: [{ uuid, name, img, leader, card }] }.
-   An Opposed Action compares totals once everyone has rolled: the highest
-   wins, the rest lose a Heart, a tie stands as a tie. A Group Action rolls
+   An Opposed Action compares totals once everyone has rolled: a Fumble
+   loses outright, the highest of the rest wins, every loser loses a
+   Heart, a tie among the rest stands as a tie; a Combo earns no extra turn here, so an
+   Opposed roll carries no chain. A Group Action rolls
    the supporters against the Difficulty, and each Success is a Shift the
    leader may spend to raise one of their own dice by one. */
 
@@ -408,15 +509,17 @@ function multiContext(multi) {
     const rolled = rows.filter(r => r.card);
     const done = rolled.length === rows.length;
     if (done) {
-      const max = Math.max(...rows.map(r => r.card.total));
-      const winners = rows.filter(r => r.card.total === max);
+      for (const r of rows) r.fumbled = fumbleFor(multi.rows[r.index].card);
+      const standing = rows.filter(r => !r.fumbled);
+      const max = Math.max(...standing.map(r => r.card.total));
+      const winners = standing.filter(r => r.card.total === max);
       const tie = winners.length > 1;
       for (const r of rows) {
-        r.won = !tie && r.card.total === max;
-        r.result = tie ? "" : r.won ? "" : game.i18n.localize("PARADIGMENGINE.Check.HeartLoss");
+        r.won = !tie && !r.fumbled && r.card.total === max;
+        r.result = r.won || (tie && !r.fumbled) ? "" : game.i18n.localize("PARADIGMENGINE.Check.HeartLoss");
       }
-      context.chip = tie
-        ? game.i18n.localize("PARADIGMENGINE.Check.Tie")
+      context.chip = !winners.length ? game.i18n.localize("PARADIGMENGINE.Check.NoWinner")
+        : tie ? game.i18n.localize("PARADIGMENGINE.Check.Tie")
         : game.i18n.format("PARADIGMENGINE.Check.Wins", { name: winners[0].name });
       context.done = true;
     } else {
@@ -441,6 +544,7 @@ export async function applyMultiRoll(message, row, card, npc = false) {
   const multi = foundry.utils.deepClone(message.getFlag("paradigm-engine", "multi"));
   if (!multi || !multi.rows[row] || multi.rows[row].card) return;
   if (multi.kind === "group") setDifficulty(card, multi.difficulty, 0, npc);
+  else delete card.chain;
   multi.rows[row].card = card;
   await writeMulti(message, multi);
 }
@@ -537,7 +641,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
    so every client plays the splash from the update. */
 async function writeRollCard(message, stored, card) {
   await applyRollEffects(ChatMessage.implementation.getSpeakerActor(message.speaker), card);
-  const splash = readSplash(card.faces);
+  const splash = splashOf(card);
   const flags = { "paradigm-engine": { card } };
   if (splash !== (stored.splash ?? null)) {
     flags["paradigm-engine"].splash = splash ?? new foundry.data.operators.ForcedDeletion();

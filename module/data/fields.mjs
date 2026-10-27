@@ -26,6 +26,12 @@ export function attributesField() {
   });
 }
 
+/* The doubles a Combo needs: 6 and up at the start, lowered by Combo
+   Mastery to no less than 3. */
+export function comboField() {
+  return new NumberField({ required: true, nullable: false, integer: true, min: 3, max: 6, initial: 6 });
+}
+
 export function luckField() {
   return new ArrayField(
     new SchemaField({
@@ -69,4 +75,20 @@ export function growthField() {
       })
     )
   });
+}
+
+/* The Rank Up options lost their I and II tiers: either key reads as the
+   one Rank Up in a stored milestone or log. */
+export function migrateGrowthKeys(source) {
+  const growth = source.growth;
+  if (!growth) return;
+  const fix = items => {
+    if (!Array.isArray(items)) return;
+    for (const item of items) {
+      if (item?.key === "skillRankUp1" || item?.key === "skillRankUp2") item.key = "skillRankUp";
+      else if (item?.key === "bondRankUp1" || item?.key === "bondRankUp2") item.key = "bondRankUp";
+    }
+  };
+  fix(growth.milestone?.items);
+  if (Array.isArray(growth.log)) for (const row of growth.log) fix(row?.items);
 }

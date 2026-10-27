@@ -94,7 +94,7 @@ function rollRow(message, multi, row, actor, anchor) {
     title: game.i18n.localize(group ? "PARADIGMENGINE.Check.Group" : "PARADIGMENGINE.Check.Opposed"),
     difficulty: group ? { locked: multi.difficulty } : "none",
     submit: async ({ first, second }) => {
-      const { roll, card } = await rollDice(first, second);
+      const { roll, card } = await rollDice(first, second, actor);
       await showRoll(roll);
       await cardOp(message, { type: "multiRoll", row, card, npc: actor.type === "npc" });
     }
