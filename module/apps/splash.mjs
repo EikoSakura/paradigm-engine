@@ -109,7 +109,7 @@ export function showSplash(kind, message) {
       <div class="row">
         ${faces.map(f => `<span class="die">${f}</span>`).join("")}
         ${kind === "combo" && card?.energy > 0 ? `<span class="chip">${game.i18n.localize("PARADIGMENGINE.Splash.Energy")}</span>` : ""}
-        ${kind === "fumble" && card?.hearts > 0 ? `<span class="chip">${game.i18n.localize("PARADIGMENGINE.Splash.Heart")}</span>` : ""}
+        ${kind === "fumble" && card?.hearts > 0 ? `<span class="chip">${card.hearts === 1 ? game.i18n.localize("PARADIGMENGINE.Splash.Heart") : game.i18n.format("PARADIGMENGINE.Splash.Hearts", { n: card.hearts })}</span>` : ""}
       </div>
     </div>
     <div class="who"><span class="nm"></span><span class="kind"></span></div>

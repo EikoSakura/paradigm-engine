@@ -132,13 +132,24 @@ export async function applyComboEnergy(actor, card) {
   if (next !== value) await actor.update({ "system.energy.value": next });
 }
 
-/* A Fumble costs its roller 1 Heart, once per card, down to none; a Fumble
-   unmade later, by a Shift, gives it back. The Fumble reads from the dice
-   as they stand, with or without a Difficulty, as the splash does. The
-   card keeps the Hearts it took. Runs where applyComboEnergy does. */
-export async function applyFumbleHeart(actor, card) {
+/* Hearts a roll costs its roller: a Failure or a Fumble under a Limit
+   Break costs 1 plus one per Rank raised; a Fumble alone costs 1. The
+   Fumble reads from the dice as they stand, with or without a Difficulty,
+   as the splash does. */
+function rollerHearts(card) {
+  const d = card.difficulty;
+  const n = d?.limitBreak ?? 0;
+  if (n > 0 && d.band && !isSuccess(d.band)) return n + 1;
+  return readSplash(card.faces) === "fumble" ? 1 : 0;
+}
+
+/* The roller pays the Hearts the roll costs, once per card, down to none;
+   a Fumble or Failure unmade later, by a Luck swap, a trade, a flip, or a
+   Shift, gives them back. The card keeps the Hearts it took. Runs where
+   applyComboEnergy does. */
+export async function applyRollerHearts(actor, card) {
   if (!card || !actor?.isOwner || !actor.system?.hearts) return;
-  const want = readSplash(card.faces) === "fumble" ? 1 : 0;
+  const want = rollerHearts(card);
   const have = card.hearts ?? 0;
   if (want === have) return;
   const { value, max } = actor.system.hearts;
@@ -150,7 +161,7 @@ export async function applyFumbleHeart(actor, card) {
 /* Both roll outcomes a card pays or takes. */
 export async function applyRollEffects(actor, card) {
   await applyComboEnergy(actor, card);
-  await applyFumbleHeart(actor, card);
+  await applyRollerHearts(actor, card);
 }
 
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
@@ -193,13 +204,13 @@ export async function showRoll(roll) {
 /* The Limit Break line of a banded card: the raise, then what it did.
    A Success marks one more box per Rank raised in a Clash, or costs the
    target one more Heart elsewhere, named once the Hearts are taken; a
-   Failure shows the raise alone. */
+   Failure or a Fumble costs the roller the Hearts the card took. */
 function limitBreakLine(card, clash) {
   const d = card.difficulty;
   const n = d.limitBreak;
   if (!(n > 0)) return null;
   const tag = game.i18n.format("PARADIGMENGINE.Roll.LimitBreakTag", { n });
-  if (!isSuccess(d.band)) return tag;
+  if (!isSuccess(d.band)) return card.hearts > 0 ? `${tag} · ${game.i18n.format("PARADIGMENGINE.Roll.LimitLost", { n: card.hearts })}` : tag;
   let outcome;
   if (clash) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitBox" : "PARADIGMENGINE.Roll.LimitBoxes", { n });
   else if (card.targetHearts > 0) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitNamedHeart" : "PARADIGMENGINE.Roll.LimitNamedHearts", { n, name: card.target.name });
@@ -272,7 +283,7 @@ export function rollCardContext(card, clash = false) {
     trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t)),
     flips: (card.flips ?? []).map(f => game.i18n.format("PARADIGMENGINE.Roll.FlipLine", f)),
     energy: card.energy > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.ComboEnergy") : null,
-    hearts: card.hearts > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.FumbleHeart") : null,
+    hearts: card.hearts > 0 && !(card.difficulty?.limitBreak > 0) ? game.i18n.localize("PARADIGMENGINE.Roll.FumbleHeart") : null,
     canFlip: canFlip(card)
   };
 }
