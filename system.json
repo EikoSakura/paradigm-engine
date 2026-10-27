@@ -2,7 +2,7 @@
   "id": "paradigm-engine",
   "title": "Paradigm Engine",
   "description": "A fiction-first framework that uses anime as a medium to run any game or world.",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "authors": [
     {
       "name": "EikoSakura",
@@ -11,7 +11,7 @@
   ],
   "url": "https://github.com/EikoSakura/paradigm-engine",
   "manifest": "https://github.com/EikoSakura/paradigm-engine/releases/latest/download/system.json",
-  "download": "https://github.com/EikoSakura/paradigm-engine/releases/download/v0.4.9/paradigm-engine.zip",
+  "download": "https://github.com/EikoSakura/paradigm-engine/releases/download/v0.4.10/paradigm-engine.zip",
   "compatibility": {
     "minimum": "14",
     "verified": "14.369"
