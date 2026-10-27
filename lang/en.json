@@ -296,8 +296,9 @@
       "HeartsEnergy": "Hearts & Energy",
       "CharacterRank": "Character Rank",
       "PointsLeft": "Points Left",
-      "AttributesSide": "E to A",
-      "SkillsSide": "Two at Rank E",
+      "AttributesSide": "E to C",
+      "SkillsSide": "5 Points · Up to C",
+      "AddSkill": "Add Skill",
       "BondSide": "Rank E",
       "LuckSide": "3d6",
       "Roll": "Roll 3d6"

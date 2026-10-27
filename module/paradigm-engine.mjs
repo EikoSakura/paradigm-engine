@@ -66,7 +66,8 @@ Hooks.once("init", () => {
     "systems/paradigm-engine/templates/actor/attributes-card.hbs",
     "systems/paradigm-engine/templates/actor/skills-card.hbs",
     "systems/paradigm-engine/templates/actor/checks-card.hbs",
-    "systems/paradigm-engine/templates/chat/multi-row.hbs"
+    "systems/paradigm-engine/templates/chat/multi-row.hbs",
+    "systems/paradigm-engine/templates/apps/skill-step.hbs"
   ]);
   foundry.applications.handlebars.loadTemplates({
     growthBondRow: "systems/paradigm-engine/templates/apps/growth-bond-row.hbs"

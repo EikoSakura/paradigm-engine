@@ -35,6 +35,7 @@
 
   <section class="card skills" style="--tc: var(--violet)">
     <span class="tag">{{localize "PARADIGMENGINE.Panel.Skills"}}<span class="tail">{{localize "PARADIGMENGINE.Creator.SkillsSide"}}</span></span>
+    <span class="pool{{#unless skillLeft}} zero{{/unless}}"><b>{{skillLeft}}</b>{{localize "PARADIGMENGINE.Creator.PointsLeft"}}</span>
     <div class="two">
       {{#each skills}}
       <div class="sk{{#if this.locked}} taken{{/if}}" data-i="{{this.i}}">
@@ -45,6 +46,7 @@
             <div class="locked">{{this.name}}</div>
           </div>
           {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
+          {{> "systems/paradigm-engine/templates/apps/skill-step.hbs" this}}
         </div>
         <div class="src">{{localize "PARADIGMENGINE.Creator.FromTree"}} · {{this.kindLabel}}{{#if this.costLabel}} · {{this.costLabel}}{{/if}}</div>
         {{else}}
@@ -54,6 +56,7 @@
             <input type="text" id="cc-skill-{{this.i}}-name" name="skill.{{this.i}}.name" value="{{this.name}}">
           </div>
           {{> "systems/paradigm-engine/templates/actor/badge.hbs" this.badge}}
+          {{> "systems/paradigm-engine/templates/apps/skill-step.hbs" this}}
         </div>
         <div class="kindrow">
           <span class="seg">
@@ -71,6 +74,9 @@
         {{/if}}
       </div>
       {{/each}}
+    </div>
+    <div class="addrow">
+      <button type="button" class="btn" data-action="addSkill"{{#unless canAdd}} disabled{{/unless}}>{{localize "PARADIGMENGINE.Creator.AddSkill"}}</button>
     </div>
     <div class="sec">
       <span>{{localize "PARADIGMENGINE.Tree.Title"}}</span>

@@ -17,6 +17,11 @@ const CARDS = [
 const ATTR_POINTS = 5;
 const ATTR_CAP = 2;
 
+/* Skills: five points, one to make a Skill at E and one per Rank Up,
+   at least one Skill, none above C. */
+const SKILL_POINTS = 5;
+const SKILL_CAP = 2;
+
 /* Finishing Touches: eight points between Hearts and Energy. */
 const POOL_POINTS = 8;
 
@@ -39,7 +44,7 @@ export function plainLines(html) {
 }
 
 export function emptyPick() {
-  return { name: "", kind: "Technique", text: "", source: "" };
+  return { name: "", kind: "Technique", text: "", source: "", rank: 0 };
 }
 
 /* A pick filled from a world Skill: the tree's, or one dropped in. */
@@ -48,7 +53,8 @@ export function pickFrom(item) {
     name: item.name,
     kind: SKILL_KINDS.includes(item.system.kind) ? item.system.kind : "Technique",
     text: plainLines(item.system.text),
-    source: item.system.source || item.uuid
+    source: item.system.source || item.uuid,
+    rank: 0
   };
 }
 
@@ -94,6 +100,9 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
       setKind: this.#onSetKind,
       openTree: this.#onOpenTree,
       takeSkill: this.#onTakeSkill,
+      stepSkill: this.#onStepSkill,
+      addSkill: this.#onAddSkill,
+      removeSkill: this.#onRemoveSkill,
       choose: this.#onChoose,
       stepPool: this.#onStepPool,
       rollLuck: this.#onRollLuck,
@@ -114,7 +123,7 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
   /* Attribute Ranks double as spent points: all start at E (0), cap C (2). */
   #attrs = { might: 0, agility: 0, mind: 0, spirit: 0, charm: 0 };
 
-  #skills = [emptyPick(), emptyPick()];
+  #skills = [emptyPick()];
 
   /* UUIDs picked from the Choice list. */
   #choice = [];
@@ -147,15 +156,14 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
       this.#attrs[key] = Math.clamp(system.attributes[key] ?? 0, 0, ATTR_CAP);
     }
     const skills = actor.itemTypes.skill.filter(item => !item.getFlag("paradigm-engine", "granted"));
-    this.#seededIds = skills.slice(0, 2).map(item => item.id);
-    this.#skills = this.#skills.map((row, i) => skills[i]
-      ? {
-        name: skills[i].name,
-        kind: SKILL_KINDS.includes(skills[i].system.kind) ? skills[i].system.kind : "Technique",
-        text: plainLines(skills[i].system.text),
-        source: skills[i].system.source
-      }
-      : row);
+    this.#seededIds = skills.map(item => item.id);
+    this.#skills = this.#fitSkills(skills.map(item => ({
+      name: item.name,
+      kind: SKILL_KINDS.includes(item.system.kind) ? item.system.kind : "Technique",
+      text: plainLines(item.system.text),
+      source: item.system.source,
+      rank: item.system.rank
+    })));
     this.#choice = actor.itemTypes.skill
       .filter(item => item.getFlag("paradigm-engine", "choice") && item.system.source)
       .map(item => item.system.source);
@@ -178,15 +186,15 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     for (const key of Object.keys(this.#attrs)) {
       if (Number.isInteger(saved.attrs?.[key])) this.#attrs[key] = Math.clamp(saved.attrs[key], 0, ATTR_CAP);
     }
-    this.#skills = this.#skills.map((row, i) => {
-      const kind = saved.skills?.[i]?.kind;
-      return {
-        name: typeof saved.skills?.[i]?.name === "string" ? saved.skills[i].name : row.name,
-        kind: SKILL_KINDS.includes(kind) ? kind : row.kind,
-        text: typeof saved.skills?.[i]?.text === "string" ? saved.skills[i].text : row.text,
-        source: typeof saved.skills?.[i]?.source === "string" ? saved.skills[i].source : row.source
-      };
-    });
+    if (Array.isArray(saved.skills)) {
+      this.#skills = this.#fitSkills(saved.skills.map(s => ({
+        name: typeof s?.name === "string" ? s.name : "",
+        kind: SKILL_KINDS.includes(s?.kind) ? s.kind : "Technique",
+        text: typeof s?.text === "string" ? s.text : "",
+        source: typeof s?.source === "string" ? s.source : "",
+        rank: s?.rank
+      })));
+    }
     if (Array.isArray(saved.choice)) this.#choice = saved.choice.filter(uuid => typeof uuid === "string");
     if (typeof saved.bond?.name === "string") this.#bond.name = saved.bond.name;
     if (typeof saved.bond?.relation === "string") this.#bond.relation = saved.bond.relation;
@@ -264,14 +272,20 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
         upDisabled: rank >= ATTR_CAP || left <= 0
       };
     });
+    const skillLeft = SKILL_POINTS - this.#skillSpent();
+    context.skillLeft = skillLeft;
+    context.canAdd = skillLeft > 0;
     context.skills = this.#skills.map((t, i) => ({
       i,
       ...t,
       locked: !!t.source,
       technique: t.kind === "Technique",
       kindLabel: game.i18n.localize(`PARADIGMENGINE.Skill.${t.kind}`),
-      badge: this.#badge(`skill.${i}`, 0),
-      costLabel: costLabel({ kind: t.kind, rank: 0 })
+      badge: this.#badge(`skill.${i}`, t.rank),
+      costLabel: costLabel({ kind: t.kind, rank: t.rank }),
+      downDisabled: t.rank <= 0,
+      upDisabled: t.rank >= SKILL_CAP || skillLeft <= 0,
+      removable: this.#skills.length > 1
     }));
     const sources = new Set(this.#skills.map(t => t.source).filter(Boolean));
     context.tree = treeRoots().map(item => ({ ...startingSkillRow(item), taken: sources.has(item.uuid) }));
@@ -335,6 +349,24 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     return Object.values(this.#attrs).reduce((a, b) => a + b, 0);
   }
 
+  /* Skill Points spent: one per Skill, one more per Rank above E. */
+  #skillSpent() {
+    return this.#skills.reduce((n, t) => n + 1 + t.rank, 0);
+  }
+
+  /* Skill rows clamped to the cap and cut to the points, one row at least. */
+  #fitSkills(rows) {
+    const out = [];
+    let spent = 0;
+    for (const row of rows) {
+      if (spent >= SKILL_POINTS) break;
+      const rank = Math.clamp(Number.isInteger(row.rank) ? row.rank : 0, 0, Math.min(SKILL_CAP, SKILL_POINTS - spent - 1));
+      out.push({ ...row, rank });
+      spent += 1 + rank;
+    }
+    return out.length ? out : [emptyPick()];
+  }
+
   #free() {
     return POOL_POINTS - this.#pools.hearts - this.#pools.energy;
   }
@@ -352,7 +384,7 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     return {
       name: this.#name.trim().length > 0,
       attributes: this.#spent() === ATTR_POINTS,
-      skills: this.#skills.every(t => t.name.trim().length > 0),
+      skills: this.#skills.every(t => t.name.trim().length > 0) && this.#skillSpent() === SKILL_POINTS,
       choice: choice.picked.length >= choice.count,
       bond: this.#bond.name.trim().length > 0,
       luck: this.#luck.every(v => v !== null),
@@ -434,6 +466,31 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
     this.render();
   }
 
+  static #onStepSkill(event, target) {
+    const row = this.#skills[Number(target.dataset.i)];
+    const dir = Number(target.dataset.dir);
+    if (!row) return;
+    if (dir > 0 ? row.rank >= SKILL_CAP || this.#skillSpent() >= SKILL_POINTS : row.rank <= 0) return;
+    row.rank += dir;
+    this.#touch();
+    this.render();
+  }
+
+  static #onAddSkill() {
+    if (this.#skillSpent() >= SKILL_POINTS) return;
+    this.#skills.push(emptyPick());
+    this.#touch();
+    this.render();
+  }
+
+  static #onRemoveSkill(event, target) {
+    const i = Number(target.dataset.i);
+    if (!(i in this.#skills) || this.#skills.length <= 1) return;
+    this.#skills.splice(i, 1);
+    this.#touch();
+    this.render();
+  }
+
   static #onSetKind(event, target) {
     const row = this.#skills[Number(target.dataset.i)];
     if (!row || row.source) return;
@@ -458,8 +515,9 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
       if (!(item instanceof Item) || item.type !== "skill") return;
       let slot = this.#skills.findIndex(t => !t.source && !t.name.trim());
       if (slot < 0) slot = this.#skills.findIndex(t => !t.source);
-      if (slot < 0) return;
-      this.#skills[slot] = pickFrom(item);
+      if (slot >= 0) this.#skills[slot] = pickFrom(item);
+      else if (this.#skillSpent() < SKILL_POINTS) this.#skills.push(pickFrom(item));
+      else return;
     }
     this.#touch();
     this.render();
@@ -555,13 +613,13 @@ export default class PcCreator extends HandlebarsApplicationMixin(ApplicationV2)
         const item = t.source ? fromUuidSync(t.source, { strict: false }) : null;
         if (item instanceof Item && item.type === "skill") {
           const data = copyOf(item, { creator: true });
-          data.system.rank = 0;
+          data.system.rank = t.rank;
           return data;
         }
         return {
           name: t.name.trim(),
           type: "skill",
-          system: { rank: 0, kind: t.kind, text: paragraphs(t.text) },
+          system: { rank: t.rank, kind: t.kind, text: paragraphs(t.text) },
           flags
         };
       });

@@ -1,0 +1,8 @@
+<span class="stepper">
+  <button type="button" data-action="stepSkill" data-i="{{i}}" data-dir="-1"
+    aria-label="{{localize "PARADIGMENGINE.Edit.RankDown"}}"{{#if downDisabled}} disabled{{/if}}>−</button>
+  <button type="button" data-action="stepSkill" data-i="{{i}}" data-dir="1"
+    aria-label="{{localize "PARADIGMENGINE.Edit.RankUp"}}"{{#if upDisabled}} disabled{{/if}}>＋</button>
+</span>
+<button type="button" class="rm" data-action="removeSkill" data-i="{{i}}"
+  aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}"{{#unless removable}} disabled{{/unless}}>✕</button>

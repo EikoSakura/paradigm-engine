@@ -5820,6 +5820,30 @@
     font-weight: 700;
   }
 
+  .toprow .stepper {
+    flex: none;
+    margin-bottom: 4px;
+  }
+  .rm {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    margin-bottom: 4px;
+    padding: 0;
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1;
+  }
+  .rm:disabled {
+    opacity: .3;
+  }
+  .addrow {
+    margin-top: 12px;
+  }
+
   /* a pick from the tree or a drop: name shown, no inputs */
   .sk.taken {
     border-color: var(--violet);
