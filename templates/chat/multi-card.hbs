@@ -28,7 +28,7 @@
       <div class="dicerow">
         {{#each faces}}
         <span class="facewrap">
-          <span class="face{{#if this.lucky}} lucky{{/if}}{{#if this.flipped}} flipped{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
+          <span class="face{{#if this.lucky}} lucky{{/if}}{{#if this.flipped}} flipped{{/if}}" data-index="{{this.index}}">{{this.value}}{{#if this.s}}<b class="stag">S</b>{{/if}}</span>
           <span class="glyphs">
           {{#if @root.canShift}}{{#if this.shiftable}}
           <button type="button" class="shiftbtn" data-index="{{this.index}}" aria-label="{{localize "PARADIGMENGINE.Check.ShiftUp"}}">&#9650;</button>

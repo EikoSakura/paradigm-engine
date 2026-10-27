@@ -368,6 +368,6 @@ export default class RollDialog extends HandlebarsApplicationMixin(ApplicationV2
     };
     this.close();
     if (this.#submit) return this.#submit(result);
-    await postActionRoll(this.#actor, result.first, result.second, 0, result.difficulty, result.limitBreak, this.#extra);
+    await postActionRoll(this.#actor, result.first, result.second, result.difficulty, result.limitBreak, this.#extra);
   }
 }

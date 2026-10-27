@@ -95,13 +95,16 @@ function riders(band, npc) {
   return [{ key: "Luck", text: game.i18n.localize("PARADIGMENGINE.Rider.Luck") }];
 }
 
-/* The die size behind a Ladder step: the d12 of d12+1. */
-function dieMax(rank) {
-  return Number(LADDER[rank].die.match(/\d+/)[0]);
+/* The faces a Ladder step's die can show: the S die is a d13 rolled as
+   d12+1, so it runs 2 to 13 and its +1 is part of the number. */
+function dieRange(rank) {
+  const [, size, add] = LADDER[rank].die.match(/d(\d+)(?:\+(\d+))?/);
+  const bonus = Number(add ?? 0);
+  return { min: 1 + bonus, max: Number(size) + bonus, bonus };
 }
 
 export function cardTotal(card) {
-  return card.faces.reduce((a, b) => a + b, 0) + card.bonus;
+  return card.faces.reduce((a, b) => a + b, 0) + (card.bonus ?? 0);
 }
 
 /* Re-read a card's band from its faces as they stand. */
@@ -165,23 +168,24 @@ export async function applyRollEffects(actor, card) {
 }
 
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
-   with any die steps already applied. The card keeps the faces, so Luck
-   replacements and Shifts re-total; its bonus holds the flat part of the
-   formula, the +1 of an S die, which counts in the total and shows no
-   line of its own. */
-export async function rollDice(first, second, bonus = 0) {
-  let formula = [first, second].map(d => `1${LADDER[d.rank].die}`).join(" + ");
-  if (bonus > 0) formula += ` + ${bonus}`;
-  else if (bonus < 0) formula += ` - ${-bonus}`;
+   with any die steps already applied. The card keeps the faces as numbers,
+   an S die's +1 folded into its face, so Luck replacements, trades, flips
+   and Shifts move the number itself; each slot keeps its die's range and
+   Rank letter. */
+export async function rollDice(first, second) {
+  const ranks = [first.rank, second.rank];
+  const ranges = ranks.map(dieRange);
+  const formula = ranks.map(r => `1${LADDER[r].die}`).join(" + ");
   const roll = await new foundry.dice.Roll(formula).evaluate();
-  const faces = roll.dice.map(d => d.total);
+  const faces = roll.dice.map((d, i) => d.total + ranges[i].bonus);
   const card = {
     title: `${first.name} + ${second.name}`,
     faces,
     lucky: [false, false],
     luck: [],
-    bonus: roll.total - faces.reduce((a, b) => a + b, 0),
-    maxes: [first.rank, second.rank].map(dieMax)
+    mins: ranges.map(r => r.min),
+    maxes: ranges.map(r => r.max),
+    ranks: ranks.map(r => LADDER[r].rank)
   };
   return { roll, card };
 }
@@ -277,7 +281,7 @@ export function rollCardContext(card, clash = false) {
   return {
     band,
     title: card.title,
-    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], traded: card.traded?.[i], flipped: card.flipped?.[i], index: i })),
+    faces: card.faces.map((value, i) => ({ value, lucky: card.lucky[i], traded: card.traded?.[i], flipped: card.flipped?.[i], s: card.ranks?.[i] === "S", index: i })),
     total: cardTotal(card),
     luck: card.luck.map(name => game.i18n.format("PARADIGMENGINE.Roll.Luck", { name })),
     trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t)),
@@ -303,15 +307,15 @@ export async function renderRollCard(flags) {
   return renderTemplate(`${TEMPLATES}/roll-card.hbs`, context);
 }
 
-/* Post an Action Roll: two dice and one optional flat bonus. difficulty is
+/* Post an Action Roll: two dice. difficulty is
    a DIFFICULTY index or null, raised by limitBreak steps; a raise outside
    a Clash records the user's one target, whose Hearts it costs. extra flags ride
    the message beside the card: { clash: { side, name } } for a Clash roll,
    and alias names the speaker in place of the actor, for a lettered copy.
    The card's state rides the message as a flag so Luck spends can
    re-render it. */
-export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0, extra = {}) {
-  const { roll, card } = await rollDice(first, second, bonus);
+export async function postActionRoll(actor, first, second, difficulty = null, limitBreak = 0, extra = {}) {
+  const { roll, card } = await rollDice(first, second);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
   const target = limitBreak > 0 && !extra.clash && game.user.targets.size === 1 ? game.user.targets.first().actor : null;
   if (target) card.target = { uuid: target.uuid, name: target.name };
@@ -458,8 +462,9 @@ export function canFlip(card) {
   return !!card?.maxes && readSplash(card.faces) === null;
 }
 
-/* Anyone flips one die of any roll to its other side, the face the die's
-   size plus one minus the face it shows: a 2 on a d6 becomes a 5. The
+/* Anyone flips one die of any roll to its other side, the die's lowest
+   face plus its highest minus the face it shows: a 2 on a d6 becomes a 5,
+   a 2 on the S die a 13. The
    die shows blue with a line naming who flipped it, and the band is read
    again. row names a shared card's row, or null for a single roll card.
    A card standing on a Combo or a Fumble is refused. */
@@ -468,7 +473,7 @@ export async function applyFlip(message, dieIndex, name, row = null) {
   const flip = card => {
     if (!card || !(dieIndex in card.faces) || !canFlip(card)) return false;
     const from = card.faces[dieIndex];
-    const to = card.maxes[dieIndex] + 1 - from;
+    const to = (card.mins?.[dieIndex] ?? 1) + card.maxes[dieIndex] - from;
     card.faces[dieIndex] = to;
     card.flipped = card.faces.map((_, i) => !!card.flipped?.[i] || i === dieIndex);
     (card.flips ??= []).push({ name, from, to });

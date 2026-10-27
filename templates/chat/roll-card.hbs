@@ -6,7 +6,7 @@
   <div class="cbody">
     <div class="dicerow">
       {{#each faces}}
-      <span class="face{{#if this.lucky}} lucky{{/if}}{{#if this.flipped}} flipped{{/if}}{{#if this.traded}} traded{{/if}}" data-index="{{this.index}}">{{this.value}}</span>
+      <span class="face{{#if this.lucky}} lucky{{/if}}{{#if this.flipped}} flipped{{/if}}{{#if this.traded}} traded{{/if}}" data-index="{{this.index}}">{{this.value}}{{#if this.s}}<b class="stag">S</b>{{/if}}</span>
       {{/each}}
       <div class="rtotal">
         <span class="tlab">{{localize "PARADIGMENGINE.Roll.Total"}}</span>
