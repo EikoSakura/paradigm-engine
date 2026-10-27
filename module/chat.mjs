@@ -192,17 +192,48 @@ export async function showRoll(roll) {
 
 /* The Limit Break line of a banded card: the raise, then what it did.
    A Success marks one more box per Rank raised in a Clash, or costs the
-   target one more Heart elsewhere; a Failure is a setback of 1 Heart plus
-   one per Rank raised. */
-function limitBreakLine(d, clash) {
+   target one more Heart elsewhere, named once the Hearts are taken; a
+   Failure shows the raise alone. */
+function limitBreakLine(card, clash) {
+  const d = card.difficulty;
   const n = d.limitBreak;
   if (!(n > 0)) return null;
   const tag = game.i18n.format("PARADIGMENGINE.Roll.LimitBreakTag", { n });
+  if (!isSuccess(d.band)) return tag;
   let outcome;
-  if (!isSuccess(d.band)) outcome = game.i18n.format("PARADIGMENGINE.Roll.LimitSetback", { n: n + 1 });
-  else if (clash) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitBox" : "PARADIGMENGINE.Roll.LimitBoxes", { n });
+  if (clash) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitBox" : "PARADIGMENGINE.Roll.LimitBoxes", { n });
+  else if (card.targetHearts > 0) outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitNamedHeart" : "PARADIGMENGINE.Roll.LimitNamedHearts", { n, name: card.target.name });
   else outcome = game.i18n.format(n === 1 ? "PARADIGMENGINE.Roll.LimitHeart" : "PARADIGMENGINE.Roll.LimitHearts", { n });
   return `${tag} · ${outcome}`;
+}
+
+/* Hearts a Limit Break takes from the roll's target outside a Clash: one
+   per Rank raised on a Success. */
+function limitHearts(card) {
+  const d = card?.difficulty;
+  return card?.target && isSuccess(d?.band) ? d.limitBreak ?? 0 : 0;
+}
+
+/* A Limit Break Success outside a Clash costs the roll's target its
+   Hearts, once, down to none. Runs on the Storyteller's client when the
+   card arrives, and again when a Luck swap, a trade, or a flip re-renders
+   it, in case that made the Success, or unmade it: a Success unmade gives
+   the Hearts back. The card keeps the Hearts it took. */
+export async function applyLimitHearts(message) {
+  if (!game.user.isGM) return;
+  const flags = message.flags["paradigm-engine"] ?? {};
+  const card = foundry.utils.deepClone(flags.card);
+  if (!card?.target || flags.clash) return;
+  const want = limitHearts(card);
+  const have = card.targetHearts ?? 0;
+  if (want === have) return;
+  const actor = actorOf(card.target.uuid);
+  if (!actor?.system?.hearts) return;
+  const { value, max } = actor.system.hearts;
+  const next = Math.clamp(value - want + have, 0, Math.max(max, value));
+  card.targetHearts = have + value - next;
+  if (next !== value) await actor.update({ "system.hearts.value": next });
+  await message.update({ content: await renderRollCard({ ...flags, card }), flags: { "paradigm-engine": { card } } });
 }
 
 /* Boxes a Clash roll marks: one for a Success, plus one per Limit Break
@@ -228,7 +259,7 @@ export function rollCardContext(card, clash = false) {
       fumble: d.band === "Fumble",
       combo: d.band === "Combo",
       success: isSuccess(d.band),
-      limitBreak: limitBreakLine(d, clash),
+      limitBreak: limitBreakLine(card, clash),
       riders: riders(d.band, d.npc)
     };
   }
@@ -262,7 +293,8 @@ export async function renderRollCard(flags) {
 }
 
 /* Post an Action Roll: two dice and one optional flat bonus. difficulty is
-   a DIFFICULTY index or null, raised by limitBreak steps. extra flags ride
+   a DIFFICULTY index or null, raised by limitBreak steps; a raise outside
+   a Clash records the user's one target, whose Hearts it costs. extra flags ride
    the message beside the card: { clash: { side, name } } for a Clash roll,
    and alias names the speaker in place of the actor, for a lettered copy.
    The card's state rides the message as a flag so Luck spends can
@@ -270,6 +302,8 @@ export async function renderRollCard(flags) {
 export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0, extra = {}) {
   const { roll, card } = await rollDice(first, second, bonus);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
+  const target = limitBreak > 0 && !extra.clash && game.user.targets.size === 1 ? game.user.targets.first().actor : null;
+  if (target) card.target = { uuid: target.uuid, name: target.name };
   await applyRollEffects(actor, card);
   const splash = readSplash(card.faces);
   const { alias, ...rest } = extra;
@@ -601,4 +635,12 @@ export function dressMessage(message, html) {
 
 export function registerChat() {
   Hooks.on("renderChatMessageHTML", (message, html) => dressMessage(message, html));
+
+  /* The Storyteller's client settles a Limit Break's Hearts as the card
+     arrives and as it changes. */
+  const onRoll = message => {
+    if (game.users.activeGM?.isSelf && message.getFlag("paradigm-engine", "card")?.target) applyLimitHearts(message);
+  };
+  Hooks.on("createChatMessage", onRoll);
+  Hooks.on("updateChatMessage", onRoll);
 }

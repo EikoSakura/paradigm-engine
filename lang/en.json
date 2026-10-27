@@ -172,7 +172,8 @@
       "LimitBoxes": "+{n} Boxes",
       "LimitHeart": "Target −1 Heart",
       "LimitHearts": "Target −{n} Hearts",
-      "LimitSetback": "Setback −{n} Hearts",
+      "LimitNamedHeart": "{name} −1 Heart",
+      "LimitNamedHearts": "{name} −{n} Hearts",
       "MeterLabel": "Limit",
       "ComboEnergy": "Combo · +1 Energy",
       "FumbleHeart": "Fumble · −1 Heart"
