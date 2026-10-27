@@ -145,7 +145,8 @@
     "Splash": {
       "Combo": "COMBO!!",
       "Fumble": "FUMBLE",
-      "Energy": "+1 Energy"
+      "Energy": "+1 Energy",
+      "Heart": "−1 Heart"
     },
     "Luck": {
       "Title": "Spend Luck"
@@ -173,7 +174,8 @@
       "LimitHearts": "Target −{n} Hearts",
       "LimitSetback": "Setback −{n} Hearts",
       "MeterLabel": "Limit",
-      "ComboEnergy": "Combo · +1 Energy"
+      "ComboEnergy": "Combo · +1 Energy",
+      "FumbleHeart": "Fumble · −1 Heart"
     },
     "Band": {
       "Combo": "Combo",

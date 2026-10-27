@@ -7,6 +7,7 @@
   </span>
   <span class="mtotal">{{card.total}}</span>
   {{#if card.band}}<span class="mband{{#if card.band.combo}} cb{{else if card.band.success}} ok{{else if card.band.fumble}} no{{/if}}">{{card.band.word}}</span>{{/if}}
+  {{#if card.hearts}}<span class="mband no">{{card.hearts}}</span>{{/if}}
   {{#if result}}<span class="mband no">{{result}}</span>{{/if}}
   {{else}}
   <button type="button" class="cbtn o mroll" data-row="{{index}}" data-uuid="{{uuid}}">{{rollLabel}}</button>

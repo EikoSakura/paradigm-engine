@@ -45,6 +45,7 @@
       {{#each luck}}<div class="rline luck"><i class="rmark"></i><span>{{this}}</span></div>{{/each}}
       {{#each flips}}<div class="rline flip"><i class="rmark"></i><span>{{this}}</span></div>{{/each}}
       {{#if energy}}<div class="rline energy"><i class="rmark"></i><span>{{energy}}</span></div>{{/if}}
+      {{#if hearts}}<div class="rline hearts"><i class="rmark"></i><span>{{hearts}}</span></div>{{/if}}
       <div class="dband">
         <span class="dtag" style="--gc: var({{band.cssVar}})"><b>{{band.rank}}</b><small>{{band.number}}</small></span>
         <span class="bword {{#if band.combo}}combo{{else if band.fumble}}fumble{{else if band.success}}success{{else}}failure{{/if}}">{{band.word}}</span>

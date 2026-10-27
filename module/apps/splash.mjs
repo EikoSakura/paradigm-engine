@@ -109,6 +109,7 @@ export function showSplash(kind, message) {
       <div class="row">
         ${faces.map(f => `<span class="die">${f}</span>`).join("")}
         ${kind === "combo" && card?.energy > 0 ? `<span class="chip">${game.i18n.localize("PARADIGMENGINE.Splash.Energy")}</span>` : ""}
+        ${kind === "fumble" && card?.hearts > 0 ? `<span class="chip">${game.i18n.localize("PARADIGMENGINE.Splash.Heart")}</span>` : ""}
       </div>
     </div>
     <div class="who"><span class="nm"></span><span class="kind"></span></div>

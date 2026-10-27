@@ -132,6 +132,27 @@ export async function applyComboEnergy(actor, card) {
   if (next !== value) await actor.update({ "system.energy.value": next });
 }
 
+/* A Fumble costs its roller 1 Heart, once per card, down to none; a Fumble
+   unmade later, by a Shift, gives it back. The Fumble reads from the dice
+   as they stand, with or without a Difficulty, as the splash does. The
+   card keeps the Hearts it took. Runs where applyComboEnergy does. */
+export async function applyFumbleHeart(actor, card) {
+  if (!card || !actor?.isOwner || !actor.system?.hearts) return;
+  const want = readSplash(card.faces) === "fumble" ? 1 : 0;
+  const have = card.hearts ?? 0;
+  if (want === have) return;
+  const { value, max } = actor.system.hearts;
+  const next = Math.clamp(value - want + have, 0, Math.max(max, value));
+  card.hearts = have + value - next;
+  if (next !== value) await actor.update({ "system.hearts.value": next });
+}
+
+/* Both roll outcomes a card pays or takes. */
+export async function applyRollEffects(actor, card) {
+  await applyComboEnergy(actor, card);
+  await applyFumbleHeart(actor, card);
+}
+
 /* Roll two dice, backed by a real Roll. first and second are { name, rank }
    with any die steps already applied. The card keeps the faces, so Luck
    replacements and Shifts re-total; its bonus holds the flat part of the
@@ -220,6 +241,7 @@ export function rollCardContext(card, clash = false) {
     trades: (card.trades ?? []).map(t => game.i18n.format("PARADIGMENGINE.Clash.TradeLine", t)),
     flips: (card.flips ?? []).map(f => game.i18n.format("PARADIGMENGINE.Roll.FlipLine", f)),
     energy: card.energy > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.ComboEnergy") : null,
+    hearts: card.hearts > 0 ? game.i18n.localize("PARADIGMENGINE.Roll.FumbleHeart") : null,
     canFlip: canFlip(card)
   };
 }
@@ -248,7 +270,7 @@ export async function renderRollCard(flags) {
 export async function postActionRoll(actor, first, second, bonus = 0, difficulty = null, limitBreak = 0, extra = {}) {
   const { roll, card } = await rollDice(first, second, bonus);
   if (difficulty !== null) setDifficulty(card, difficulty, limitBreak, actor?.type === "npc");
-  await applyComboEnergy(actor, card);
+  await applyRollEffects(actor, card);
   const splash = readSplash(card.faces);
   const { alias, ...rest } = extra;
   const flags = { card, ...rest };
@@ -347,7 +369,7 @@ export function renderMultiCard(multi) {
 }
 
 async function writeMulti(message, multi) {
-  for (const row of multi.rows) if (row.card) await applyComboEnergy(actorOf(row.uuid), row.card);
+  for (const row of multi.rows) if (row.card) await applyRollEffects(actorOf(row.uuid), row.card);
   const content = await renderMultiCard(multi);
   await message.update({ content, flags: { "paradigm-engine": { multi } } });
 }
@@ -450,7 +472,7 @@ export async function applyLuckSwap(message, dieIndex, value, spenderName, row =
    flags, and the splash flag moved when the Combo or Fumble state changed,
    so every client plays the splash from the update. */
 async function writeRollCard(message, stored, card) {
-  await applyComboEnergy(ChatMessage.implementation.getSpeakerActor(message.speaker), card);
+  await applyRollEffects(ChatMessage.implementation.getSpeakerActor(message.speaker), card);
   const splash = readSplash(card.faces);
   const flags = { "paradigm-engine": { card } };
   if (splash !== (stored.splash ?? null)) {
