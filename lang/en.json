@@ -144,7 +144,8 @@
     },
     "Splash": {
       "Combo": "COMBO!!",
-      "Fumble": "FUMBLE"
+      "Fumble": "FUMBLE",
+      "Energy": "+1 Energy"
     },
     "Luck": {
       "Title": "Spend Luck"
