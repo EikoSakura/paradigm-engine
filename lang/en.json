@@ -353,7 +353,35 @@
       "Tab": {
         "members": "Members",
         "dossier": "Dossier",
+        "lore": "Lore",
         "notes": "Notes"
+      },
+      "Lore": {
+        "Kind": {
+          "species": "Species",
+          "faction": "Factions",
+          "place": "Places",
+          "item": "Items"
+        },
+        "One": {
+          "species": "Species",
+          "faction": "Faction",
+          "place": "Place",
+          "item": "Item"
+        },
+        "Name": "Name",
+        "Subtitle": "Subtitle",
+        "Text": "Text",
+        "Skills": "Skills",
+        "Members": "Members",
+        "Notable": "Notable",
+        "HeldBy": "Held By",
+        "Homeworld": "Homeworld",
+        "Base": "Base",
+        "Scene": "Scene",
+        "Image": "Image",
+        "DropSkill": "Drop a Skill",
+        "Unlink": "Unlink"
       },
       "Open": "Open",
       "Lead": "Group",

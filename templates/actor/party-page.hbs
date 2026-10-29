@@ -141,6 +141,129 @@
     </div>
   </section>
 
+  <section class="tab lore {{tabs.lore.cssClass}}" data-group="primary" data-tab="lore">
+    <div class="pcard board" style="--tc: var(--gold)">
+      <span class="tag">{{localize "PARADIGMENGINE.Party.Tab.lore"}}<span class="tail">{{loreCount}}</span></span>
+      <div class="kinds">
+        {{#each loreKinds}}
+        <button type="button" class="{{#if this.on}}on{{/if}}" data-action="setLoreKind" data-kind="{{this.key}}"
+          style="--tc: var({{this.cssVar}})">{{this.label}}<span class="n">{{this.count}}</span></button>
+        {{/each}}
+      </div>
+      <div class="dcards" style="--tc: var({{loreKindVar}})">
+        {{#each lore}}
+        {{#if this.veiled}}
+        <div class="dc veiled">
+          <div class="hid"><span class="q">?</span><span class="cap">{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}</span></div>
+        </div>
+        {{else}}
+        <div class="dc{{#if this.flipped}} flip{{/if}}{{#if this.edit}} editing{{/if}}" data-lore="{{this.index}}"{{#unless this.edit}} data-action="flipCard"{{/unless}}>
+          <div class="in">
+            <div class="face front">
+              <div class="art">
+                {{#if this.img}}<img src="{{this.img}}" alt="{{this.name}}" draggable="false">{{else}}<span class="ph">{{this.initial}}</span>{{/if}}
+              </div>
+              {{#if this.edit}}
+              <button type="button" class="delbtn" data-action="removeLore" data-i="{{this.index}}"
+                aria-label="{{localize "PARADIGMENGINE.Edit.Remove"}}">✕</button>
+              <div class="ctools">
+                <button type="button" data-action="pickLoreImage" data-i="{{this.index}}" data-tooltip="{{localize "PARADIGMENGINE.Party.Lore.Image"}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Lore.Image"}}"><i class="fa-solid fa-image" inert></i></button>
+                <button type="button" class="{{#if this.hidden}}on{{/if}}" data-action="toggleLoreHidden" data-i="{{this.index}}"
+                  data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}" aria-pressed="{{this.hidden}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}"><i class="fa-solid {{#if this.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}" inert></i></button>
+                <button type="button" data-action="flipCard" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"><i class="fa-solid fa-rotate" inert></i></button>
+              </div>
+              <div class="band ed">
+                {{#if this.isFaction}}
+                <div class="stands">
+                  {{#each this.standings}}
+                  <button type="button" class="{{#if this.on}}on{{/if}}" data-action="setLoreStanding" data-i="{{../index}}" data-standing="{{this.key}}">{{this.label}}</button>
+                  {{/each}}
+                </div>
+                {{/if}}
+                <input class="ed-input nm" type="text" name="system.lore.{{this.index}}.name" value="{{this.name}}"
+                  placeholder="{{localize "PARADIGMENGINE.Party.Lore.Name"}}" aria-label="{{localize "PARADIGMENGINE.Party.Lore.Name"}}">
+                <input class="ed-input" type="text" name="system.lore.{{this.index}}.sub" value="{{this.sub}}"
+                  placeholder="{{localize "PARADIGMENGINE.Party.Lore.Subtitle"}}" aria-label="{{localize "PARADIGMENGINE.Party.Lore.Subtitle"}}">
+              </div>
+              {{else}}
+              {{#if this.isFaction}}<span class="stand" style="--tc: var({{this.standingVar}})">{{this.standingLabel}}</span>{{/if}}
+              {{#if this.hidden}}<span class="gmhid" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Hidden"}}"><i class="fa-solid fa-eye-slash" inert></i></span>{{/if}}
+              <div class="band">
+                <div class="nm">{{this.name}}</div>
+                <div class="ep">{{this.sub}}</div>
+              </div>
+              <i class="fa-solid fa-rotate fl" inert></i>
+              {{/if}}
+            </div>
+            <div class="face back">
+              <div class="bh">
+                <div class="nm">{{this.name}}</div>
+                <div class="st">{{#if this.isFaction}}{{this.standingLabel}}{{else}}{{this.kindLabel}}{{/if}}</div>
+              </div>
+              <div class="bb lore">
+                {{#if this.edit}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Lore.Text"}}</div>
+                  <textarea class="ed-area" name="system.lore.{{this.index}}.text"
+                    aria-label="{{localize "PARADIGMENGINE.Party.Lore.Text"}}">{{this.text}}</textarea></div>
+                {{#if this.isSpecies}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Lore.Skills"}}</div>
+                  {{#each this.skills}}
+                  <div class="srow" style="--rk: var({{this.cssVar}})">
+                    <span class="rk">{{this.rank}}</span><span class="sn">{{this.name}}</span>
+                    {{#if this.cost}}<span class="pill">{{this.cost}}</span>{{/if}}
+                    <button type="button" class="rm" data-action="unlinkSkill" data-i="{{../index}}" data-uuid="{{this.uuid}}"
+                      aria-label="{{localize "PARADIGMENGINE.Party.Lore.Unlink"}}">✕</button>
+                  </div>
+                  {{/each}}
+                  <div class="drop">{{localize "PARADIGMENGINE.Party.Lore.DropSkill"}}</div></div>
+                {{/if}}
+                <div><div class="lb">{{this.membersLabel}}</div>
+                  <input class="ed-input" type="text" name="system.lore.{{this.index}}.members" value="{{this.members}}"
+                    aria-label="{{this.membersLabel}}"></div>
+                {{#if this.placeLabel}}
+                <div><div class="lb">{{this.placeLabel}}</div>
+                  <input class="ed-input" type="text" name="system.lore.{{this.index}}.place" value="{{this.place}}"
+                    aria-label="{{this.placeLabel}}"></div>
+                {{/if}}
+                <button type="button" class="flipbtn" data-action="flipCard" data-tooltip="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"
+                  aria-label="{{localize "PARADIGMENGINE.Party.Dossier.Flip"}}"><i class="fa-solid fa-rotate" inert></i></button>
+                {{else}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Lore.Text"}}</div><div class="vl txt">{{#if this.text}}{{this.text}}{{else}}<span class="empty">·</span>{{/if}}</div></div>
+                {{#if this.isSpecies}}
+                <div><div class="lb">{{localize "PARADIGMENGINE.Party.Lore.Skills"}}</div>
+                  {{#each this.skills}}
+                  <div class="srow" style="--rk: var({{this.cssVar}})">
+                    <span class="rk">{{this.rank}}</span>
+                    {{#if this.open}}<button type="button" class="sn srow-open" data-action="openSkill" data-uuid="{{this.uuid}}">{{this.name}}</button>{{else}}<span class="sn">{{this.name}}</span>{{/if}}
+                    {{#if this.cost}}<span class="pill">{{this.cost}}</span>{{/if}}
+                  </div>
+                  {{else}}
+                  <div class="vl"><span class="empty">·</span></div>
+                  {{/each}}
+                </div>
+                {{/if}}
+                <div><div class="lb">{{this.membersLabel}}</div>
+                  <div class="names">{{#each this.names}}{{#if @index}}, {{/if}}{{#if this.uuid}}<button type="button" data-action="openMember" data-uuid="{{this.uuid}}">{{this.name}}</button>{{else}}{{this.name}}{{/if}}{{else}}<span class="empty">·</span>{{/each}}</div></div>
+                {{#if this.placeLabel}}
+                <div><div class="lb">{{this.placeLabel}}</div><div class="vl">{{#if this.place}}{{this.place}}{{else}}<span class="empty">·</span>{{/if}}</div></div>
+                {{/if}}
+                {{/if}}
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/if}}
+        {{/each}}
+        {{#if loreEdit}}
+        <button type="button" class="slot" data-action="addLore" aria-label="{{addLabel}}"><i class="fa-solid fa-plus" inert></i></button>
+        {{/if}}
+      </div>
+    </div>
+  </section>
+
   <section class="tab notes {{tabs.notes.cssClass}}" data-group="primary" data-tab="notes">
     <div class="panel">
       <div class="panel-h"><span class="en">{{localize "PARADIGMENGINE.Party.Tab.notes"}}</span></div>
