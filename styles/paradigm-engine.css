@@ -9012,6 +9012,9 @@ body:is(.pe-theme-dark, .pe-theme-foundry.theme-dark) .pe-stage-card {
 .pe-title.editing {
   grid-template-columns: minmax(0, 1fr) 312px;
 }
+.pe-title:not(.editing) .drawer {
+  display: none;
+}
 .pe-title :where(button) {
   width: auto;
   height: auto;

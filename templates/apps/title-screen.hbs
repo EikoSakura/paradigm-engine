@@ -78,8 +78,10 @@
   {{/if}}
 </div>
 
-{{#if drawer}}
+{{!-- Always a second top-level element: a root part that renders one element alone
+     is unwrapped into the application element by the Handlebars mixin. --}}
 <aside class="drawer">
+{{#if drawer}}
   <h1>{{localize "PARADIGMENGINE.Title.Title"}}{{#if party}}<small>{{party.name}}</small>{{/if}}</h1>
 
   <div class="sec">
@@ -140,5 +142,5 @@
     <div class="chips"><button type="button" class="chip{{#if drawer.login}} on{{/if}}" data-action="toggleLogin">{{localize "PARADIGMENGINE.Title.OpenOnLogin"}}</button></div>
     <button type="button" class="btn primary" data-action="showAll"><i class="fa-solid fa-tv" inert></i>{{localize "PARADIGMENGINE.Title.ShowToPlayers"}}</button>
   </div>
-</aside>
 {{/if}}
+</aside>
