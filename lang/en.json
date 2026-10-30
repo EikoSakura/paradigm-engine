@@ -496,13 +496,15 @@
         "grain": "Grain",
         "lines": "Speed Lines",
         "petals": "Petals",
-        "drift": "Drift"
+        "drift": "Drift",
+        "mono": "Mono"
       },
       "Shape": {
         "medallion": "Medallion",
         "hex": "Hex",
         "plate": "Plate",
-        "hero": "Hero"
+        "hero": "Hero",
+        "polaroid": "Polaroid"
       },
       "Cast": {
         "rank": "Rank",
@@ -533,7 +535,41 @@
       "Layouts": {
         "title": "Title",
         "select": "Select",
-        "poster": "Poster"
+        "poster": "Poster",
+        "banner": "Banner"
+      },
+      "Style": "Style",
+      "TitleFont": "Title Font",
+      "TitleSize": "Title Size",
+      "Tracking": "Tracking",
+      "Slant": "Slant",
+      "Corners": "Corners",
+      "Round": "Round",
+      "PlateOpacity": "Plate Opacity",
+      "Upper": "Uppercase",
+      "CutCorners": "Cut Corners",
+      "Size": "Size",
+      "Shadow": {
+        "none": "No Shadow",
+        "hard": "Hard",
+        "glow": "Glow",
+        "outline": "Outline",
+        "offset": "Offset"
+      },
+      "Deco": {
+        "none": "Plain",
+        "ribbon": "Ribbon",
+        "hud": "HUD",
+        "frame": "Frame",
+        "sparkles": "Sparkles"
+      },
+      "Color": {
+        "a": "Accent",
+        "a2": "Energy",
+        "ink": "Text",
+        "plate": "Plate",
+        "plateInk": "Plate Text",
+        "ring": "Ring"
       }
     }
   }

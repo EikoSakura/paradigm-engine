@@ -1,4 +1,4 @@
-<div class="screen {{classes}}" data-look="{{state.look}}" data-bg="{{state.bg}}" data-layout="{{state.layout}}" data-shape="{{state.shape}}" style="--petal: {{petalColor}}">
+<div class="screen {{classes}}" data-deco="{{state.style.deco}}" data-cut="{{state.style.cut}}" data-shape="{{state.shape}}" style="{{styleVars}}">
   <div class="bg">
     <div class="bg-art">{{{bgHtml}}}</div>
     <div class="fx dim"></div>
@@ -10,68 +10,89 @@
   </div>
   <div class="deco"><div class="sparkles">{{#each sparkles}}<i style="{{this}}"></i>{{/each}}</div></div>
 
-  {{#if slate}}
-  <header class="slate">
-    {{#if slate.eyebrow}}<span class="eyebrow">{{slate.eyebrow}}</span>{{/if}}
-    {{#if slate.title}}<h1 class="title">{{slate.title}}</h1>{{/if}}
-    {{#if slate.where}}
-    <div class="where">
-      {{#if slate.scene}}<span><span class="k">{{localize "PARADIGMENGINE.Stage.Scene"}}</span>{{slate.scene}}</span>{{/if}}
-      {{#if slate.time}}<span><span class="k">{{localize "PARADIGMENGINE.Stage.Time"}}</span>{{slate.time}}</span>{{/if}}
-    </div>
-    {{/if}}
-    {{#if editing}}<button type="button" class="pen" data-action="editEpisode" aria-label="{{localize "PARADIGMENGINE.Stage.Edit"}}"><i class="fa-solid fa-pen" inert></i></button>{{/if}}
-  </header>
-  {{/if}}
+  <div class="inner">
+    <div class="guide v"></div>
+    <div class="guide h"></div>
 
-  {{#if hasRecap}}
-  <section class="recap">
-    <span class="k">{{localize "PARADIGMENGINE.Title.PreviouslyOn"}}</span>
-    {{#if editing}}
-    <textarea name="recap" rows="3" aria-label="{{localize "PARADIGMENGINE.Title.PreviouslyOn"}}">{{recap}}</textarea>
-    {{else}}
-    <p>{{recap}}</p>
-    {{/if}}
-  </section>
-  {{/if}}
-
-  {{#if menu.length}}
-  <nav class="menu">
-    {{#each menu}}
-    <button type="button" class="mi{{#if this.missing}} missing{{/if}}" data-action="openEntry" data-index="{{this.index}}" {{#unless this.open}}disabled{{/unless}}>
-      <i class="fa-solid {{this.icon}}" inert></i><span>{{this.name}}</span>
-    </button>
-    {{/each}}
-  </nav>
-  {{/if}}
-
-  <section class="cast">
-    {{#each cast}}
-    <div class="pc" style="--i: {{this.index}}; --rk: var({{this.cssVar}})">
-      <button type="button" class="frame" data-action="openActor" data-uuid="{{this.uuid}}" {{#unless this.canOpen}}disabled{{/unless}} aria-label="{{this.name}}">
-        {{#if this.portrait}}<img src="{{this.portrait}}" alt="" style="{{this.frameStyle}}" draggable="false">{{else}}<span class="ph">{{this.initial}}</span>{{/if}}
-      </button>
-      <span class="rank">{{this.rank}}</span>
-      <div class="plate">
-        <span class="nm">{{this.name}}</span>
-        {{#if this.player}}<span class="pl"><span class="k">{{localize "PARADIGMENGINE.Header.Player"}}</span>{{this.player}}</span>{{/if}}
-        <span class="pips">{{#each this.hearts}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
-        <span class="pips e">{{#each this.energy}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
+    {{#if slate}}
+    <header class="blk slate" data-blk="slate" data-al="{{blocks.slate.ax}}" style="{{blocks.slate.style}}">
+      {{#if editing}}<span class="grip" data-grip="slate">&#10303;</span>{{/if}}
+      {{#if slate.eyebrow}}<span class="eyebrow">{{slate.eyebrow}}</span>{{/if}}
+      {{#if slate.title}}<h1 class="title">{{slate.title}}</h1>{{/if}}
+      {{#if slate.where}}
+      <div class="where">
+        {{#if slate.scene}}<span><span class="k">{{localize "PARADIGMENGINE.Stage.Scene"}}</span>{{slate.scene}}</span>{{/if}}
+        {{#if slate.time}}<span><span class="k">{{localize "PARADIGMENGINE.Stage.Time"}}</span>{{slate.time}}</span>{{/if}}
       </div>
-    </div>
-    {{/each}}
-  </section>
+      {{/if}}
+      {{#if editing}}<button type="button" class="pen" data-action="editEpisode" aria-label="{{localize "PARADIGMENGINE.Stage.Edit"}}"><i class="fa-solid fa-pen" inert></i></button>{{/if}}
+    </header>
+    {{/if}}
 
-  <footer class="foot">
+    {{#if hasRecap}}
+    <section class="blk recap" data-blk="recap" style="{{blocks.recap.style}}">
+      {{#if editing}}<span class="grip" data-grip="recap">&#10303;</span>{{/if}}
+      <span class="k">{{localize "PARADIGMENGINE.Title.PreviouslyOn"}}</span>
+      {{#if editing}}
+      <textarea name="recap" rows="3" aria-label="{{localize "PARADIGMENGINE.Title.PreviouslyOn"}}">{{recap}}</textarea>
+      {{else}}
+      <p>{{recap}}</p>
+      {{/if}}
+    </section>
+    {{/if}}
+
+    {{#if menu.length}}
+    <nav class="blk menu" data-blk="menu" data-dir="{{blocks.menu.dir}}" style="{{blocks.menu.style}}">
+      {{#if editing}}<span class="grip" data-grip="menu">&#10303;</span>{{/if}}
+      {{#each menu}}
+      <button type="button" class="mi{{#if this.missing}} missing{{/if}}" data-action="openEntry" data-index="{{this.index}}" {{#unless this.open}}disabled{{/unless}}>
+        <i class="fa-solid {{this.icon}}" inert></i><span>{{this.name}}</span>
+      </button>
+      {{/each}}
+    </nav>
+    {{/if}}
+
+    <section class="blk cast" data-blk="cast" style="{{blocks.cast.style}}">
+      {{#if editing}}<span class="grip" data-grip="cast">&#10303;</span>{{/if}}
+      {{#each cast}}
+      <div class="pc" style="--i: {{this.index}}; --rk: var({{this.cssVar}})" data-uuid="{{this.uuid}}">
+        <button type="button" class="frame" data-action="openActor" data-uuid="{{this.uuid}}" {{#unless this.canOpen}}disabled{{/unless}} aria-label="{{this.name}}">
+          <span class="pic" style="{{this.picStyle}}">
+            {{#if this.portrait}}<img src="{{this.portrait}}" alt="" style="{{this.frameStyle}}" draggable="false">{{else}}<span class="ph">{{this.initial}}</span>{{/if}}
+          </span>
+          {{#if @root.editing}}<span class="zoom">{{this.zoom}}%</span>{{/if}}
+        </button>
+        <span class="rank">{{this.rank}}</span>
+        <div class="plate">
+          <span class="nm">{{this.name}}</span>
+          {{#if this.player}}<span class="pl"><span class="k">{{localize "PARADIGMENGINE.Header.Player"}}</span>{{this.player}}</span>{{/if}}
+          <span class="pips">{{#each this.hearts}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
+          <span class="pips e">{{#each this.energy}}<i class="{{#if this}}on{{/if}}"></i>{{/each}}</span>
+        </div>
+      </div>
+      {{/each}}
+    </section>
+
     {{#if party}}
-    <div class="party">
+    <div class="blk party" data-blk="party" style="{{blocks.party.style}}">
+      {{#if editing}}<span class="grip" data-grip="party">&#10303;</span>{{/if}}
       <span class="emblem">{{#if party.emblem}}<img src="{{party.emblem}}" alt="">{{else}}{{party.initial}}{{/if}}</span>
       <span class="pn">{{party.name}}</span>
     </div>
-    {{else}}<span></span>{{/if}}
-    {{#if session}}<div class="session"><span class="k">{{localize "PARADIGMENGINE.Title.NextSession"}}</span><span class="v">{{session}}</span></div>{{/if}}
-    <button type="button" class="enter" data-action="enter"><span>{{localize "PARADIGMENGINE.Title.Enter"}}</span><span class="arrow">&#10140;</span></button>
-  </footer>
+    {{/if}}
+
+    {{#if session}}
+    <div class="blk session" data-blk="session" style="{{blocks.session.style}}">
+      {{#if editing}}<span class="grip" data-grip="session">&#10303;</span>{{/if}}
+      <span class="k">{{localize "PARADIGMENGINE.Title.NextSession"}}</span><span class="v">{{session}}</span>
+    </div>
+    {{/if}}
+
+    <div class="blk enterblk" data-blk="enter" style="{{blocks.enter.style}}">
+      {{#if editing}}<span class="grip" data-grip="enter">&#10303;</span>{{/if}}
+      <button type="button" class="enter" data-action="enter"><span>{{localize "PARADIGMENGINE.Title.Enter"}}</span><span class="arrow">&#10140;</span></button>
+    </div>
+  </div>
 
   {{#if gm}}
   <button type="button" class="gm-edit{{#if editing}} on{{/if}}" data-action="toggleEdit" aria-label="{{localize "PARADIGMENGINE.Title.Edit"}}"><i class="fa-solid fa-pen" inert></i></button>
@@ -95,7 +116,7 @@
     </div>
     <div class="chips">
       {{#each drawer.fx}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="toggleFx" data-id="{{this.id}}">{{this.label}}</button>{{/each}}
-      <button type="button" class="chip pick" data-action="pickImage"><i class="fa-solid fa-folder-open" inert></i>{{localize "PARADIGMENGINE.Title.Bg.image"}}</button>
+      <button type="button" class="chip" data-action="pickImage"><i class="fa-solid fa-folder-open" inert></i>{{localize "PARADIGMENGINE.Title.Bg.image"}}</button>
     </div>
   </div>
 
@@ -109,6 +130,33 @@
   </div>
 
   <div class="sec">
+    <h2>{{localize "PARADIGMENGINE.Title.Style"}}</h2>
+    <div class="ctl">
+      <label for="pe-title-font">{{localize "PARADIGMENGINE.Title.TitleFont"}}</label>
+      <select id="pe-title-font" name="font">
+        {{#each drawer.fonts}}<option value="{{this.name}}" style="font-family: '{{this.name}}'"{{#if this.on}} selected{{/if}}>{{this.name}}</option>{{/each}}
+      </select>
+    </div>
+    {{#each drawer.ranges}}
+    <div class="ctl">
+      <label for="pe-title-{{this.id}}">{{this.label}}</label>
+      <input id="pe-title-{{this.id}}" type="range" data-style="{{this.id}}" min="{{this.min}}" max="{{this.max}}" step="{{this.step}}" value="{{this.value}}">
+      <output>{{this.out}}</output>
+    </div>
+    {{/each}}
+    <div class="chips">
+      {{#each drawer.toggles}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="toggleStyle" data-id="{{this.id}}">{{this.label}}</button>{{/each}}
+    </div>
+    <div class="chips">{{#each drawer.shadows}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="pickShadow" data-id="{{this.id}}">{{this.label}}</button>{{/each}}</div>
+    <div class="chips">{{#each drawer.decos}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="pickDeco" data-id="{{this.id}}">{{this.label}}</button>{{/each}}</div>
+    <div class="swatches">
+      {{#each drawer.colors}}
+      <label class="swatch"><input type="color" data-color="{{this.id}}" value="{{this.value}}" aria-label="{{this.label}}">{{this.label}}</label>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="sec">
     <h2>{{localize "PARADIGMENGINE.Title.Layout"}}</h2>
     <div class="chips">{{#each drawer.layouts}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="pickLayout" data-id="{{this.id}}">{{this.label}}</button>{{/each}}</div>
   </div>
@@ -116,6 +164,11 @@
   <div class="sec">
     <h2>{{localize "PARADIGMENGINE.Title.Portraits"}}</h2>
     <div class="chips">{{#each drawer.shapes}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="pickShape" data-id="{{this.id}}">{{this.label}}</button>{{/each}}</div>
+    <div class="ctl">
+      <label for="pe-title-cs">{{localize "PARADIGMENGINE.Title.Size"}}</label>
+      <input id="pe-title-cs" type="range" data-style="cs" min="{{drawer.castSize.min}}" max="{{drawer.castSize.max}}" step="{{drawer.castSize.step}}" value="{{drawer.castSize.value}}">
+      <output>{{drawer.castSize.out}}</output>
+    </div>
     <div class="chips">{{#each drawer.cast}}<button type="button" class="chip{{#if this.on}} on{{/if}}" data-action="toggleCast" data-id="{{this.id}}">{{this.label}}</button>{{/each}}</div>
   </div>
 
