@@ -472,19 +472,8 @@
       "PreviouslyOn": "Previously On",
       "NextSession": "Next Session",
       "Background": "Background",
-      "Look": {
-        "shonen": "Shonen",
-        "shojo": "Shojo",
-        "mecha": "Mecha",
-        "isekai": "Isekai",
-        "slice": "Slice Of Life",
-        "seinen": "Seinen"
-      },
-      "Layout": {
-        "title": "Title",
-        "select": "Select",
-        "poster": "Poster"
-      },
+      "Look": "Look",
+      "Layout": "Layout",
       "Portraits": "Portraits",
       "Blocks": "Blocks",
       "Menu": "Menu",
@@ -532,6 +521,19 @@
         "lore": "Lore",
         "clash": "Clash",
         "tree": "Skill Tree"
+      },
+      "Looks": {
+        "shonen": "Shonen",
+        "shojo": "Shojo",
+        "mecha": "Mecha",
+        "isekai": "Isekai",
+        "slice": "Slice Of Life",
+        "seinen": "Seinen"
+      },
+      "Layouts": {
+        "title": "Title",
+        "select": "Select",
+        "poster": "Poster"
       }
     }
   }

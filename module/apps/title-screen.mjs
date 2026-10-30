@@ -311,8 +311,8 @@ export default class TitleScreen extends HandlebarsApplicationMixin(ApplicationV
       drawer: gm && this.#editing ? {
         backgrounds,
         fx: options(FX, "Fx", k => state.fx[k]),
-        looks: options(LOOKS, "Look", k => state.look === k),
-        layouts: options(LAYOUTS, "Layout", k => state.layout === k),
+        looks: options(LOOKS, "Looks", k => state.look === k),
+        layouts: options(LAYOUTS, "Layouts", k => state.layout === k),
         shapes: options(SHAPES, "Shape", k => state.shape === k),
         cast: options(CAST, "Cast", k => state.cast[k]),
         blocks: options(BLOCKS, "Block", k => state.show[k]),
