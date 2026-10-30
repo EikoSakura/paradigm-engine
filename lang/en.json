@@ -464,6 +464,75 @@
       "Veil": "Veil",
       "Remove": "Remove",
       "Vs": "VS"
+    },
+    "Title": {
+      "Title": "Title Screen",
+      "Enter": "Enter",
+      "Edit": "Edit Title Screen",
+      "PreviouslyOn": "Previously On",
+      "NextSession": "Next Session",
+      "Background": "Background",
+      "Look": {
+        "shonen": "Shonen",
+        "shojo": "Shojo",
+        "mecha": "Mecha",
+        "isekai": "Isekai",
+        "slice": "Slice Of Life",
+        "seinen": "Seinen"
+      },
+      "Layout": {
+        "title": "Title",
+        "select": "Select",
+        "poster": "Poster"
+      },
+      "Portraits": "Portraits",
+      "Blocks": "Blocks",
+      "Menu": "Menu",
+      "Show": "Show",
+      "OpenOnLogin": "Open On Login",
+      "ShowToPlayers": "Show To Players",
+      "Bg": {
+        "dusk": "Dusk City",
+        "night": "Night Sky",
+        "sakura": "Sakura",
+        "paper": "Paper",
+        "studio": "Studio",
+        "image": "Image"
+      },
+      "Fx": {
+        "dim": "Dim",
+        "blur": "Blur",
+        "vignette": "Vignette",
+        "halftone": "Halftone",
+        "grain": "Grain",
+        "lines": "Speed Lines",
+        "petals": "Petals",
+        "drift": "Drift"
+      },
+      "Shape": {
+        "medallion": "Medallion",
+        "hex": "Hex",
+        "plate": "Plate",
+        "hero": "Hero"
+      },
+      "Cast": {
+        "rank": "Rank",
+        "player": "Player",
+        "pips": "Hearts & Energy"
+      },
+      "Block": {
+        "slate": "Episode",
+        "recap": "Previously On",
+        "menu": "Menu",
+        "session": "Next Session",
+        "emblem": "Party"
+      },
+      "Kind": {
+        "party": "Party File",
+        "lore": "Lore",
+        "clash": "Clash",
+        "tree": "Skill Tree"
+      }
     }
   }
 }

@@ -20,6 +20,7 @@ import { registerChain, registerChat } from "./chat.mjs";
 import { registerTracker } from "./tracker.mjs";
 import { registerStartingSkills } from "./starting-skills.mjs";
 import { registerStage } from "./apps/stage.mjs";
+import { registerTitleScreen } from "./apps/title-screen.mjs";
 
 Hooks.once("init", () => {
   registerStartingSkills();
@@ -37,6 +38,7 @@ Hooks.once("init", () => {
   registerParty();
   registerTracker();
   registerStage();
+  registerTitleScreen();
 
   CONFIG.Actor.dataModels.pc = PcData;
   CONFIG.Actor.dataModels.npc = NpcData;

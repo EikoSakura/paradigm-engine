@@ -69,7 +69,7 @@ function actorAt(uuid) {
 }
 
 /* Season, Arc and Episode on one line, the ones that are set. */
-function eyebrowOf(stage) {
+export function eyebrowOf(stage) {
   const parts = [];
   for (const key of ["Season", "Arc", "Episode"]) {
     const value = stage[key.toLowerCase()];
@@ -88,6 +88,45 @@ function pips({ value, max }) {
 
 function percent({ value, max }) {
   return max > 0 ? Math.round(Math.clamp(value / max, 0, 1) * 100) : 0;
+}
+
+/* The episode dialog: Season, Arc, Episode, title, scene and time, with
+   Save and Play Title Card. The Title Screen opens it too. */
+export async function editEpisode() {
+  if (!game.user.isGM) return;
+  const stage = readStage();
+  const t = key => game.i18n.localize(`PARADIGMENGINE.Stage.${key}`);
+  const num = (name, value, label) => `<div class="form-group"><label>${label}</label><div class="form-fields"><input type="number" name="${name}" value="${value || ""}" min="0" step="1"></div></div>`;
+  const txt = (name, value, label) => `<div class="form-group"><label>${label}</label><div class="form-fields"><input type="text" name="${name}" value="${foundry.utils.escapeHTML(value)}"></div></div>`;
+  const content = [
+    num("season", stage.season, t("SeasonNo")),
+    num("arc", stage.arc, t("ArcNo")),
+    num("episode", stage.episode, t("EpisodeNo")),
+    txt("title", stage.title, t("EpisodeTitle")),
+    txt("scene", stage.scene, t("Scene")),
+    txt("time", stage.time, t("Time"))
+  ].join("");
+  const read = button => ({ ...new foundry.applications.ux.FormDataExtended(button.form).object });
+  const result = await DialogV2.input({
+    window: { title: t("Edit") },
+    classes: ["paradigm-engine", "pe-stage-dialog"],
+    content,
+    ok: { label: t("Save"), icon: "fa-solid fa-check" },
+    buttons: [{ action: "play", label: t("SaveAndPlay"), icon: "fa-solid fa-clapperboard", callback: (event, button) => ({ ...read(button), play: true }) }],
+    rejectClose: false
+  });
+  if (!result || typeof result !== "object") return;
+  const next = {
+    ...stage,
+    season: result.season,
+    arc: result.arc,
+    episode: result.episode,
+    title: result.title,
+    scene: result.scene,
+    time: result.time,
+    card: result.play ? Date.now() : stage.card
+  };
+  await writeStage(next);
 }
 
 export default class StageOverlay extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -263,41 +302,8 @@ export default class StageOverlay extends HandlebarsApplicationMixin(Application
     await writeStage(stage);
   }
 
-  static async #onEditEpisode() {
-    if (!game.user.isGM) return;
-    const stage = readStage();
-    const t = key => game.i18n.localize(`PARADIGMENGINE.Stage.${key}`);
-    const num = (name, value, label) => `<div class="form-group"><label>${label}</label><div class="form-fields"><input type="number" name="${name}" value="${value || ""}" min="0" step="1"></div></div>`;
-    const txt = (name, value, label) => `<div class="form-group"><label>${label}</label><div class="form-fields"><input type="text" name="${name}" value="${foundry.utils.escapeHTML(value)}"></div></div>`;
-    const content = [
-      num("season", stage.season, t("SeasonNo")),
-      num("arc", stage.arc, t("ArcNo")),
-      num("episode", stage.episode, t("EpisodeNo")),
-      txt("title", stage.title, t("EpisodeTitle")),
-      txt("scene", stage.scene, t("Scene")),
-      txt("time", stage.time, t("Time"))
-    ].join("");
-    const read = button => ({ ...new foundry.applications.ux.FormDataExtended(button.form).object });
-    const result = await DialogV2.input({
-      window: { title: t("Edit") },
-      classes: ["paradigm-engine", "pe-stage-dialog"],
-      content,
-      ok: { label: t("Save"), icon: "fa-solid fa-check" },
-      buttons: [{ action: "play", label: t("SaveAndPlay"), icon: "fa-solid fa-clapperboard", callback: (event, button) => ({ ...read(button), play: true }) }],
-      rejectClose: false
-    });
-    if (!result || typeof result !== "object") return;
-    const next = {
-      ...stage,
-      season: result.season,
-      arc: result.arc,
-      episode: result.episode,
-      title: result.title,
-      scene: result.scene,
-      time: result.time,
-      card: result.play ? Date.now() : stage.card
-    };
-    await writeStage(next);
+  static #onEditEpisode() {
+    return editEpisode();
   }
 
   static #onOpenActor(event, target) {

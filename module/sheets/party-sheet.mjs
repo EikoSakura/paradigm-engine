@@ -6,6 +6,7 @@ import { resolveRank, worldUuid } from "../skills.mjs";
 import { startGroup } from "../checks.mjs";
 import { ensurePartyFolder, joinParty, leaveParty, partyMembers } from "../party.mjs";
 import ClashWindow from "../apps/clash.mjs";
+import TitleScreen from "../apps/title-screen.mjs";
 import { clearChain } from "../chat.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -67,6 +68,7 @@ export default class PartySheet extends ParadigmEngineSheet(ActorSheetV2) {
       unlinkSkill: this.#onUnlinkSkill,
       openSkill: this.#onOpenSkill,
       openClash: this.#onOpenClash,
+      openTitle: this.#onOpenTitle,
       newScene: this.#onNewScene
     }
   };
@@ -468,6 +470,11 @@ export default class PartySheet extends ParadigmEngineSheet(ActorSheetV2) {
 
   static #onOpenClash() {
     ClashWindow.open();
+  }
+
+  /* The Title Screen, on this Party; the Storyteller's drawer opens with it. */
+  static #onOpenTitle() {
+    TitleScreen.open({ edit: game.user.isGM, party: this.document });
   }
 
   /* A new scene: every member's Bonds may be invoked again, and every
